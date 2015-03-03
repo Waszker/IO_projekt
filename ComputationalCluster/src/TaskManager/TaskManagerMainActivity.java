@@ -17,20 +17,18 @@ public class TaskManagerMainActivity
 {
 	public static void main(String[] args)
 	{
-		Map<String, Object> flagsMap = null;
 		try
 		{
-			flagsMap = GenericFlagInterpreter.interpretFlags(args);
+			Map<String, Object> flagsMap = GenericFlagInterpreter.interpretFlags(args);
+			if (flagsMap.get("isGui") != null)
+			{
+				TaskManagerWindow mainWindow = new TaskManagerWindow();
+				mainWindow.setVisible(true);
+			}
 		}
 		catch (UnknownHostException e)
 		{
 			e.printStackTrace();
-		}
-		
-		if (flagsMap.get("isGui") != null)
-		{
-			TaskManagerWindow mainWindow = new TaskManagerWindow();
-			mainWindow.setVisible(true);
 		}
 	}
 }
