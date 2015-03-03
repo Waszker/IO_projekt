@@ -73,7 +73,7 @@ public abstract class GenericWindowGui extends JFrame
 		return bar;
 	}
 
-	private JMenu createMenuWithItems(String menuTitle, String... itemNames)
+	protected JMenu createMenuWithItems(String menuTitle, String... itemNames)
 	{
 		JMenu menu = new JMenu(menuTitle);
 
@@ -87,14 +87,30 @@ public abstract class GenericWindowGui extends JFrame
 		return menu;
 	}
 
-	private JButton createButton(String buttonString) {
+	protected JButton createButton(String buttonString)
+	{
 		JButton button = new JButton(buttonString);
 		// TODO: Add action listener
-		
+
 		return button;
 	}
+	
+	protected JPanel createLabelAndButton(String labelString, String buttonString)
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout());
 
-	private JPanel createLabelAndTextField(String labelString,
+		Label label = new Label(labelString);
+		JButton button = createButton(buttonString);
+		// TODO: Add button action listener
+
+		panel.add(label);
+		panel.add(button);
+
+		return panel;
+	}
+
+	protected JPanel createLabelAndTextField(String labelString,
 			String textFieldString, boolean isTextFieldEditable)
 	{
 		JPanel panel = new JPanel();

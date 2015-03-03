@@ -1,9 +1,5 @@
 package ComputationalClient;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -11,11 +7,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import GenericCommonClasses.GenericWindowGui;
 
@@ -51,57 +43,6 @@ public class ComputationalClientWindow extends GenericWindowGui implements
 		this.add(createLabelAndTextField("Computation status", "unknown", false));
 
 		this.pack();
-	}
-
-	private JButton createButton(String buttonString)
-	{
-		JButton button = new JButton(buttonString);
-		// TODO: Add action listener
-		button.addActionListener(this);
-
-		return button;
-	}
-
-	private JPanel createLabelAndTextField(String labelString,
-			String textFieldString, boolean isTextFieldEditable)
-	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout());
-
-		Label label = new Label(labelString);
-		JTextField textField;
-
-		if (textFieldString == null)
-		{
-			textField = new JTextField();
-		} else
-		{
-			textField = new JTextField(textFieldString);
-		}
-		textField.setEditable(isTextFieldEditable);
-		textField.setHorizontalAlignment(JTextField.CENTER);
-		textField.setAlignmentY(CENTER_ALIGNMENT);
-		textField.setPreferredSize(new Dimension(100, 30));
-		// TODO: Set text aligment!!!
-
-		panel.add(label);
-		panel.add(textField);
-
-		return panel;
-	}
-
-	private JPanel createLabelAndButton(String labelString, String buttonString)
-	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout());
-
-		Label label = new Label(labelString);
-		JButton button = createButton(buttonString);
-
-		panel.add(label);
-		panel.add(button);
-
-		return panel;
 	}
 
 	@Override
