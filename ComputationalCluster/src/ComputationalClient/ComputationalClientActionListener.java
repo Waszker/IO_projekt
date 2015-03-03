@@ -28,6 +28,7 @@ public class ComputationalClientActionListener extends
 			case "Choose file":
 				reactToChooseFiletButtonPress();
 				break;
+
 			case "Send":
 				reactToSendButtonPress();
 				break;
