@@ -61,7 +61,6 @@ public abstract class GenericWindowGui extends JFrame
 		this.add(createButton("Connect"));
 		this.add(createLabelAndTextField("Connection status", "disconnected",
 				false));
-		this.pack();
 	}
 
 	private JMenuBar createJMenuBar()
