@@ -3,6 +3,7 @@ package GenericCommonClasses;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Label;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -31,6 +32,7 @@ public abstract class GenericWindowGui extends JFrame
 	/* VARIABLES */
 	/******************/
 	private static final long serialVersionUID = -8867459368772331697L;
+	private ActionListener actionListener;
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,9 +46,10 @@ public abstract class GenericWindowGui extends JFrame
 	 * @param title
 	 *            displayed on window
 	 */
-	public GenericWindowGui(String title)
+	public GenericWindowGui(String title, ActionListener actionListener)
 	{
 		super();
+		this.actionListener = actionListener;
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(640, 480);
 		this.setLocationRelativeTo(null); // sets window centered
@@ -73,36 +76,37 @@ public abstract class GenericWindowGui extends JFrame
 		return bar;
 	}
 
-	protected JMenu createMenuWithItems(String menuTitle, String... itemNames)
+	final protected JMenu createMenuWithItems(String menuTitle, String... itemNames)
 	{
 		JMenu menu = new JMenu(menuTitle);
 
 		for (String s : itemNames)
 		{
 			JMenuItem item = new JMenuItem(s);
-			// TODO: add item action listeners!!!
+			item.setActionCommand(menuTitle+s);
+			item.addActionListener(actionListener);
 			menu.add(item);
 		}
 
 		return menu;
 	}
 
-	protected JButton createButton(String buttonString)
+	final protected JButton createButton(String buttonString)
 	{
 		JButton button = new JButton(buttonString);
-		// TODO: Add action listener
+		button.setActionCommand(buttonString);
+		button.addActionListener(actionListener);
 
 		return button;
 	}
 	
-	protected JPanel createLabelAndButton(String labelString, String buttonString)
+	final protected JPanel createLabelAndButton(String labelString, String buttonString)
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout());
 
 		Label label = new Label(labelString);
 		JButton button = createButton(buttonString);
-		// TODO: Add button action listener
 
 		panel.add(label);
 		panel.add(button);
@@ -110,7 +114,7 @@ public abstract class GenericWindowGui extends JFrame
 		return panel;
 	}
 
-	protected JPanel createLabelAndTextField(String labelString,
+	final protected JPanel createLabelAndTextField(String labelString,
 			String textFieldString, boolean isTextFieldEditable)
 	{
 		JPanel panel = new JPanel();

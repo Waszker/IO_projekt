@@ -37,12 +37,13 @@ public class ComputationalClientWindow extends GenericWindowGui implements
 	/******************/
 	public ComputationalClientWindow()
 	{
-		super("Computational Client");
+		super("Computational Client", new ComputationalClientActionListener());
 		this.add(createLabelAndButton("Upload file", "Choose file"));
 		this.add(createButton("Send"));
 		this.add(createLabelAndTextField("Computation status", "unknown", false));
 
 		this.pack();
+		this.setLocationRelativeTo(null);
 	}
 
 	@Override
