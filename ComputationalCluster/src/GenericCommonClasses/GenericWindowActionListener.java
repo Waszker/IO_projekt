@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  * </p>
  * 
  * @author Piotr Waszkiewicz
- *
+ * 
  */
 public abstract class GenericWindowActionListener implements ActionListener
 {
@@ -40,10 +40,14 @@ public abstract class GenericWindowActionListener implements ActionListener
 			case GenericWindowGui.GENERIC_WINDOW_CONNECT_BUTTON:
 				reactToConnectButtonPress();
 				break;
+
+			case "FileExit":
+				System.exit(0); // TODO: Check if we have nothing to release!
+				break;
 		}
 
 	}
-	
+
 	private void reactToConnectButtonPress()
 	{
 		// TODO: Change that method!

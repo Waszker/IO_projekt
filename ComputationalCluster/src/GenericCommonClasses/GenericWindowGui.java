@@ -3,6 +3,10 @@ package GenericCommonClasses;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -11,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -92,7 +97,8 @@ public abstract class GenericWindowGui extends JFrame
 			{
 				text = field.getText(0, field.getLength());
 				System.out.println(text);
-			} catch (BadLocationException e)
+			}
+			catch (BadLocationException e)
 			{
 				e.printStackTrace();
 			}
@@ -142,8 +148,9 @@ public abstract class GenericWindowGui extends JFrame
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connection status"),
 				connectionStatusField = createTextField("unknown", false)));
-		
+
 		serverIpField.getDocument().addDocumentListener(ipChecker);
+		getMyIp();
 	}
 
 	/**
@@ -258,5 +265,28 @@ public abstract class GenericWindowGui extends JFrame
 		bar.add(createMenuWithItems("File", "Exit"));
 
 		return bar;
+	}
+
+	private void getMyIp()
+	{
+		// taken from:
+		// http://stackoverflow.com/questions/2939218/getting-the-external-ip-address-in-java
+		URL whatismyip;
+		try
+		{
+			whatismyip = new URL("http://checkip.amazonaws.com");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					whatismyip.openStream()));
+
+			String ip = in.readLine();
+			myIpField.setText(ip);
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(new JFrame(), "Cannot obtain IP!",
+					"ERROR", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+
 	}
 }
