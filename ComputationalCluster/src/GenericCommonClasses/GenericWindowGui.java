@@ -1,12 +1,13 @@
 package GenericCommonClasses;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Label;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -32,6 +33,7 @@ import javax.swing.text.PlainDocument;
  * 
  * 
  * @author Piotr Waszkiewicz
+ * @version 1.0
  * 
  */
 public abstract class GenericWindowGui extends JFrame
@@ -39,6 +41,9 @@ public abstract class GenericWindowGui extends JFrame
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final String GENERIC_WINDOW_CONNECT_BUTTON = "GENERIC_WINDOW_BUTTON_CONNECT";
+	protected JTextField myIpField, serverIpField, connectionStatusField;
+	protected JButton connectButton;
 	private static final long serialVersionUID = -8867459368772331697L;
 	private GenericWindowActionListener actionListener;
 	private IpChecker ipChecker;
@@ -48,7 +53,7 @@ public abstract class GenericWindowGui extends JFrame
 	 * address.
 	 * 
 	 * @author Piotr Waszkiewicz
-	 *
+	 * 
 	 */
 	private class IpChecker implements DocumentListener
 	{
@@ -57,21 +62,27 @@ public abstract class GenericWindowGui extends JFrame
 		public void changedUpdate(DocumentEvent e)
 		{
 			if (e.getDocument() instanceof PlainDocument)
+			{
 				reactToIpEntering((PlainDocument) e.getDocument());
+			}
 		}
 
 		@Override
 		public void insertUpdate(DocumentEvent e)
 		{
 			if (e.getDocument() instanceof PlainDocument)
+			{
 				reactToIpEntering((PlainDocument) e.getDocument());
+			}
 		}
 
 		@Override
 		public void removeUpdate(DocumentEvent e)
 		{
 			if (e.getDocument() instanceof PlainDocument)
+			{
 				reactToIpEntering((PlainDocument) e.getDocument());
+			}
 		}
 
 		private void reactToIpEntering(PlainDocument field)
@@ -112,17 +123,39 @@ public abstract class GenericWindowGui extends JFrame
 		this.setTitle(title);
 		this.setResizable(false);
 
-		this.setJMenuBar(createJMenuBar());
 		getContentPane().setLayout(
 				new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		this.add(createLabelAndTextField("My IP address", "unknown", false));
-		this.add(createLabelAndTextField("Server IP address", "unknown IP",
-				true));
-		this.add(createButton("Connect"));
-		this.add(createLabelAndTextField("Connection status", "disconnected",
-				false));
+
+		this.setJMenuBar(createJMenuBar());
+
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("My IP address"),
+				myIpField = createTextField("unknown", false)));
+
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Server IP address"),
+				serverIpField = createTextField("unknown IP", true)));
+
+		this.add(connectButton = createButton("Connect",
+				GENERIC_WINDOW_CONNECT_BUTTON));
+
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Connection status"),
+				connectionStatusField = createTextField("unknown", false)));
+		
+		serverIpField.getDocument().addDocumentListener(ipChecker);
 	}
 
+	/**
+	 * <p>
+	 * Creates menu with certain number of menu items. Every menu item has
+	 * registered default window action listener.
+	 * </p>
+	 * 
+	 * @param menuTitle
+	 * @param itemNames
+	 * @return
+	 */
 	final protected JMenu createMenuWithItems(String menuTitle,
 			String... itemNames)
 	{
@@ -139,37 +172,40 @@ public abstract class GenericWindowGui extends JFrame
 		return menu;
 	}
 
-	final protected JButton createButton(String buttonString)
+	/**
+	 * <p>
+	 * Creates button with certain text and action string property. It also gets
+	 * registered at local action listener specific to its window.
+	 * </p>
+	 * 
+	 * @param buttonString
+	 * @return
+	 */
+	final protected JButton createButton(String buttonString,
+			String actionCommandString)
 	{
 		JButton button = new JButton(buttonString);
-		button.setActionCommand(buttonString);
+		button.setActionCommand(actionCommandString);
 		button.addActionListener(actionListener);
 
 		return button;
 	}
 
-	final protected JPanel createLabelAndButton(String labelString,
-			String buttonString)
+	/**
+	 * <p>
+	 * Function creates text field with centered text with prefered dimension
+	 * set to 100x30.
+	 * </p>
+	 * 
+	 * @param textFieldString
+	 *            text shown on not edited text field
+	 * @param isTextFieldEditable
+	 *            indicates if user can edit text field
+	 * @return
+	 */
+	final protected JTextField createTextField(String textFieldString,
+			boolean isTextFieldEditable)
 	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout());
-
-		Label label = new Label(labelString);
-		JButton button = createButton(buttonString);
-
-		panel.add(label);
-		panel.add(button);
-
-		return panel;
-	}
-
-	final protected JPanel createLabelAndTextField(String labelString,
-			String textFieldString, boolean isTextFieldEditable)
-	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout());
-
-		Label label = new Label(labelString);
 		JTextField textField;
 
 		if (textFieldString == null)
@@ -183,12 +219,33 @@ public abstract class GenericWindowGui extends JFrame
 		textField.setHorizontalAlignment(JTextField.CENTER);
 		textField.setAlignmentY(CENTER_ALIGNMENT);
 		textField.setPreferredSize(new Dimension(100, 30));
-		
-		// TODO: change it somehow!
-		textField.getDocument().addDocumentListener(ipChecker);
 
-		panel.add(label);
-		panel.add(textField);
+		return textField;
+	}
+
+	/**
+	 * <p>
+	 * Function creates panel with two components next to each other, oriented
+	 * horizontally.
+	 * </p>
+	 * 
+	 * @param labelString
+	 *            string describing text field
+	 * @param textFieldString
+	 *            field initial text
+	 * @param isTextFieldEditable
+	 *            is text field editable by user or can be changed
+	 *            programatically only
+	 * @return
+	 */
+	final protected JPanel createTwoHorizontalComponentsPanel(
+			Component component1, Component component2)
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout());
+
+		panel.add(component1);
+		panel.add(component2);
 
 		return panel;
 	}

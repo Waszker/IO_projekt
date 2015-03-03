@@ -37,7 +37,7 @@ public abstract class GenericWindowActionListener implements ActionListener
 	{
 		switch (e.getActionCommand())
 		{
-			case "Connect":
+			case GenericWindowGui.GENERIC_WINDOW_CONNECT_BUTTON:
 				reactToConnectButtonPress();
 				break;
 		}

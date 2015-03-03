@@ -25,11 +25,11 @@ public class ComputationalClientActionListener extends
 		super.actionPerformed(e);
 		switch (e.getActionCommand())
 		{
-			case "Choose file":
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON:
 				reactToChooseFiletButtonPress();
 				break;
 
-			case "Send":
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_SEND_BUTTON:
 				reactToSendButtonPress();
 				break;
 		}
