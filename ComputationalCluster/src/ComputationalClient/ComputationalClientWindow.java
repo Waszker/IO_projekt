@@ -24,8 +24,7 @@ import GenericCommonClasses.GenericWindowGui;
  * 
  */
 
-public class ComputationalClientWindow extends GenericWindowGui implements
-		ActionListener
+public class ComputationalClientWindow extends GenericWindowGui
 {
 	/******************/
 	/* VARIABLES */
@@ -45,27 +44,4 @@ public class ComputationalClientWindow extends GenericWindowGui implements
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent actionEvent)
-	{
-		// TODO Auto-generated method stub
-		JButton button = (JButton) actionEvent.getSource();
-		if (button.getText().equals("Send"))
-		{
-			JOptionPane.showMessageDialog(new JFrame(), "SENT", "Dialog",
-			        JOptionPane.INFORMATION_MESSAGE);
-		}
-		if (button.getText().equals("Choose file"))
-		{
-			final JFileChooser fc = new JFileChooser();
-			int returnVal = fc.showOpenDialog(this);
-			if (returnVal == JFileChooser.APPROVE_OPTION)
-			{
-				File file = fc.getSelectedFile();
-				button.setText(file.getName());
-			}
-		}
-	}
-
 }
