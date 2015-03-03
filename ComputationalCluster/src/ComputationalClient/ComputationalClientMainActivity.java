@@ -1,6 +1,6 @@
 package ComputationalClient;
 
-public class ComputationClientMainActivity
+public class ComputationalClientMainActivity
 {
 
 	public static void main(String[] args)
