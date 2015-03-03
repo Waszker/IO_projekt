@@ -1,10 +1,11 @@
 package GenericCommonClasses;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Label;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -22,7 +23,7 @@ import javax.swing.JTextField;
  * 
  * 
  * @author Piotr Waszkiewicz
- *
+ * 
  */
 public abstract class GenericWindowGui extends JFrame
 {
@@ -56,6 +57,11 @@ public abstract class GenericWindowGui extends JFrame
 		getContentPane().setLayout(
 				new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.add(createLabelAndTextField("My IP address", "unknown", false));
+		this.add(createLabelAndTextField("Server IP address", "unknown", true));
+		this.add(createButton("Connect"));
+		this.add(createLabelAndTextField("Connection status", "disconnected",
+				false));
+		this.pack();
 	}
 
 	private JMenuBar createJMenuBar()
@@ -82,15 +88,22 @@ public abstract class GenericWindowGui extends JFrame
 		return menu;
 	}
 
+	private JButton createButton(String buttonString) {
+		JButton button = new JButton(buttonString);
+		// TODO: Add action listener
+		
+		return button;
+	}
+
 	private JPanel createLabelAndTextField(String labelString,
 			String textFieldString, boolean isTextFieldEditable)
 	{
 		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.setLayout(new GridLayout());
 
 		Label label = new Label(labelString);
 		JTextField textField;
-		
+
 		if (textFieldString == null)
 		{
 			textField = new JTextField();
@@ -99,11 +112,15 @@ public abstract class GenericWindowGui extends JFrame
 			textField = new JTextField(textFieldString);
 		}
 		textField.setEditable(isTextFieldEditable);
-		
+		textField.setHorizontalAlignment(JTextField.CENTER);
+		textField.setAlignmentY(CENTER_ALIGNMENT);
+		textField.setPreferredSize(new Dimension(100, 30));
+		// TODO: Set text aligment!!!
+		// TODO: Set text check (for IP)!
+
 		panel.add(label);
-		panel.add(Box.createRigidArea(new Dimension(30, 5)));
 		panel.add(textField);
-		
+
 		return panel;
 	}
 }
