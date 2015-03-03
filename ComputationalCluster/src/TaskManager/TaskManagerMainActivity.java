@@ -7,7 +7,6 @@ import GenericCommonClasses.GenericFlagInterpreter;
 
 /**
  * @author Filip Turkot
- * @version 1.0
  * 
  * <p>
  * Main class of Task Manager.
@@ -19,10 +18,10 @@ public class TaskManagerMainActivity
 	{
 		try
 		{
+			TaskManagerWindow mainWindow = new TaskManagerWindow();
 			Map<String, Object> flagsMap = GenericFlagInterpreter.interpretFlags(args);
 			if (flagsMap.get("isGui") != null)
 			{
-				TaskManagerWindow mainWindow = new TaskManagerWindow();
 				mainWindow.setVisible(true);
 			}
 		}
