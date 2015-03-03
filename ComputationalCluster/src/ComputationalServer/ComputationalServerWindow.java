@@ -24,21 +24,24 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	}
 
 	private static final long serialVersionUID = 1716266392047737745L;
+	private boolean isBackup;
 	private JTextField workModeField;
 	private JTextArea connectedModules, activeProblems;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-	public ComputationalServerWindow()
+	public ComputationalServerWindow(boolean isBackup)
 	{
 		super("Computational Server", new ComputationalServerActionListener());
 
+		this.isBackup = isBackup;
 		hideUnusedFields();
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Work mode"),
 				workModeField = createTextField(
-						ServerWorkMode.PRIMARY.modeString, false)));
+						(isBackup ? ServerWorkMode.BACKUP.modeString
+								: ServerWorkMode.PRIMARY.modeString), false)));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));
@@ -48,7 +51,8 @@ public final class ComputationalServerWindow extends GenericWindowGui
 						"Currently no connected modules..."),
 				activeProblems = new JTextArea(
 						"Currently no active problems to solve...")));
-		
+		// TODO: connectedModules and activeProblems should fit within window
+
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
