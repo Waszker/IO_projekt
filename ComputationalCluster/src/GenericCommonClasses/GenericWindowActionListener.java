@@ -1,10 +1,14 @@
 package GenericCommonClasses;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import ComputationalServer.ComputationalServerWindow;
 
 /**
  * <p>
@@ -38,20 +42,30 @@ public abstract class GenericWindowActionListener implements ActionListener
 		switch (e.getActionCommand())
 		{
 			case GenericWindowGui.GENERIC_WINDOW_CONNECT_BUTTON:
-				reactToConnectButtonPress();
+				reactToConnectButtonPress((JButton)e.getSource());
 				break;
 
 			case "FileExit":
-				System.exit(0); // TODO: Check if we have nothing to release!
+				System.exit(0);
 				break;
 		}
 
 	}
 
-	private void reactToConnectButtonPress()
+	private void reactToConnectButtonPress(JButton button)
 	{
-		// TODO: Change that method!
-		JOptionPane.showMessageDialog(new JFrame(), "CONNECTED", "Dialog",
-				JOptionPane.INFORMATION_MESSAGE);
+		// TODO: This method is... just AWFUL!
+		button.setEnabled(false);
+
+		Component parent = button.getParent();
+		while (true)
+		{
+			if (parent instanceof GenericWindowGui)
+			{
+				((GenericWindowGui) parent).connectToServer();
+				break;
+			}
+			parent = parent.getParent();
+		}
 	}
 }

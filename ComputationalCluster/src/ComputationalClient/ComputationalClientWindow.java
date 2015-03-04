@@ -48,7 +48,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Computation status"),
 				computationStatusField = createTextField("unknown", false)));
-
+		
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}

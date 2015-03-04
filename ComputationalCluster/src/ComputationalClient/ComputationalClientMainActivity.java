@@ -3,7 +3,6 @@ package ComputationalClient;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-import ComputationalServer.ComputationalServerWindow;
 import GenericCommonClasses.GenericFlagInterpreter;
 
 public class ComputationalClientMainActivity

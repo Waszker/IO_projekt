@@ -25,6 +25,8 @@ public class ComputationalServerActionListener extends
 			// TODO: This case is... just AWFUL!
 			case ComputationalServerWindow.START_SERVER_BUTTON:
 				JButton startButton = (JButton) e.getSource();
+				startButton.setEnabled(false);
+				
 				Component parent = startButton.getParent();
 				while (true)
 				{
