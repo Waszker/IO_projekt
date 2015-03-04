@@ -43,6 +43,7 @@ public class ComputationalServerCore
 		ServerSocket socket = new ServerSocket(port);
 		connectionSocket = socket.accept();
 		System.out.println("Connection estabilished!");
+		connectionSocket.close();
 		socket.close(); // TODO: This should probably not be here!		
 	}
 	
