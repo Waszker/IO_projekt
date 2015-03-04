@@ -15,7 +15,8 @@ public class ComputationalServerMainActivity
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
 
 			ComputationalServerWindow window = new ComputationalServerWindow(
-					flagsMap.get("isBackup") == null);
+					flagsMap.get("isBackup") != null, (Integer)flagsMap.get("port"),
+					(Integer) flagsMap.get("timeout"));
 
 			if (flagsMap.get("isGui") != null)
 			{
@@ -23,9 +24,11 @@ public class ComputationalServerMainActivity
 			}
 
 		}
-		catch (UnknownHostException e)
+		catch (UnknownHostException | NumberFormatException e)
 		{
 			e.printStackTrace();
+			System.err
+					.println("Incorrectly formatted flags.\nProgram exiting.");
 		}
 	}
 }
