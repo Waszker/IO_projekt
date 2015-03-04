@@ -1,14 +1,11 @@
 package ComputationalServer;
 
-import java.awt.Dimension;
 import java.io.IOException;
-import java.text.NumberFormat;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.text.NumberFormatter;
 
 import GenericCommonClasses.GenericWindowGui;
 
@@ -25,7 +22,7 @@ import GenericCommonClasses.GenericWindowGui;
  * 
  * @author Piotr Waszkiewicz
  * @version 1.0
- *
+ * 
  */
 public final class ComputationalServerWindow extends GenericWindowGui
 {
@@ -111,6 +108,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 			@Override
 			public void run()
 			{
+				System.out
+						.println("Computational server starts listening\non port: "
+								+ port
+								+ "\nwith timeout: "
+								+ timeout
+								+ " seconds.");
+				
 				ComputationalServerCore core = new ComputationalServerCore();
 				try
 				{
@@ -130,6 +134,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	private void hideUnusedFields()
 	{
 		this.serverIpField.getParent().setVisible(false);
+		this.serverPort.getParent().setVisible(false);
 		this.connectionStatusField.getParent().setVisible(false);
 		this.connectButton.setVisible(false);
 	}
@@ -153,27 +158,8 @@ public final class ComputationalServerWindow extends GenericWindowGui
 								: ServerWorkMode.PRIMARY.modeString), false)));
 
 		this.add(createButton("Start Server", START_SERVER_BUTTON));
-		
+
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));
-	}
-
-	private JFormattedTextField createIntegerFormattedTextField(
-			String textFieldString, boolean isTextFieldEditable)
-	{
-		NumberFormat format = NumberFormat.getInstance();
-		NumberFormatter formatter = new NumberFormatter(format);
-		formatter.setValueClass(Integer.class);
-		formatter.setMinimum(0);
-		formatter.setMaximum(Integer.MAX_VALUE);
-
-		JFormattedTextField textField = new JFormattedTextField(formatter);
-		textField.setText(textFieldString);
-		textField.setEditable(isTextFieldEditable);
-		textField.setHorizontalAlignment(JTextField.CENTER);
-		textField.setAlignmentY(CENTER_ALIGNMENT);
-		textField.setPreferredSize(new Dimension(100, 30));
-
-		return textField;
 	}
 }
