@@ -1,7 +1,5 @@
 package ComputationalServer;
 
-import java.io.IOException;
-
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -41,13 +39,10 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		}
 	}
 
-	public static int DEFAULT_PORT = 47777;
-	public static int DEFAULT_TIMEOUT = 30;
 	public static final String START_SERVER_BUTTON = "START_SERVER_BUTTON";
 
 	private static final long serialVersionUID = 1716266392047737745L;
-	private boolean isBackup;
-	private int port, timeout;
+	private ComputationalServer server;
 	private JTextField workModeField;
 	private JFormattedTextField portField, timeoutField;
 	private JTextArea connectedModules, activeProblems;
@@ -57,28 +52,17 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	/******************/
 	/**
 	 * <p>
-	 * ComputationalServerWindow starts as invisible window that works in the
-	 * background.
+	 * ComputationalServerWindow is gui window taht makes it easier for user to
+	 * change default server runtime parameters.
 	 * </p>
 	 * 
-	 * @param isBackup
-	 *            is server working in backup or primary mode (default is
-	 *            primary)
-	 * @param port
-	 *            on which server should listen to connection (default is
-	 *            '47777')
-	 * @param timeout
-	 *            in seconds after which server will mark connected module as
-	 *            inactive and disconnected (default is '30 seconds')
+	 * @param serverInstance
+	 *            required to provide normal operation flow
 	 */
-	public ComputationalServerWindow(boolean isBackup, Integer port,
-			Integer timeout)
+	public ComputationalServerWindow(ComputationalServer serverInstance)
 	{
 		super("Computational Server", new ComputationalServerActionListener());
-
-		this.isBackup = isBackup;
-		this.port = (null == port ? DEFAULT_PORT : port);
-		this.timeout = (null == timeout ? DEFAULT_TIMEOUT : timeout);
+		server = serverInstance;
 
 		hideUnusedFields();
 		addRequiredFields();
@@ -96,39 +80,17 @@ public final class ComputationalServerWindow extends GenericWindowGui
 
 	/**
 	 * <p>
-	 * Starts listening for messages. This function should not be called outside
-	 * button click behavior if '-gui' flag was specified!
+	 * Starts listening for messages on port and with timeout specified by user
+	 * in window. This function should not be called outside button click
+	 * behavior if '-gui' flag was specified!
 	 * </p>
 	 */
 	public void startWork()
 	{
-		new Thread(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				System.out
-						.println("Computational server starts listening\non port: "
-								+ port
-								+ "\nwith timeout: "
-								+ timeout
-								+ " seconds.");
-				
-				ComputationalServerCore core = new ComputationalServerCore();
-				try
-				{
-					portField.setEditable(false);
-					timeoutField.setEditable(false);
-					core.startListening(port);
-				}
-				catch (IOException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		setServerParametersFromFields();
+		server.startWork();
+		portField.setEditable(false);
+		timeoutField.setEditable(false);
 	}
 
 	private void hideUnusedFields()
@@ -144,22 +106,61 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Listening on port"),
 				portField = createIntegerFormattedTextField(
-						Integer.toString(this.port), true)));
+						Integer.toString(server.getPort()), true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Timeout value"),
 				timeoutField = createIntegerFormattedTextField(
-						Integer.toString(this.timeout), true)));
+						Integer.toString(server.getTimeout()), true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Work mode"),
 				workModeField = createTextField(
-						(isBackup ? ServerWorkMode.BACKUP.modeString
+						(server.isBackup() ? ServerWorkMode.BACKUP.modeString
 								: ServerWorkMode.PRIMARY.modeString), false)));
 
 		this.add(createButton("Start Server", START_SERVER_BUTTON));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));
+	}
+
+	private void setServerParametersFromFields()
+	{
+		Integer port, timeout;
+		if ((port = getIntegerValueFromField(portField)) == null)
+		{
+			portField.setText(Integer.toString(server.getPort()));
+		}
+		else
+		{
+			server.setPort(port);
+		}
+
+		if ((timeout = getIntegerValueFromField(timeoutField)) == null)
+		{
+			portField.setText(Integer.toString(server.getTimeout()));
+		}
+		else
+		{
+			server.setTimeout(timeout);
+		}
+
+	}
+
+	private Integer getIntegerValueFromField(JFormattedTextField field)
+	{
+		Integer value;
+
+		try
+		{
+			value = Integer.parseInt(field.getText().replaceAll(",", ""));
+		}
+		catch (NumberFormatException e)
+		{
+			value = null;
+		}
+
+		return value;
 	}
 }

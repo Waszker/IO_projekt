@@ -28,6 +28,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.NumberFormatter;
 import javax.swing.text.PlainDocument;
 
+import ComputationalServer.ComputationalServer;
 import ComputationalServer.ComputationalServerWindow;
 
 /**
@@ -377,7 +378,7 @@ public abstract class GenericWindowGui extends JFrame
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Server port"),
 				serverPort = createIntegerFormattedTextField(Integer
-						.toString(ComputationalServerWindow.DEFAULT_PORT), true)));
+						.toString(ComputationalServer.DEFAULT_PORT), true)));
 
 		this.add(connectButton = createButton("Connect",
 				GENERIC_WINDOW_CONNECT_BUTTON));

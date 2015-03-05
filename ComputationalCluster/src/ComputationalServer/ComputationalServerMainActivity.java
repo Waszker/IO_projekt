@@ -13,19 +13,20 @@ public class ComputationalServerMainActivity
 		try
 		{
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
-
-			ComputationalServerWindow window = new ComputationalServerWindow(
+			ComputationalServer server = new ComputationalServer(
 					flagsMap.get("isBackup") != null,
 					(Integer) flagsMap.get("port"),
 					(Integer) flagsMap.get("timeout"));
 
 			if (flagsMap.get("isGui") != null)
 			{
+				ComputationalServerWindow window = new ComputationalServerWindow(
+						server);
 				window.setVisible(true);
 			}
 			else
 			{
-				window.startWork();
+				server.startWork();
 			}
 		}
 		catch (UnknownHostException | NumberFormatException e)
