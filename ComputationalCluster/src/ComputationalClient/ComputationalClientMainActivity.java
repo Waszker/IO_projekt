@@ -1,9 +1,9 @@
 package ComputationalClient;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-import ComputationalServer.ComputationalServerWindow;
 import GenericCommonClasses.GenericFlagInterpreter;
 
 public class ComputationalClientMainActivity
@@ -16,11 +16,16 @@ public class ComputationalClientMainActivity
 		{
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
 
-			ComputationalClientWindow window = new ComputationalClientWindow();
+			ComputationalClientWindow window = new ComputationalClientWindow(
+					(InetAddress) flagsMap.get("address"),
+					(Integer) flagsMap.get("port"));
 
 			if (flagsMap.get("isGui") != null)
 			{
 				window.setVisible(true);
+			} else
+			{
+				window.startWork();
 			}
 
 		} catch (UnknownHostException e)
