@@ -58,7 +58,7 @@ public abstract class GenericWindowGui extends JFrame
 	protected JTextField myIpField, serverIpField, connectionStatusField;
 	protected JFormattedTextField serverPort;
 	protected JButton connectButton;
-	protected GenericConnector connector;
+	protected GenericComponent component;
 	private static final long serialVersionUID = -8867459368772331697L;
 	private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 			+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -176,9 +176,10 @@ public abstract class GenericWindowGui extends JFrame
 			@Override
 			public void run()
 			{
-				if (connector != null)
+				if (component.getConnector() != null)
 				{
-					connector.connectToServer(serverIpField.getText(),
+					component.getConnector().connectToServer(
+							serverIpField.getText(),
 							Integer.parseInt(serverPort.getText()));
 				}
 				else
@@ -377,8 +378,9 @@ public abstract class GenericWindowGui extends JFrame
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Server port"),
-				serverPort = createIntegerFormattedTextField(Integer
-						.toString(ComputationalServer.DEFAULT_PORT), true)));
+				serverPort = createIntegerFormattedTextField(
+						Integer.toString(ComputationalServer.DEFAULT_PORT),
+						true)));
 
 		this.add(connectButton = createButton("Connect",
 				GENERIC_WINDOW_CONNECT_BUTTON));
