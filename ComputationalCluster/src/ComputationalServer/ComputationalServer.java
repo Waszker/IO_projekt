@@ -2,6 +2,9 @@ package ComputationalServer;
 
 import java.io.IOException;
 
+import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericConnector;
+
 /**
  * <p>
  * ComputationalServer class is responsible for wrapping all server
@@ -13,7 +16,7 @@ import java.io.IOException;
  * @version 1.0
  * 
  */
-public class ComputationalServer
+public class ComputationalServer extends GenericComponent
 {
 	/******************/
 	/* VARIABLES */
@@ -23,6 +26,10 @@ public class ComputationalServer
 
 	private boolean isBackup;
 	private int port, timeout;
+
+	@SuppressWarnings("unused")
+	// server will never connect to itself
+	private final GenericConnector connector = null;
 
 	/******************/
 	/* FUNCTIONS */
