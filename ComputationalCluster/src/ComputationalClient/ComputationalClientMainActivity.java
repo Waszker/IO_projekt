@@ -19,7 +19,8 @@ public class ComputationalClientMainActivity
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
 			ComputationalClient client = new ComputationalClient(
 					(String) flagsMap.get("address"),
-					(Integer) flagsMap.get("port"));
+					(Integer) flagsMap.get("port"),
+					(boolean) flagsMap.get("isGui"));
 
 			if (flagsMap.get("isGui") != null)
 			{

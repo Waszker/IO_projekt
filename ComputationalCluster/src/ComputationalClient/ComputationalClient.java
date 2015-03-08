@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import ComputationalServer.ComputationalServerCore;
+import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericConnector;
 
-public class ComputationalClient
+public class ComputationalClient extends GenericComponent
 {
 	/******************/
 	/* VARIABLES */
@@ -15,13 +16,14 @@ public class ComputationalClient
 
 	private int port;
 	private String address;
+	private boolean isGuiEnabled;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	/**
 	 * <p>
-	 *
+	 * 
 	 * </p>
 	 * 
 	 * @param address
@@ -29,20 +31,21 @@ public class ComputationalClient
 	 * @param port
 	 *            on which server should listen to connection (default is
 	 *            '47777')
+	 * @param isGuiEnabled
+	 *            determines if gui window will be displayed
 	 */
-	public ComputationalClient(String address, Integer port)
+	public ComputationalClient(String address, Integer port,
+			boolean isGuiEnabled)
 	{
 		this.address = address;
 		this.port = (null == port ? DEFAULT_PORT : port);
-		
+		this.isGuiEnabled = isGuiEnabled;
 	}
-
 
 	public void startWork()
 	{
-
+		this.connectToServer(address, port, isGuiEnabled);
 	}
-
 
 	public int getPort()
 	{
@@ -62,6 +65,16 @@ public class ComputationalClient
 	public void setAddress(String address)
 	{
 		this.address = address;
+	}
+
+	public boolean isGuiEnabled()
+	{
+		return isGuiEnabled;
+	}
+
+	public void setGuiEnabled(boolean isGuiEnabled)
+	{
+		this.isGuiEnabled = isGuiEnabled;
 	}
 
 }
