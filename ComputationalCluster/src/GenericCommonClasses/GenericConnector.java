@@ -44,8 +44,9 @@ public abstract class GenericConnector
 	 * @param ip
 	 *            address
 	 * @param port
+	 * @param isGuiEnabled
 	 */
-	public void connectToServer(String ipAddress, int port)
+	public void connectToServer(String ipAddress, int port, boolean isGuiEnabled)
 	{
 		// TODO: This method looks awful!!!!
 
@@ -76,15 +77,12 @@ public abstract class GenericConnector
 				message.append(line);
 			}
 
-			JOptionPane.showMessageDialog(new JFrame(), message.toString(),
-					"Success", JOptionPane.INFORMATION_MESSAGE);
+			showInformation(message.toString(), isGuiEnabled);
 
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(new JFrame(), e.getMessage(),
-					"Error", JOptionPane.ERROR_MESSAGE);
-
+			showError(e.getMessage(), isGuiEnabled);
 		}
 		finally
 		{
@@ -97,6 +95,32 @@ public abstract class GenericConnector
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	private void showInformation(String message, boolean isGui)
+	{
+		if (isGui)
+		{
+			JOptionPane.showMessageDialog(new JFrame(), message,
+					"Information", JOptionPane.INFORMATION_MESSAGE);
+		}
+		else
+		{
+			System.out.println(message);
+		}
+	}
+
+	private void showError(String message, boolean isGui)
+	{
+		if (isGui)
+		{
+			JOptionPane.showMessageDialog(new JFrame(), message,
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+			System.err.println(message);
 		}
 	}
 }

@@ -29,7 +29,6 @@ import javax.swing.text.NumberFormatter;
 import javax.swing.text.PlainDocument;
 
 import ComputationalServer.ComputationalServer;
-import ComputationalServer.ComputationalServerWindow;
 
 /**
  * Last modification: 03/03/2015
@@ -176,20 +175,8 @@ public abstract class GenericWindowGui extends JFrame
 			@Override
 			public void run()
 			{
-				if (component.getConnector() != null)
-				{
-					component.getConnector().connectToServer(
-							serverIpField.getText(),
-							Integer.parseInt(serverPort.getText()));
-				}
-				else
-				{
-					JOptionPane
-							.showMessageDialog(
-									new JFrame(),
-									"No connector specified\nAttach connector variable in your class!",
-									"Error", JOptionPane.ERROR_MESSAGE);
-				}
+				component.connectToServer(serverIpField.getText(),
+						Integer.parseInt(serverPort.getText()), true);
 				connectButton.setEnabled(true);
 			}
 		}).start();
