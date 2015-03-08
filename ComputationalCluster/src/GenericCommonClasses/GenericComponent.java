@@ -1,5 +1,8 @@
 package GenericCommonClasses;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 /**
  * <p>
  * GenericComponent class is a base class for every ComputationalClient,
@@ -21,17 +24,37 @@ public abstract class GenericComponent
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-
 	/**
 	 * <p>
-	 * Get connector instance that will be used in connecting to server.
+	 * Connects to server at given ip and port.
 	 * </p>
 	 * 
-	 * @return instance of connector
+	 * @param serverIp
+	 * @param port
+	 * @param isGuiEnabled
 	 */
-	public GenericConnector getConnector()
+	public void connectToServer(final String serverIp, final Integer port,
+			boolean isGuiEnabled)
 	{
-		return connector;
+		if (connector != null)
+		{
+			connector.connectToServer(serverIp, port, isGuiEnabled);
+		}
+		else
+		{
+			if (isGuiEnabled)
+			{
+				JOptionPane
+						.showMessageDialog(
+								new JFrame(),
+								"No connector specified\nAttach connector variable in your class!",
+								"Error", JOptionPane.ERROR_MESSAGE);
+			}
+			else
+			{
+				System.err
+						.println("No connector specified\nAttach connector variable in your class!");
+			}
+		}
 	}
-
 }

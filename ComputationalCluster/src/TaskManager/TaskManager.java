@@ -43,7 +43,7 @@ public final class TaskManager extends GenericComponent
 	 */
 	public boolean connectToServer(final String serverIp, final Integer port)
 	{
-		connector.connectToServer(serverIp, port);
+//		connector.connectToServer(serverIp, port);
 		return false;
 	}
 }
