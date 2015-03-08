@@ -27,6 +27,7 @@ public abstract class GenericConnector
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final String EOF = "--EOF--";
 	protected String serverIpAddress;
 	protected int serverPort;
 
@@ -62,10 +63,16 @@ public abstract class GenericConnector
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					socket.getInputStream()));
 
+			// TODO: Refactor this thing!
+			out.write("Message\n" + EOF + "\n");
+			out.flush();
+
 			String line;
 			StringBuilder message = new StringBuilder();
 			while ((line = in.readLine()) != null)
 			{
+				if (line.contentEquals("--EOF--"))
+					break;
 				message.append(line);
 			}
 
