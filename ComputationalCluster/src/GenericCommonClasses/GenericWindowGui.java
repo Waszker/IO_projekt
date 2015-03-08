@@ -331,6 +331,33 @@ public abstract class GenericWindowGui extends JFrame
 		return panel;
 	}
 
+	/**
+	 * <p>
+	 * Function formats text from JFormattedFields to integer value. This
+	 * prevents some functions from failing if the value would be badly
+	 * formatted.
+	 * </p>
+	 * 
+	 * @param field
+	 *            from which integer should be read
+	 * @return integer value of field
+	 */
+	protected Integer getIntegerValueFromField(JFormattedTextField field)
+	{
+		Integer value;
+
+		try
+		{
+			value = Integer.parseInt(field.getText().replaceAll(",", ""));
+		}
+		catch (NumberFormatException e)
+		{
+			value = null;
+		}
+
+		return value;
+	}
+
 	private JMenuBar createJMenuBar()
 	{
 		JMenuBar bar = new JMenuBar();
