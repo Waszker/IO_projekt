@@ -9,8 +9,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 
-import GenericCommonClasses.GenericMessage;
+import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericConnector;
 
 /**
  * <p>
@@ -32,7 +34,8 @@ public class ComputationalServerCore
 	private final static int MAX_MESSAGES = 150;
 	private int port;
 	private Socket clientSocket;
-	private BlockingQueue<GenericMessage> messageQueue;
+	private Semaphore queueSemaphore;
+	private BlockingQueue<ClientMessage> messageQueue;
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,6 +47,7 @@ public class ComputationalServerCore
 	 */
 	public ComputationalServerCore()
 	{
+		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 	}
 
@@ -60,13 +64,14 @@ public class ComputationalServerCore
 	{
 		this.port = port;
 
-		final ServerSocket socket = new ServerSocket(port);
-		startMessageProcessingModule(socket);
+		final ServerSocket socket = new ServerSocket(this.port);
+		startMessageRetrievalModule(socket);
 		addCloseSocketHook(socket);
-		startMessageProcessingModule(socket);
+		startMessageRetrievalModule(socket);
+		startMessageProcessingModule();
 	}
 
-	private void startMessageProcessingModule(final ServerSocket ssocket)
+	private void startMessageRetrievalModule(final ServerSocket ssocket)
 	{
 		// look at:
 		// http://docs.oracle.com/javase/tutorial/networking/sockets/clientServer.html
@@ -81,11 +86,10 @@ public class ComputationalServerCore
 					try
 					{
 						clientSocket = ssocket.accept();
-						// TODO: do we want to save current clientSocket in
-						// order to send response?
-						
-						reactToClientConnected();
-						clientSocket.close();
+						retrieveClientMessage(clientSocket);
+
+						// reactToClientConnected();
+						// clientSocket.close();
 					}
 					catch (IOException e)
 					{
@@ -97,26 +101,94 @@ public class ComputationalServerCore
 		}).start();
 	}
 
-	private void reactToClientConnected() throws IOException
+	private void startMessageProcessingModule()
 	{
-		// look at:
+		new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					// semaphore will not be acquired if queue is empty
+					try
+					{
+						queueSemaphore.acquire();
+						ClientMessage message = messageQueue.remove();
+						processMessage(message);
+					}
+					catch (InterruptedException e)
+					{
+					}
+				}
+			}
+		}).start();
+	}
+
+	private void retrieveClientMessage(final Socket clientSocket)
+	{
+		// Start procedure in new thread to not block other connections
+		new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				try
+				{
+					String line;
+					StringBuilder messageBuilder = new StringBuilder();
+					BufferedReader in = new BufferedReader(
+							new InputStreamReader(clientSocket.getInputStream()));
+
+					while (null != (line = in.readLine()))
+					{
+						if (line.contentEquals(GenericConnector.EOF))
+							break;
+
+						messageBuilder.append(line);
+					}
+
+					messageQueue.add(new ClientMessage(messageBuilder
+							.toString(), clientSocket));
+					queueSemaphore.release();
+				}
+				catch (IOException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// do not close in stream here
+				// it should be done in message parsing routine!
+
+			}
+		}).start();
+	}
+
+	private void processMessage(ClientMessage message)
+	{
+		// Look at:
 		// http://www.codeproject.com/Articles/11602/Java-and-Net-interop-using-Sockets
-
-		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-				clientSocket.getOutputStream()));
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				clientSocket.getInputStream()));
-
-		System.out.println("Client [" + clientSocket.getInetAddress()
-				+ "] connected\n");
-
-		out.write("Hello from the server!\n");
-		out.flush();
-		//  TODO: finish this method 
-//		String line;
-//		while ((line = in.readLine()) != null)
-//			System.out.println(line);
+		// TODO: Add process routine (XML Schema, etc.)
+		try
+		{
+			Socket socket = message.getClientSocket();
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+					socket.getOutputStream()));
+			System.out.println("Client [" + socket.getInetAddress()
+					+ "] connected\n");
+			
+			out.write("Hello from the server!\n" + GenericConnector.EOF + "\n");
+			out.flush();
+			
+			socket.close();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void addCloseSocketHook(final ServerSocket ssocket)
@@ -135,6 +207,10 @@ public class ComputationalServerCore
 					// If you have any objections write:
 					// waszkiewiczp@student.mini.pw.edu.pl
 					ssocket.close();
+
+					for (ClientMessage m : messageQueue)
+						m.getClientSocket().close();
+
 					clientSocket.close();
 				}
 				catch (IOException | NullPointerException e)

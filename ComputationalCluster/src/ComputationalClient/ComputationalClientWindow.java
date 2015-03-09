@@ -3,9 +3,12 @@ package ComputationalClient;
 import java.net.InetAddress;
 
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import ComputationalServer.ComputationalServer;
+import GenericCommonClasses.GenericConnector;
 import GenericCommonClasses.GenericWindowGui;
 
 /**
@@ -32,8 +35,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	private static final long serialVersionUID = -1254898218440155506L;
 	private JTextField computationStatusField;
 	private JButton sendButton;
-	private int port;
-	private InetAddress address;
+	private ComputationalClient client;
 
 	/******************/
 	/* FUNCTIONS */
@@ -45,20 +47,14 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	 * background.
 	 * </p>
 	 * 
-	 * @param address
-	 *            IP address of ComputationalServer which CLient wants to
-	 *            connect with
-	 * @param port
-	 *            port which will be used during connection with
-	 *            ComputationalServer (default is '47777')
+	 * @param clientInstance
+	 *            required to provide normal operation flow
 	 */
 
-	public ComputationalClientWindow(InetAddress address, Integer port)
+	public ComputationalClientWindow(ComputationalClient clientInstance)
 	{
 		super("Computational Client", new ComputationalClientActionListener());
-		
-		this.port = (null == port ? DEFAULT_PORT : port);
-		this.address = address;
+		client = clientInstance;
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),
@@ -78,6 +74,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 
 	public void startWork()
 	{
-
 	}
+	
+
 }
