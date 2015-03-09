@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import ComputationalServer.ComputationalServerCore;
+import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericConnector;
 
-public class ComputationalClient
+public class ComputationalClient extends GenericComponent
 {
 	/******************/
 	/* VARIABLES */
@@ -15,6 +16,7 @@ public class ComputationalClient
 
 	private int port;
 	private String address;
+	private ComputationalClientConnector connector;
 
 	/******************/
 	/* FUNCTIONS */
@@ -36,11 +38,19 @@ public class ComputationalClient
 		this.port = (null == port ? DEFAULT_PORT : port);
 		
 	}
+	
+	public ComputationalClient(InetAddress address, Integer port)
+	{
+		String iP=address.getHostAddress();
+		this.address = iP;
+		this.port = (null == port ? DEFAULT_PORT : port);
+		
+	}
 
 
 	public void startWork()
 	{
-
+		this.connector.connectToServer(this.address,this.port, false );
 	}
 
 
