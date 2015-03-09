@@ -15,7 +15,7 @@ public class ComputationalClient extends GenericComponent
 	public static final int DEFAULT_PORT = 47777;
 
 	private int port;
-	private String address;
+	private InetAddress address;
 	private boolean isGuiEnabled;
 
 	/******************/
@@ -23,7 +23,7 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/**
 	 * <p>
-	 * 
+	 *   ComputationalClient is a class providing the Computational Client logic.
 	 * </p>
 	 * 
 	 * @param address
@@ -34,17 +34,25 @@ public class ComputationalClient extends GenericComponent
 	 * @param isGuiEnabled
 	 *            determines if gui window will be displayed
 	 */
-	public ComputationalClient(String address, Integer port,
+	public ComputationalClient(InetAddress address, Integer port,
 			boolean isGuiEnabled)
 	{
 		this.address = address;
 		this.port = (null == port ? DEFAULT_PORT : port);
-		this.isGuiEnabled = isGuiEnabled;
+		this.isGuiEnabled = true;
+	}
+	
+	public ComputationalClient(InetAddress address, Integer port)
+	{
+		this.address = address;
+		this.port = (null == port ? DEFAULT_PORT : port);
+		this.isGuiEnabled = false;
 	}
 
 	public void startWork()
-	{
-		this.connectToServer(address, port, isGuiEnabled);
+	{		
+		String IP = address.getHostName();
+		this.connectToServer(IP, port, isGuiEnabled);	
 	}
 
 	public int getPort()
@@ -57,12 +65,12 @@ public class ComputationalClient extends GenericComponent
 		this.port = port;
 	}
 
-	public String getAddress()
+	public InetAddress getAddress()
 	{
 		return address;
 	}
 
-	public void setAddress(String address)
+	public void setAddress(InetAddress address)
 	{
 		this.address = address;
 	}
