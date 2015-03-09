@@ -29,7 +29,6 @@ import javax.swing.text.NumberFormatter;
 import javax.swing.text.PlainDocument;
 
 import ComputationalServer.ComputationalServer;
-import ComputationalServer.ComputationalServerWindow;
 
 /**
  * Last modification: 03/03/2015
@@ -58,7 +57,7 @@ public abstract class GenericWindowGui extends JFrame
 	protected JTextField myIpField, serverIpField, connectionStatusField;
 	protected JFormattedTextField serverPort;
 	protected JButton connectButton;
-	protected GenericConnector connector;
+	protected GenericComponent component;
 	private static final long serialVersionUID = -8867459368772331697L;
 	private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 			+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -176,19 +175,8 @@ public abstract class GenericWindowGui extends JFrame
 			@Override
 			public void run()
 			{
-				if (connector != null)
-				{
-					connector.connectToServer(serverIpField.getText(),
-							Integer.parseInt(serverPort.getText()));
-				}
-				else
-				{
-					JOptionPane
-							.showMessageDialog(
-									new JFrame(),
-									"No connector specified\nAttach connector variable in your class!",
-									"Error", JOptionPane.ERROR_MESSAGE);
-				}
+				component.connectToServer(serverIpField.getText(),
+						Integer.parseInt(serverPort.getText()), true);
 				connectButton.setEnabled(true);
 			}
 		}).start();
@@ -330,6 +318,33 @@ public abstract class GenericWindowGui extends JFrame
 		return panel;
 	}
 
+	/**
+	 * <p>
+	 * Function formats text from JFormattedFields to integer value. This
+	 * prevents some functions from failing if the value would be badly
+	 * formatted.
+	 * </p>
+	 * 
+	 * @param field
+	 *            from which integer should be read
+	 * @return integer value of field
+	 */
+	protected Integer getIntegerValueFromField(JFormattedTextField field)
+	{
+		Integer value;
+
+		try
+		{
+			value = Integer.parseInt(field.getText().replaceAll(",", ""));
+		}
+		catch (NumberFormatException e)
+		{
+			value = null;
+		}
+
+		return value;
+	}
+
 	private JMenuBar createJMenuBar()
 	{
 		JMenuBar bar = new JMenuBar();
@@ -377,8 +392,9 @@ public abstract class GenericWindowGui extends JFrame
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Server port"),
-				serverPort = createIntegerFormattedTextField(Integer
-						.toString(ComputationalServer.DEFAULT_PORT), true)));
+				serverPort = createIntegerFormattedTextField(
+						Integer.toString(ComputationalServer.DEFAULT_PORT),
+						true)));
 
 		this.add(connectButton = createButton("Connect",
 				GENERIC_WINDOW_CONNECT_BUTTON));

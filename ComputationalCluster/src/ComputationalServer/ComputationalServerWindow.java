@@ -147,20 +147,4 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		}
 
 	}
-
-	private Integer getIntegerValueFromField(JFormattedTextField field)
-	{
-		Integer value;
-
-		try
-		{
-			value = Integer.parseInt(field.getText().replaceAll(",", ""));
-		}
-		catch (NumberFormatException e)
-		{
-			value = null;
-		}
-
-		return value;
-	}
 }

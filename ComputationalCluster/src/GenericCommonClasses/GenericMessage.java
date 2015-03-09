@@ -16,9 +16,33 @@ public abstract class GenericMessage
 	/******************/
 	/* VARIABLES */
 	/******************/
+	private String messageContent;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
+	/**
+	 * <p>
+	 * Creates message with string content ready to be sent through network.
+	 * </p>
+	 * 
+	 * @param content
+	 */
+	public GenericMessage(String content)
+	{
+		messageContent = content;
+	}
+
+	/**
+	 * <p>
+	 * Returns content of message
+	 * </p>
+	 * 
+	 * @return copy of message
+	 */
+	public String getMessageContent()
+	{
+		return new String(messageContent);
+	}
 
 }
