@@ -21,11 +21,10 @@ import ComputationalServer.ComputationalServer;
  * </p>
  * 
  * @author Piotr Waszkiewicz
- * @version 1.01a :
- * 		class no longer abstract, added disconnecting, sending, receiving
- * 			(edited by Filip)
+ * @version 1.01 :
+ * 		added disconnecting, sending, receiving
  */
-public class GenericConnector
+public abstract class GenericConnector
 {
 	/******************/
 	/* VARIABLES */
