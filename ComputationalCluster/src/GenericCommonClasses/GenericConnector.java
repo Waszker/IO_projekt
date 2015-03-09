@@ -27,6 +27,7 @@ public abstract class GenericConnector
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final String EOF = "--EOF--";
 	protected String serverIpAddress;
 	protected int serverPort;
 
@@ -43,8 +44,9 @@ public abstract class GenericConnector
 	 * @param ip
 	 *            address
 	 * @param port
+	 * @param isGuiEnabled
 	 */
-	public void connectToServer(String ipAddress, int port)
+	public void connectToServer(String ipAddress, int port, boolean isGuiEnabled)
 	{
 		// TODO: This method looks awful!!!!
 
@@ -62,22 +64,25 @@ public abstract class GenericConnector
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					socket.getInputStream()));
 
+			// TODO: Refactor this thing!
+			out.write("Message\n" + EOF + "\n");
+			out.flush();
+
 			String line;
 			StringBuilder message = new StringBuilder();
 			while ((line = in.readLine()) != null)
 			{
+				if (line.contentEquals("--EOF--"))
+					break;
 				message.append(line);
 			}
 
-			JOptionPane.showMessageDialog(new JFrame(), message.toString(),
-					"Success", JOptionPane.INFORMATION_MESSAGE);
+			showInformation(message.toString(), isGuiEnabled);
 
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(new JFrame(), e.getMessage(),
-					"Error", JOptionPane.ERROR_MESSAGE);
-
+			showError(e.getMessage(), isGuiEnabled);
 		}
 		finally
 		{
@@ -90,6 +95,32 @@ public abstract class GenericConnector
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	private void showInformation(String message, boolean isGui)
+	{
+		if (isGui)
+		{
+			JOptionPane.showMessageDialog(new JFrame(), message,
+					"Information", JOptionPane.INFORMATION_MESSAGE);
+		}
+		else
+		{
+			System.out.println(message);
+		}
+	}
+
+	private void showError(String message, boolean isGui)
+	{
+		if (isGui)
+		{
+			JOptionPane.showMessageDialog(new JFrame(), message,
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+			System.err.println(message);
 		}
 	}
 }
