@@ -16,14 +16,14 @@ public class ComputationalClient extends GenericComponent
 
 	private int port;
 	private String address;
-	private ComputationalClientConnector connector;
+	private boolean isGuiEnabled;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	/**
 	 * <p>
-	 *
+	 * 
 	 * </p>
 	 * 
 	 * @param address
@@ -36,23 +36,21 @@ public class ComputationalClient extends GenericComponent
 	{
 		this.address = address;
 		this.port = (null == port ? DEFAULT_PORT : port);
-		
-	}
-	
-	public ComputationalClient(InetAddress address, Integer port)
-	{
-		String iP=address.getHostAddress();
-		this.address = iP;
-		this.port = (null == port ? DEFAULT_PORT : port);
-		
 	}
 
+	public ComputationalClient(InetAddress address, Integer port)
+	{
+		String iP = address.getHostAddress();
+		this.address = iP;
+		this.port = (null == port ? DEFAULT_PORT : port);
+	}
 
 	public void startWork()
 	{
-		this.connector.connectToServer(this.address,this.port, false );
+		
+		connector=new ComputationalClientConnector();
+		connector.connectToServer(this.address,this.port, false );
 	}
-
 
 	public int getPort()
 	{
@@ -72,6 +70,16 @@ public class ComputationalClient extends GenericComponent
 	public void setAddress(String address)
 	{
 		this.address = address;
+	}
+
+	public boolean isGuiEnabled()
+	{
+		return isGuiEnabled;
+	}
+
+	public void setGuiEnabled(boolean isGuiEnabled)
+	{
+		this.isGuiEnabled = isGuiEnabled;
 	}
 
 }

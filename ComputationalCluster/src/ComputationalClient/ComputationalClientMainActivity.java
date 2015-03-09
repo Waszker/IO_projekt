@@ -23,11 +23,13 @@ public class ComputationalClientMainActivity
 
 			if (flagsMap.get("isGui") != null)
 			{
+				client.setGuiEnabled(true);
 				ComputationalClientWindow window = new ComputationalClientWindow(
 						client);
 				window.setVisible(true);
 			} else
 			{
+				client.setGuiEnabled(false);
 				client.startWork();
 			}
 
