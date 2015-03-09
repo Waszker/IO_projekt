@@ -1,5 +1,7 @@
 package TaskManager;
 
+import java.net.InetAddress;
+
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericConnector;
 
@@ -17,17 +19,30 @@ public final class TaskManager extends GenericComponent
 	/* VARIABLES */
 	/******************/
 	
+	public static final int DEFAULT_PORT = 47777;
+
+	private int port;
+	private InetAddress address;
+	private boolean isGuiEnabled;
 	
 	
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	
-	public TaskManager()
+	public TaskManager(InetAddress address, Integer port,
+			boolean isGuiEnabled)
 	{
-		super();
-		// connector = new Connector();
-		//TODO: Add connector class
+		this.address = address;
+		this.port = (null == port ? DEFAULT_PORT : port);
+		this.isGuiEnabled = true;
+	}
+	
+	public TaskManager(InetAddress address, Integer port)
+	{
+		this.address = address;
+		this.port = (null == port ? DEFAULT_PORT : port);
+		this.isGuiEnabled = false;
 	}
 	
 	
@@ -43,7 +58,7 @@ public final class TaskManager extends GenericComponent
 	 */
 	public boolean connectToServer(final String serverIp, final Integer port)
 	{
-//		connector.connectToServer(serverIp, port);
+		this.connectToServer(serverIp, port, isGuiEnabled);
 		return false;
 	}
 }

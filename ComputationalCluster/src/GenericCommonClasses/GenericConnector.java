@@ -11,6 +11,8 @@ import java.net.Socket;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import ComputationalServer.ComputationalServer;
+
 /**
  * <p>
  * GenericConnector class provides routines to easily connect to the server. It
@@ -19,10 +21,11 @@ import javax.swing.JOptionPane;
  * </p>
  * 
  * @author Piotr Waszkiewicz
- * @version 1.0
- * 
+ * @version 1.01a :
+ * 		class no longer abstract, added disconnecting, sending, receiving
+ * 			(edited by Filip)
  */
-public abstract class GenericConnector
+public class GenericConnector
 {
 	/******************/
 	/* VARIABLES */
@@ -30,6 +33,10 @@ public abstract class GenericConnector
 	public static final String EOF = "--EOF--";
 	protected String serverIpAddress;
 	protected int serverPort;
+	protected Socket socket = null;
+	boolean connected = false;
+	BufferedWriter out;
+	BufferedReader in;
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,60 +51,100 @@ public abstract class GenericConnector
 	 * @param ip
 	 *            address
 	 * @param port
-	 * @param isGuiEnabled
+	 * @return True if connection was properly established. Otherwise returs false.
+	 * @throws IOException
+	 * @throws IllegalStateException
 	 */
-	public void connectToServer(String ipAddress, int port, boolean isGuiEnabled)
+	public void connectToServer(String ipAddress, int port)
+			throws IOException, IllegalStateException
 	{
-		// TODO: This method looks awful!!!!
-
 		serverIpAddress = ipAddress;
 		serverPort = port;
+		
+		if ( connected )
+			throw new IllegalStateException("connectToServer(): Already connected to server! use 'disconnect()' first!");
 
-		Socket socket = new Socket();
-		try
-		{
-			socket.connect(new InetSocketAddress(ipAddress, port), 1000);
+		socket = new Socket();
+		socket.connect(new InetSocketAddress(ipAddress, port), ComputationalServer.DEFAULT_TIMEOUT);
 
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+		out = new BufferedWriter(new OutputStreamWriter(
 					socket.getOutputStream()));
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					socket.getInputStream()));
-
-			// TODO: Refactor this thing!
-			out.write("Message\n" + EOF + "\n");
-			out.flush();
-
-			String line;
-			StringBuilder message = new StringBuilder();
-			while ((line = in.readLine()) != null)
-			{
-				if (line.contentEquals("--EOF--"))
-					break;
-				message.append(line);
-			}
-
-			showInformation(message.toString(), isGuiEnabled);
-
-		}
-		catch (IOException e)
-		{
-			showError(e.getMessage(), isGuiEnabled);
-		}
-		finally
-		{
-			try
-			{
-				socket.close();
-			}
-			catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		in = new BufferedReader(new InputStreamReader(
+				socket.getInputStream()));
+		
+		connected = true;
 	}
 	
+	/**
+	 * <p>
+	 * Function closes connection to server if established.
+	 * </p>
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 */
+	public void disconnect() throws IOException, IllegalStateException
+	{
+		if ( !connected )
+			throw new IllegalStateException("disconnect(): Connection to server not established!");
+		
+		out.close();
+		in.close();
+		socket.close();
+			
+		in = null;
+		out = null;
+		connected = false;
+	}
+	
+	/**
+	 * <p>
+	 * Function sends message to the server if connection is established.
+	 * </p>
+	 * @param m Message to be sent.
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 */
+	public void sendMessage(GenericMessage m) throws IOException, IllegalStateException
+	{
+		if ( !connected )
+			throw new IllegalStateException("sendMessage(): Connection to server not established!");
+		
+		out.write(m.getMessageContent());
+	}
+	
+	/**
+	 * <p>
+	 * Function receives message to the server if connection is established.
+	 * </p>
+	 * @return Received message
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 */
+	public GenericMessage receiveMessage() throws IOException, IllegalStateException
+	{
+		if ( !connected )
+			throw new IllegalStateException("receiveMessage(): Connection to server not established!");
+		
+		String received = "";
+		while ( in.ready() )
+			received+=in.readLine();
+		return null;//new GenericMessage(received);
+	}
+	
+	/**
+	 * <p>
+	 * Checks if there is a message ready to receive.
+	 * </p>
+	 * @return true if a message can be received.
+	 * @throws IOException 
+	 */
+	public boolean messageWaiting() throws IOException
+	{
+		return in.ready();
+	}
+	
+	/*
 	private void showInformation(String message, boolean isGui)
 	{
 		if (isGui)
@@ -122,5 +169,5 @@ public abstract class GenericConnector
 		{
 			System.err.println(message);
 		}
-	}
+	}*/
 }
