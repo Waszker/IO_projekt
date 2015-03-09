@@ -31,9 +31,11 @@ public class GenericConnector
 	/* VARIABLES */
 	/******************/
 	public static final String EOF = "--EOF--";
+	
 	protected String serverIpAddress;
 	protected int serverPort;
-	protected Socket socket = null;
+	
+	Socket socket = null;
 	boolean connected = false;
 	BufferedWriter out;
 	BufferedReader in;
