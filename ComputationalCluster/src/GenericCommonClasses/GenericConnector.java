@@ -43,9 +43,7 @@ public class GenericConnector
 	/******************/
 	/**
 	 * <p>
-	 * Function estabilishes connection to the server and retrieves message from
-	 * it. Then the connection is closed and message is displayed. WARNING! This
-	 * function will change in the future!
+	 * Function estabilishes connection to the server.
 	 * </p>
 	 * 
 	 * @param ip
