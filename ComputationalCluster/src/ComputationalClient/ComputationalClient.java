@@ -60,7 +60,7 @@ public class ComputationalClient extends GenericComponent
 	{
 
 		
-		connector.connectToServer(this.address, this.port, false);
+		//connector.connectToServer(this.address, this.port, false);
 	}
 
 	public int getPort()
