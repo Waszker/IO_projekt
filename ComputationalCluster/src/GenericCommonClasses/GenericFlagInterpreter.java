@@ -5,6 +5,16 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * <p>
+ * GenericClassInterpreter class performs flag validation checks and returns
+ * them inside Map object.
+ * </p>
+ * 
+ * @author Piotr Waszkiewicz
+ * @version 1.0
+ *
+ */
 public abstract class GenericFlagInterpreter
 {
 
@@ -21,13 +31,18 @@ public abstract class GenericFlagInterpreter
 	 * Function interpret flags that were given to program at start. It returns
 	 * map containing information provided by user during startup.
 	 * </p>
+	 * <p>
+	 * In case of many same flags specified, only the last one has the effect.
+	 * </p>
 	 * 
-	 * @param args array of arguments provided during startup
+	 * @param args
+	 *            array of arguments provided during startup
 	 * @return map containing information in proper way
 	 * @throws UnknownHostException
+	 *             , NumberFormatException
 	 */
 	public static Map<String, Object> interpretFlags(String[] args)
-			throws UnknownHostException
+			throws UnknownHostException, NumberFormatException
 	{
 		Map<String, Object> flagMap = new TreeMap<>();
 

@@ -7,9 +7,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.NumberFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -21,7 +25,10 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.NumberFormatter;
 import javax.swing.text.PlainDocument;
+
+import ComputationalServer.ComputationalServer;
 
 /**
  * Last modification: 03/03/2015
@@ -48,8 +55,14 @@ public abstract class GenericWindowGui extends JFrame
 	/******************/
 	public static final String GENERIC_WINDOW_CONNECT_BUTTON = "GENERIC_WINDOW_BUTTON_CONNECT";
 	protected JTextField myIpField, serverIpField, connectionStatusField;
+	protected JFormattedTextField serverPort;
 	protected JButton connectButton;
+	protected GenericComponent component;
 	private static final long serialVersionUID = -8867459368772331697L;
+	private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+			+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+			+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+			+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 	private GenericWindowActionListener actionListener;
 	private IpChecker ipChecker;
 
@@ -96,12 +109,19 @@ public abstract class GenericWindowGui extends JFrame
 			try
 			{
 				text = field.getText(0, field.getLength());
-				System.out.println(text);
+				connectButton.setEnabled(isIpValid(text));
 			}
 			catch (BadLocationException e)
 			{
 				e.printStackTrace();
 			}
+		}
+
+		private boolean isIpValid(String ip)
+		{
+			Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+			Matcher matcher = pattern.matcher(ip);
+			return matcher.matches();
 		}
 	}
 
@@ -132,25 +152,34 @@ public abstract class GenericWindowGui extends JFrame
 		getContentPane().setLayout(
 				new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-		this.setJMenuBar(createJMenuBar());
-
-		this.add(createTwoHorizontalComponentsPanel(
-				new JLabel("My IP address"),
-				myIpField = createTextField("unknown", false)));
-
-		this.add(createTwoHorizontalComponentsPanel(new JLabel(
-				"Server IP address"),
-				serverIpField = createTextField("unknown IP", true)));
-
-		this.add(connectButton = createButton("Connect",
-				GENERIC_WINDOW_CONNECT_BUTTON));
-
-		this.add(createTwoHorizontalComponentsPanel(new JLabel(
-				"Connection status"),
-				connectionStatusField = createTextField("unknown", false)));
+		addGuiElements();
 
 		serverIpField.getDocument().addDocumentListener(ipChecker);
 		getMyIp();
+
+		connectButton.setEnabled(false);
+	}
+
+	/**
+	 * <p>
+	 * Connects to server using port and IP address specified by user.
+	 * </p>
+	 */
+	public void connectToServer()
+	{
+		// no need to check ip and port sanity - window blocks connect button if
+		// those values are not valid
+		new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				component.connectToServer(serverIpField.getText(),
+						Integer.parseInt(serverPort.getText()), true);
+				connectButton.setEnabled(true);
+			}
+		}).start();
 	}
 
 	/**
@@ -218,10 +247,42 @@ public abstract class GenericWindowGui extends JFrame
 		if (textFieldString == null)
 		{
 			textField = new JTextField();
-		} else
+		}
+		else
 		{
 			textField = new JTextField(textFieldString);
 		}
+		textField.setEditable(isTextFieldEditable);
+		textField.setHorizontalAlignment(JTextField.CENTER);
+		textField.setAlignmentY(CENTER_ALIGNMENT);
+		textField.setPreferredSize(new Dimension(100, 30));
+
+		return textField;
+	}
+
+	/**
+	 * <p>
+	 * Function creates text field with centered text with prefered dimension
+	 * set to 100x30. This field can hold only integer values
+	 * </p>
+	 * 
+	 * @param textFieldString
+	 *            text shown on not edited text field
+	 * @param isTextFieldEditable
+	 *            indicates if user can edit text field
+	 * @return
+	 */
+	final protected JFormattedTextField createIntegerFormattedTextField(
+			String textFieldString, boolean isTextFieldEditable)
+	{
+		NumberFormat format = NumberFormat.getInstance();
+		NumberFormatter formatter = new NumberFormatter(format);
+		formatter.setValueClass(Integer.class);
+		formatter.setMinimum(0);
+		formatter.setMaximum(Integer.MAX_VALUE);
+
+		JFormattedTextField textField = new JFormattedTextField(formatter);
+		textField.setText(textFieldString);
 		textField.setEditable(isTextFieldEditable);
 		textField.setHorizontalAlignment(JTextField.CENTER);
 		textField.setAlignmentY(CENTER_ALIGNMENT);
@@ -257,6 +318,33 @@ public abstract class GenericWindowGui extends JFrame
 		return panel;
 	}
 
+	/**
+	 * <p>
+	 * Function formats text from JFormattedFields to integer value. This
+	 * prevents some functions from failing if the value would be badly
+	 * formatted.
+	 * </p>
+	 * 
+	 * @param field
+	 *            from which integer should be read
+	 * @return integer value of field
+	 */
+	protected Integer getIntegerValueFromField(JFormattedTextField field)
+	{
+		Integer value;
+
+		try
+		{
+			value = Integer.parseInt(field.getText().replaceAll(",", ""));
+		}
+		catch (NumberFormatException e)
+		{
+			value = null;
+		}
+
+		return value;
+	}
+
 	private JMenuBar createJMenuBar()
 	{
 		JMenuBar bar = new JMenuBar();
@@ -288,5 +376,31 @@ public abstract class GenericWindowGui extends JFrame
 			e.printStackTrace();
 		}
 
+	}
+
+	private void addGuiElements()
+	{
+		this.setJMenuBar(createJMenuBar());
+
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("My IP address"),
+				myIpField = createTextField("unknown", false)));
+
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Server IP address"),
+				serverIpField = createTextField("unknown IP", true)));
+
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("Server port"),
+				serverPort = createIntegerFormattedTextField(
+						Integer.toString(ComputationalServer.DEFAULT_PORT),
+						true)));
+
+		this.add(connectButton = createButton("Connect",
+				GENERIC_WINDOW_CONNECT_BUTTON));
+
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Connection status"),
+				connectionStatusField = createTextField("unknown", false)));
 	}
 }
