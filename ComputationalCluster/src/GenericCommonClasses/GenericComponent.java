@@ -1,5 +1,7 @@
 package GenericCommonClasses;
 
+import java.io.IOException;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -38,7 +40,14 @@ public abstract class GenericComponent
 	{
 		if (connector != null)
 		{
-			connector.connectToServer(serverIp, port, isGuiEnabled);
+			try
+			{
+				connector.connectToServer(serverIp, port);
+			} catch (IllegalStateException | IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		else
 		{

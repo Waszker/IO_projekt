@@ -15,7 +15,7 @@ public class ComputationalClient extends GenericComponent
 	public static final int DEFAULT_PORT = 47777;
 
 	private int port;
-	private InetAddress address;
+	private String address;
 	private boolean isGuiEnabled;
 
 	/******************/
@@ -23,7 +23,7 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/**
 	 * <p>
-	 *   ComputationalClient is a class providing the Computational Client logic.
+	 * ComputationalClient is a class providing the Computational Client logic.
 	 * </p>
 	 * 
 	 * @param address
@@ -34,25 +34,33 @@ public class ComputationalClient extends GenericComponent
 	 * @param isGuiEnabled
 	 *            determines if gui window will be displayed
 	 */
-	public ComputationalClient(InetAddress address, Integer port,
-			boolean isGuiEnabled)
-	{
-		this.address = address;
-		this.port = (null == port ? DEFAULT_PORT : port);
-		this.isGuiEnabled = true;
-	}
-	
-	public ComputationalClient(InetAddress address, Integer port)
+
+	public ComputationalClient(String address, Integer port)
 	{
 		this.address = address;
 		this.port = (null == port ? DEFAULT_PORT : port);
 		this.isGuiEnabled = false;
+		connector = new ComputationalClientConnector();
+	}
+
+	public ComputationalClient(InetAddress address, Integer port)
+	{
+		if (address != null)
+		{
+			String iP = address.getHostAddress();
+			this.address = iP;
+		}
+		// this.address=address.getHostAddress();
+		this.port = (null == port ? DEFAULT_PORT : port);
+		this.isGuiEnabled = false;
+		connector = new ComputationalClientConnector();
 	}
 
 	public void startWork()
-	{		
-		String IP = address.getHostName();
-		this.connectToServer(IP, port, isGuiEnabled);	
+	{
+
+		
+		//connector.connectToServer(this.address, this.port, false);
 	}
 
 	public int getPort()
@@ -65,12 +73,12 @@ public class ComputationalClient extends GenericComponent
 		this.port = port;
 	}
 
-	public InetAddress getAddress()
+	public String getAddress()
 	{
 		return address;
 	}
 
-	public void setAddress(InetAddress address)
+	public void setAddress(String address)
 	{
 		this.address = address;
 	}
