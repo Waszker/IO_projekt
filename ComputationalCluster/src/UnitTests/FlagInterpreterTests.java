@@ -122,4 +122,22 @@ public class FlagInterpreterTests
 			fail(e.getMessage());
 		}
 	}
+
+	@Test
+	public void flagInterpreterTest6()
+	{
+		try
+		{
+			GenericFlagInterpreter
+					.interpretFlags(new String[] { "-port", "4l0a" });
+			fail("NumberFormatException expected.");
+
+		} catch (UnknownHostException e)
+		{
+			fail(e.getMessage());
+		} catch (NumberFormatException e)
+		{
+
+		}
+	}
 }
