@@ -35,7 +35,6 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	private static final long serialVersionUID = -1254898218440155506L;
 	private JTextField computationStatusField;
 	private JButton sendButton;
-	private ComputationalClient client;
 
 	/******************/
 	/* FUNCTIONS */
@@ -54,7 +53,8 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public ComputationalClientWindow(ComputationalClient clientInstance)
 	{
 		super("Computational Client", new ComputationalClientActionListener());
-		client = clientInstance;
+		component = clientInstance;
+		
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),
@@ -71,10 +71,5 @@ public final class ComputationalClientWindow extends GenericWindowGui
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
-
-	public void startWork()
-	{
-	}
-	
 
 }
