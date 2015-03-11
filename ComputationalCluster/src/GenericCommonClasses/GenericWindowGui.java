@@ -162,7 +162,8 @@ public abstract class GenericWindowGui extends JFrame
 
 	/**
 	 * <p>
-	 * Connects to server using port and IP address specified by user.
+	 * Connects to server using port and IP address specified by user. This
+	 * method starts connection on another thread.
 	 * </p>
 	 */
 	public void connectToServer()
@@ -175,11 +176,8 @@ public abstract class GenericWindowGui extends JFrame
 			@Override
 			public void run()
 			{
-				//TODO: Delete or refactor.
-				/*
-				component.connectToServer(serverIpField.getText(),
-						Integer.parseInt(serverPort.getText()), true);
-				connectButton.setEnabled(true);*/
+				component.connectToServer();
+				connectButton.setEnabled(true);
 			}
 		}).start();
 	}

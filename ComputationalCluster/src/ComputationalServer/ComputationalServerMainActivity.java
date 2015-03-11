@@ -13,10 +13,12 @@ public class ComputationalServerMainActivity
 		try
 		{
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
+			
 			ComputationalServer server = new ComputationalServer(
 					flagsMap.get("isBackup") != null,
 					(Integer) flagsMap.get("port"),
-					(Integer) flagsMap.get("timeout"));
+					(Integer) flagsMap.get("timeout"), null,
+					flagsMap.get("isGui") != null);
 
 			if (flagsMap.get("isGui") != null)
 			{

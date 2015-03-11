@@ -28,18 +28,28 @@ public abstract class GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-	Integer serverPort = ComputationalServer.DEFAULT_PORT;
-	Integer timeout = ComputationalServer.DEFAULT_TIMEOUT;
-	String serverIp = null;
-	boolean isGuiEnabled = false;
+	public static final String DEFAUL_IP_ADDRESS = "127.0.0.1";
+	public static final int DEFAULT_PORT = 47777;
+	public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
+	
+	Integer serverPort;
+	Integer timeout;
+	String serverIp;
+	boolean isGuiEnabled;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	
-	public GenericComponent(boolean guiEnabled)
+	public GenericComponent(String serverIpAddress, Integer serverPort,
+			boolean isGui)
 	{
-		isGuiEnabled = guiEnabled;
+		this.serverIp = (null == serverIpAddress ? DEFAUL_IP_ADDRESS
+				: serverIpAddress);
+		this.serverPort = (null == serverPort ? DEFAULT_PORT : serverPort);
+		this.isGuiEnabled = isGui;
+
+		addShutdownHook();
 	}
 	
 	
@@ -57,8 +67,7 @@ public abstract class GenericComponent
 		Socket socket;
 		BufferedWriter out;
 		BufferedReader in;
-		StringBuilder stringBuilder = new StringBuilder();
-		final int EOF = 23;
+		StringBuilder messageBuilder = new StringBuilder();
 		
 		//connect to the server
 		socket = new Socket();
@@ -75,18 +84,12 @@ public abstract class GenericComponent
 		out.flush();
 
 		//receive response
-		String line;
-		while ( (line=in.readLine()) != null )
+		char readChar;
+		while ((readChar = in.read()) != -1)
 		{
-			int indexOfEOF = line.indexOf(EOF);
-			if ( indexOfEOF == -1 )
-				stringBuilder.append(line);
-			else
-			{
-				stringBuilder.append(line.substring(0, indexOfEOF));
+			if (readChar == IMessage.ETB)
 				break;
-			}
-			
+			messageBuilder.append((char) readChar);
 		}
 		
 		//clean up
@@ -94,7 +97,7 @@ public abstract class GenericComponent
 		out.close();
 		socket.close();
 		
-		return Parser.parse(stringBuilder.toString());
+		return Parser.parse(messageBuilder.toString());
 	}
 	
 	/**
@@ -129,6 +132,26 @@ public abstract class GenericComponent
 			JOptionPane.showMessageDialog(null, message,
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	
+	private void addShutdownHook()
+	{
+		// taken from:
+		// http://stackoverflow.com/questions/8051863/how-can-i-close-the-socket-in-a-proper-way
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			public void run()
+			{
+				try
+				{
+					connectionSocket.close();
+				}
+				catch (IOException | NullPointerException e)
+				{ /* failed */
+				}
+			}
+		});
 	}
 
 	/* Getters and setters */
