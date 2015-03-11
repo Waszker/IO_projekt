@@ -25,13 +25,6 @@ public final class TaskManager extends GenericComponent
 	public TaskManager(String address, Integer port,
 			boolean isGuiEnabled)
 	{
-		super(isGuiEnabled);
-		this.setServerIp(address);
-		this.setServerPort(port != null ? port : ComputationalServer.DEFAULT_PORT);
-	}
-	
-	public TaskManager(String address, Integer port)
-	{
-		super(false);
+		super(address,port,isGuiEnabled);
 	}
 }

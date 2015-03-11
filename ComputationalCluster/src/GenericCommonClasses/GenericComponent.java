@@ -49,7 +49,7 @@ public abstract class GenericComponent
 		this.serverPort = (null == serverPort ? DEFAULT_PORT : serverPort);
 		this.isGuiEnabled = isGui;
 
-		addShutdownHook();
+		//addShutdownHook();
 	}
 	
 	
@@ -85,7 +85,7 @@ public abstract class GenericComponent
 
 		//receive response
 		char readChar;
-		while ((readChar = in.read()) != -1)
+		while ((readChar = (char) in.read()) != -1)
 		{
 			if (readChar == IMessage.ETB)
 				break;
@@ -134,7 +134,7 @@ public abstract class GenericComponent
 		}
 	}
 	
-	
+	/*
 	private void addShutdownHook()
 	{
 		// taken from:
@@ -148,11 +148,11 @@ public abstract class GenericComponent
 					connectionSocket.close();
 				}
 				catch (IOException | NullPointerException e)
-				{ /* failed */
+				{ // failed
 				}
 			}
 		});
-	}
+	}*/
 
 	/* Getters and setters */
 	public Integer getServerPort()
