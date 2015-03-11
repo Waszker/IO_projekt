@@ -164,7 +164,8 @@ public class ComputationalServerCore
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					socket.getOutputStream()));
 			System.out.println("Client [" + socket.getInetAddress()
-					+ "] connected\n");
+					+ "] connected and sent message:\n"
+					+ message.getMessageContent());
 
 			out.write("Hello from the server!\n" + IMessage.ETB);
 			out.flush();

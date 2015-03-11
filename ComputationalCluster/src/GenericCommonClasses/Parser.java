@@ -6,7 +6,7 @@ package GenericCommonClasses;
  * possible message that can be send by each component.
  * </p>
  * 
- * @author Monika ¯urkowska
+ * @author Monika ï¿½ï¿½ï¿½urkowska
  * @version 0.9
  * 
  */
@@ -94,9 +94,10 @@ public abstract class Parser
 	 *            - raw message to be parsed
 	 * @return parsed message
 	 */
-	IMessage parse(String messageContent)
+	static IMessage parse(String messageContent)
 	{
 		// TODO
+		System.out.println("Got message: " + messageContent);
 		return null;
 	}
 

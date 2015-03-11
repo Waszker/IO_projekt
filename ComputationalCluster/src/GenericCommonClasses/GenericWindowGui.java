@@ -154,7 +154,6 @@ public abstract class GenericWindowGui extends JFrame
 
 		addGuiElements();
 		serverIpField.getDocument().addDocumentListener(ipChecker);
-		connectButton.setEnabled(false);
 	}
 
 	/**

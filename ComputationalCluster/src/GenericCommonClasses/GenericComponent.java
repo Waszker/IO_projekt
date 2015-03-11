@@ -11,6 +11,8 @@ import java.net.Socket;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import XMLMessages.RegisterMessage;
+
 /**
  * <p>
  * GenericComponent class is a base class for every ComputationalClient,
@@ -63,26 +65,19 @@ public abstract class GenericComponent
 
 	/**
 	 * <p>
-	 * Sends the message to server and waits for answer.
+	 * Connects to server.
 	 * </p>
-	 * 
-	 * @param message
 	 */
-	public void sendMessage(IMessage message)
+	public void connectToServer()
 	{
 		connectionSocket = getConnectionSocket();
-		if (connectionSocket != null)
+		if (null != connectionSocket)
 		{
 			try
 			{
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-						connectionSocket.getOutputStream()));
-				out.write(message.toString());
-				out.write(IMessage.ETB);
-				out.flush();
+				sendMessage(new RegisterMessage());
+				Parser.parse(receiveMessage());
 				
-				parseMessage(receiveMessage());
-
 				// TODO: Do we need to close socket?
 				connectionSocket.close();
 			}
@@ -92,23 +87,51 @@ public abstract class GenericComponent
 			}
 		}
 	}
-	
-	/**
-	 * <p>
-	 * Connects to server.
-	 * </p>
-	 */
-	public abstract void connectToServer();
 
 	/**
 	 * <p>
-	 * This method specifies component behaviour after message has benn
-	 * retrieved.
+	 * Sends the message to server.
 	 * </p>
 	 * 
-	 * @param messageContent
+	 * @param message
+	 * @throws IOException
 	 */
-	protected abstract void parseMessage(String messageContent);
+	protected void sendMessage(IMessage message) throws IOException
+	{
+		if (null != message)
+		{
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+					connectionSocket.getOutputStream()));
+			out.write(message.getString());
+			out.write(IMessage.ETB);
+			out.flush();
+		}
+	}
+
+	/**
+	 * <p>
+	 * Receives message from connection socket.
+	 * </p>
+	 * 
+	 * @return received message
+	 * @throws IOException
+	 */
+	protected String receiveMessage() throws IOException
+	{
+		int readChar;
+		StringBuilder messageBuilder = new StringBuilder();
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connectionSocket.getInputStream()));
+
+		while ((readChar = in.read()) != -1)
+		{
+			if (readChar == IMessage.ETB)
+				break;
+			messageBuilder.append((char) readChar);
+		}
+
+		return messageBuilder.toString();
+	}
 
 	/**
 	 * <p>
@@ -156,23 +179,6 @@ public abstract class GenericComponent
 	public int getPort()
 	{
 		return port;
-	}
-
-	private String receiveMessage() throws IOException
-	{
-		int readChar;
-		StringBuilder messageBuilder = new StringBuilder();
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connectionSocket.getInputStream()));
-
-		while ((readChar = in.read()) != -1)
-		{
-			if (readChar == IMessage.ETB)
-				break;
-			messageBuilder.append((char) readChar);
-		}
-
-		return messageBuilder.toString();
 	}
 
 	private Socket getConnectionSocket()
