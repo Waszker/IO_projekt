@@ -1,9 +1,16 @@
 package GenericCommonClasses;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import ComputationalServer.ComputationalServer;
 
 /**
  * <p>
@@ -13,7 +20,7 @@ import javax.swing.JOptionPane;
  * </p>
  * 
  * @author Piotr Waszkiewicz
- * @version 1.0
+ * @version 1.1
  * 
  */
 public abstract class GenericComponent
@@ -21,49 +28,138 @@ public abstract class GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-	protected GenericConnector connector;
+	Integer serverPort = ComputationalServer.DEFAULT_PORT;
+	Integer timeout = ComputationalServer.DEFAULT_TIMEOUT;
+	String serverIp = null;
+	boolean isGuiEnabled;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
+	
+	public GenericComponent(boolean guiEnabled)
+	{
+		isGuiEnabled = guiEnabled;
+	}
+	
+	
 	/**
 	 * <p>
-	 * Connects to server at given ip and port.
-	 * </p>
-	 * 
-	 * @param serverIp
-	 * @param port
-	 * @param isGuiEnabled
+	 * Function sends message to computational server and receives a response.
+	 * </p> 
+	 * @param toSend - message to be sent to communication server.
+	 * @return response received from the server.
+	 * @throws IOException 
+	 * @see IMessage
 	 */
-	public void connectToServer(final String serverIp, final Integer port,
-			boolean isGuiEnabled)
+	IMessage sendMessage(IMessage toSend) throws IOException
 	{
-		if (connector != null)
+		Socket socket;
+		BufferedWriter out;
+		BufferedReader in;
+		StringBuilder stringBuilder = new StringBuilder();
+		final int EOF = 23;
+		
+		//connect to the server
+		socket = new Socket();
+		socket.connect(new InetSocketAddress(serverIp, serverPort), timeout);
+
+		out = new BufferedWriter(new OutputStreamWriter(
+					socket.getOutputStream()));
+		
+		in = new BufferedReader(new InputStreamReader(
+				socket.getInputStream()));
+		
+		//send toSend message
+		out.write(toSend.toString());
+		out.flush();
+
+		//receive response
+		String line;
+		while ( (line=in.readLine()) != null )
 		{
-			try
-			{
-				connector.connectToServer(serverIp, port);
-			} catch (IllegalStateException | IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			if (isGuiEnabled)
-			{
-				JOptionPane
-						.showMessageDialog(
-								new JFrame(),
-								"No connector specified\nAttach connector variable in your class!",
-								"Error", JOptionPane.ERROR_MESSAGE);
-			}
+			int indexOfEOF = line.indexOf(EOF);
+			if ( indexOfEOF == -1 )
+				stringBuilder.append(line);
 			else
 			{
-				System.err
-						.println("No connector specified\nAttach connector variable in your class!");
+				stringBuilder.append(line.substring(0, indexOfEOF));
+				break;
 			}
+			
+		}
+		
+		//clean up
+		in.close();
+		out.close();
+		socket.close();
+		
+		return Parser.parse(stringBuilder.toString());
+	}
+	
+	/**
+	 * <p>
+	 * Displays a message to the user.
+	 * If gui is enabled, message dialog is shown.
+	 * </p>
+	 * @param message String to be displayed.
+	 */
+	protected void showInformation(String message)
+	{
+		System.out.println(message);
+		if (isGuiEnabled)
+		{
+			JOptionPane.showMessageDialog(null, message,
+					"Information", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
+
+	/**
+	 * <p>
+	 * Displays an error message to the user.
+	 * If gui is enabled, error message dialog is shown.
+	 * </p>
+	 * @param message String to be displayed.
+	 */
+	protected void showError(String message)
+	{
+		System.err.println(message);
+		if (isGuiEnabled)
+		{
+			JOptionPane.showMessageDialog(null, message,
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	/* Getters and setters */
+	public Integer getServerPort()
+	{
+		return serverPort;
+	}
+
+	public void setServerPort(Integer serverPort)
+	{
+		this.serverPort = serverPort;
+	}
+
+	public String getServerIp()
+	{
+		return serverIp;
+	}
+
+	public void setServerIp(String serverIp)
+	{
+		this.serverIp = serverIp;
+	}
+
+	public Integer getTimeout()
+	{
+		return timeout;
+	}
+
+	public void setTimeout(Integer timeout)
+	{
+		this.timeout = timeout;
+	}
+	/* ******************* */
 }
