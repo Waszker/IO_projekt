@@ -27,12 +27,12 @@ public class TaskManagerMainActivity
 			Integer serverPort = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_PORT);
 
-			TaskManager taskManaager = new TaskManager(serverIp, serverPort,
+			TaskManager taskManager = new TaskManager(serverIp, serverPort,
 					isGuiEnabled);
 			if (isGuiEnabled)
 			{
 				TaskManagerWindow mainWindow = new TaskManagerWindow(
-						taskManaager);
+						taskManager);
 				mainWindow.setVisible(true);
 			}
 		}
