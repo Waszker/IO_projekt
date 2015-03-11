@@ -175,9 +175,11 @@ public abstract class GenericWindowGui extends JFrame
 			@Override
 			public void run()
 			{
+				//TODO: Delete or refactor.
+				/*
 				component.connectToServer(serverIpField.getText(),
 						Integer.parseInt(serverPort.getText()), true);
-				connectButton.setEnabled(true);
+				connectButton.setEnabled(true);*/
 			}
 		}).start();
 	}
