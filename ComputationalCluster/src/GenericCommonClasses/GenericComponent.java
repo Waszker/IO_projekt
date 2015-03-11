@@ -31,7 +31,7 @@ public abstract class GenericComponent
 	Integer serverPort = ComputationalServer.DEFAULT_PORT;
 	Integer timeout = ComputationalServer.DEFAULT_TIMEOUT;
 	String serverIp = null;
-	boolean isGuiEnabled;
+	boolean isGuiEnabled = false;
 
 	/******************/
 	/* FUNCTIONS */
