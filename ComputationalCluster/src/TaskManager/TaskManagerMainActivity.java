@@ -1,7 +1,6 @@
 package TaskManager;
-
-import java.net.UnknownHostException;
 import java.util.Map;
+
 import GenericCommonClasses.GenericFlagInterpreter;
 
 
@@ -18,14 +17,19 @@ public class TaskManagerMainActivity
 	{
 		try
 		{
-			TaskManagerWindow mainWindow = new TaskManagerWindow();
 			Map<String, Object> flagsMap = GenericFlagInterpreter.interpretFlags(args);
-			if (flagsMap.get("isGui") != null)
+			boolean isGuiEnabled = (flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
+			String serverIp = (String)flagsMap.get(GenericFlagInterpreter.FLAG_ADDRESS);
+			Integer serverPort = (Integer)flagsMap.get(GenericFlagInterpreter.FLAG_PORT);
+			
+			TaskManager taskManaager = new TaskManager(serverIp, serverPort, isGuiEnabled);
+			if (isGuiEnabled)
 			{
+				TaskManagerWindow mainWindow = new TaskManagerWindow(/*taskManager*/);
 				mainWindow.setVisible(true);
 			}
 		}
-		catch (UnknownHostException e)
+		catch (NumberFormatException e)
 		{
 			e.printStackTrace();
 		}

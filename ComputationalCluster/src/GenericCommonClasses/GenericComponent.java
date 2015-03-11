@@ -8,8 +8,9 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import ComputationalServer.ComputationalServer;
 
 /**
  * <p>
@@ -19,7 +20,7 @@ import javax.swing.JOptionPane;
  * </p>
  * 
  * @author Piotr Waszkiewicz
- * @version 1.0
+ * @version 1.1
  * 
  */
 public abstract class GenericComponent
@@ -30,181 +31,110 @@ public abstract class GenericComponent
 	public static final String DEFAUL_IP_ADDRESS = "127.0.0.1";
 	public static final int DEFAULT_PORT = 47777;
 	public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
-
-	protected String ipAddress;
-	protected int port;
-	protected boolean isGui;
-	protected Socket connectionSocket;
+	
+	Integer serverPort;
+	Integer timeout;
+	String serverIp;
+	boolean isGuiEnabled;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-	/**
-	 * <p>
-	 * Creates component with three fields initialized. If there are null
-	 * parameters for serverIpAddress or serverPort, those fields are set to
-	 * default values instead.
-	 * </p>
-	 * 
-	 * @param serverIpAddress
-	 * @param serverPort
-	 * @param isGui
-	 */
+	
 	public GenericComponent(String serverIpAddress, Integer serverPort,
 			boolean isGui)
 	{
-		this.ipAddress = (null == serverIpAddress ? DEFAUL_IP_ADDRESS
+		this.serverIp = (null == serverIpAddress ? DEFAUL_IP_ADDRESS
 				: serverIpAddress);
-		this.port = (null == serverPort ? DEFAULT_PORT : serverPort);
-		this.isGui = isGui;
+		this.serverPort = (null == serverPort ? DEFAULT_PORT : serverPort);
+		this.isGuiEnabled = isGui;
 
-		addShutdownHook();
+		//addShutdownHook();
 	}
-
-	/**
-	 * <p>
-	 * Sends the message to server and waits for answer.
-	 * </p>
-	 * 
-	 * @param message
-	 */
-	public void sendMessage(IMessage message)
-	{
-		connectionSocket = getConnectionSocket();
-		if (connectionSocket != null)
-		{
-			try
-			{
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-						connectionSocket.getOutputStream()));
-				out.write(message.toString());
-				out.write(IMessage.ETB);
-				out.flush();
-				
-				parseMessage(receiveMessage());
-
-				// TODO: Do we need to close socket?
-				connectionSocket.close();
-			}
-			catch (IOException e)
-			{
-				showError(e.getMessage());
-			}
-		}
-	}
+	
 	
 	/**
 	 * <p>
-	 * Connects to server.
-	 * </p>
+	 * Function sends message to computational server and receives a response.
+	 * </p> 
+	 * @param toSend - message to be sent to communication server.
+	 * @return response received from the server.
+	 * @throws IOException 
+	 * @see IMessage
 	 */
-	public abstract void connectToServer();
-
-	/**
-	 * <p>
-	 * This method specifies component behaviour after message has benn
-	 * retrieved.
-	 * </p>
-	 * 
-	 * @param messageContent
-	 */
-	protected abstract void parseMessage(String messageContent);
-
-	/**
-	 * <p>
-	 * Sets the ip address that will be used when connecting with server.
-	 * </p>
-	 * 
-	 * @param ipAddress
-	 */
-	public void setIpAddress(String ipAddress)
+	IMessage sendMessage(IMessage toSend) throws IOException
 	{
-		this.ipAddress = ipAddress;
-	}
-
-	/**
-	 * <p>
-	 * Get ip address that will be used to establish the connection.
-	 * </p>
-	 * 
-	 * @return ip address
-	 */
-	public String getIpAddress()
-	{
-		return ipAddress;
-	}
-
-	/**
-	 * <p>
-	 * Sets port that will be used when connecting with server.
-	 * </p>
-	 * 
-	 * @param port
-	 */
-	public void setPort(int port)
-	{
-		this.port = port;
-	}
-
-	/**
-	 * <p>
-	 * Returns port on which connection will be estabilished.
-	 * </p>
-	 * 
-	 * @return port number
-	 */
-	public int getPort()
-	{
-		return port;
-	}
-
-	private String receiveMessage() throws IOException
-	{
-		int readChar;
+		Socket socket;
+		BufferedWriter out;
+		BufferedReader in;
 		StringBuilder messageBuilder = new StringBuilder();
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connectionSocket.getInputStream()));
+		
+		//connect to the server
+		socket = new Socket();
+		socket.connect(new InetSocketAddress(serverIp, serverPort), timeout);
 
-		while ((readChar = in.read()) != -1)
+		out = new BufferedWriter(new OutputStreamWriter(
+					socket.getOutputStream()));
+		
+		in = new BufferedReader(new InputStreamReader(
+				socket.getInputStream()));
+		
+		//send toSend message
+		out.write(toSend.toString());
+		out.flush();
+
+		//receive response
+		char readChar;
+		while ((readChar = (char) in.read()) != -1)
 		{
 			if (readChar == IMessage.ETB)
 				break;
 			messageBuilder.append((char) readChar);
 		}
-
-		return messageBuilder.toString();
+		
+		//clean up
+		in.close();
+		out.close();
+		socket.close();
+		
+		return Parser.parse(messageBuilder.toString());
 	}
-
-	private Socket getConnectionSocket()
+	
+	/**
+	 * <p>
+	 * Displays a message to the user.
+	 * If gui is enabled, message dialog is shown.
+	 * </p>
+	 * @param message String to be displayed.
+	 */
+	protected void showInformation(String message)
 	{
-		Socket socket = new Socket();
-		try
+		System.out.println(message);
+		if (isGuiEnabled)
 		{
-			socket.connect(new InetSocketAddress(ipAddress, port),
-					DEFAULT_CONNECTION_TIMEOUT);
+			JOptionPane.showMessageDialog(null, message,
+					"Information", JOptionPane.INFORMATION_MESSAGE);
 		}
-		catch (IOException e)
-		{
-			socket = null;
-			showError(e.getMessage());
-		}
-
-		return socket;
 	}
 
-	private void showError(String message)
+	/**
+	 * <p>
+	 * Displays an error message to the user.
+	 * If gui is enabled, error message dialog is shown.
+	 * </p>
+	 * @param message String to be displayed.
+	 */
+	protected void showError(String message)
 	{
-		if (isGui)
+		System.err.println(message);
+		if (isGuiEnabled)
 		{
-			JOptionPane.showMessageDialog(new JFrame(), message, "Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
-		else
-		{
-			System.err.println(message);
+			JOptionPane.showMessageDialog(null, message,
+					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
+	
+	/*
 	private void addShutdownHook()
 	{
 		// taken from:
@@ -218,9 +148,41 @@ public abstract class GenericComponent
 					connectionSocket.close();
 				}
 				catch (IOException | NullPointerException e)
-				{ /* failed */
+				{ // failed
 				}
 			}
 		});
+	}*/
+
+	/* Getters and setters */
+	public Integer getServerPort()
+	{
+		return serverPort;
 	}
+
+	public void setServerPort(Integer serverPort)
+	{
+		this.serverPort = serverPort;
+	}
+
+	public String getServerIp()
+	{
+		return serverIp;
+	}
+
+	public void setServerIp(String serverIp)
+	{
+		this.serverIp = serverIp;
+	}
+
+	public Integer getTimeout()
+	{
+		return timeout;
+	}
+
+	public void setTimeout(Integer timeout)
+	{
+		this.timeout = timeout;
+	}
+	/* ******************* */
 }

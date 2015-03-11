@@ -20,7 +20,7 @@ public final class TaskManagerWindow extends GenericWindowGui
 
 	public TaskManagerWindow()
 	{
-		super("Task manager", new TaskManagerWindowActionListener());
+		super("Task manager", null); //new TaskManagerWindowActionListener()
 		
 		this.add(createTwoHorizontalComponentsPanel(new JLabel("Current job"),
 				currentJobField = createTextField("none", false)));

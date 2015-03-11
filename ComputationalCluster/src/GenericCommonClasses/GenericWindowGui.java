@@ -28,6 +28,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.NumberFormatter;
 import javax.swing.text.PlainDocument;
 
+import ComputationalServer.ComputationalServer;
+
 /**
  * Last modification: 03/03/2015
  * 
@@ -52,12 +54,10 @@ public abstract class GenericWindowGui extends JFrame
 	/* VARIABLES */
 	/******************/
 	public static final String GENERIC_WINDOW_CONNECT_BUTTON = "GENERIC_WINDOW_BUTTON_CONNECT";
-
 	protected JTextField myIpField, serverIpField, connectionStatusField;
 	protected JFormattedTextField serverPort;
 	protected JButton connectButton;
 	protected GenericComponent component;
-
 	private static final long serialVersionUID = -8867459368772331697L;
 	private static final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 			+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -137,12 +137,12 @@ public abstract class GenericWindowGui extends JFrame
 	 * @param title
 	 *            displayed on window
 	 */
-	public GenericWindowGui(String title, GenericComponent component)
+	public GenericWindowGui(String title,
+			GenericWindowActionListener actionListener)
 	{
 		super();
-		this.component = component;
+		this.actionListener = actionListener;
 		this.ipChecker = new IpChecker();
-		this.actionListener = createActionListener();
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(640, 480);
 		this.setLocationRelativeTo(null); // sets window centered
@@ -153,7 +153,10 @@ public abstract class GenericWindowGui extends JFrame
 				new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
 		addGuiElements();
+
 		serverIpField.getDocument().addDocumentListener(ipChecker);
+		getMyIp();
+
 		connectButton.setEnabled(false);
 	}
 
@@ -173,20 +176,11 @@ public abstract class GenericWindowGui extends JFrame
 			@Override
 			public void run()
 			{
-				component.connectToServer();
+				//component.connectToServer();
 				connectButton.setEnabled(true);
 			}
 		}).start();
 	}
-
-	/**
-	 * <p>
-	 * Creates and return action listener for this specific window.
-	 * </p>
-	 * 
-	 * @return window action listener
-	 */
-	public abstract GenericWindowActionListener createActionListener();
 
 	/**
 	 * <p>
@@ -361,36 +355,10 @@ public abstract class GenericWindowGui extends JFrame
 		return bar;
 	}
 
-	private void addGuiElements()
-	{
-		this.setJMenuBar(createJMenuBar());
-
-		this.add(createTwoHorizontalComponentsPanel(
-				new JLabel("My IP address"),
-				myIpField = createTextField(getMyIp(), false)));
-
-		this.add(createTwoHorizontalComponentsPanel(new JLabel(
-				"Server IP address"),
-				serverIpField = createTextField(component.getIpAddress(), true)));
-
-		this.add(createTwoHorizontalComponentsPanel(
-				new JLabel("Server port"),
-				serverPort = createIntegerFormattedTextField(
-						String.valueOf(component.getPort()), true)));
-
-		this.add(connectButton = createButton("Connect",
-				GENERIC_WINDOW_CONNECT_BUTTON));
-
-		this.add(createTwoHorizontalComponentsPanel(new JLabel(
-				"Connection status"),
-				connectionStatusField = createTextField("unknown", false)));
-	}
-
-	private String getMyIp()
+	private void getMyIp()
 	{
 		// taken from:
 		// http://stackoverflow.com/questions/2939218/getting-the-external-ip-address-in-java
-		String myIp = "unknown";
 		URL whatismyip;
 		try
 		{
@@ -398,7 +366,8 @@ public abstract class GenericWindowGui extends JFrame
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					whatismyip.openStream()));
 
-			myIp = in.readLine();
+			String ip = in.readLine();
+			myIpField.setText(ip);
 		}
 		catch (IOException e)
 		{
@@ -407,6 +376,31 @@ public abstract class GenericWindowGui extends JFrame
 			e.printStackTrace();
 		}
 
-		return myIp;
+	}
+
+	private void addGuiElements()
+	{
+		this.setJMenuBar(createJMenuBar());
+
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("My IP address"),
+				myIpField = createTextField("unknown", false)));
+
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Server IP address"),
+				serverIpField = createTextField("unknown IP", true)));
+
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("Server port"),
+				serverPort = createIntegerFormattedTextField(
+						Integer.toString(ComputationalServer.DEFAULT_PORT),
+						true)));
+
+		this.add(connectButton = createButton("Connect",
+				GENERIC_WINDOW_CONNECT_BUTTON));
+
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Connection status"),
+				connectionStatusField = createTextField("unknown", false)));
 	}
 }
