@@ -9,7 +9,7 @@ import GenericCommonClasses.Parser.MessageType;
  * should implement this interface.
  * </p>
  * 
- * @author Monika �urkowska
+ * @author Monika ���urkowska
  * @version 1.0
  * 
  */
@@ -30,7 +30,7 @@ public interface IMessage
 	 * 
 	 * @returns string message
 	 */
-	public String toString();
+	public String getString();
 
 	/**
 	 * <p>

@@ -118,16 +118,4 @@ public final class ComputationalServer extends GenericComponent
 	{
 		this.timeout = timeout;
 	}
-
-	@Override
-	protected void parseMessage(String messageContent)
-	{
-		System.out.println("Server received: " + messageContent);
-	}
-
-	@Override
-	public void connectToServer()
-	{
-		// TODO: Make it possible to connect to server		
-	}
 }

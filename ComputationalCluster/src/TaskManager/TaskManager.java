@@ -1,6 +1,5 @@
 package TaskManager;
 
-import ComputationalServer.ComputationalServer;
 import GenericCommonClasses.GenericComponent;
 
 /**
