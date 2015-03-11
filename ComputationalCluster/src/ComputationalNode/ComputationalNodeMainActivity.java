@@ -7,7 +7,7 @@ import GenericCommonClasses.GenericFlagInterpreter;
 
 /**
  * 
- * @author Monika ¯urkowska
+ * @author Monika ï¿½urkowska
  * 
  *         <p>
  *         Main class of Computational Node
@@ -17,19 +17,33 @@ public class ComputationalNodeMainActivity
 {
 	public static void main(String[] args)
 	{
+		Map<String, Object> flagsMap;
 		try
 		{
-			ComputationalNodeWindow mainWindow = new ComputationalNodeWindow();
-			Map<String, Object> flagsMap = GenericFlagInterpreter
-					.interpretFlags(args);
-			if (flagsMap.get("isGui") != null)
+			flagsMap = GenericFlagInterpreter.interpretFlags(args);
+
+			boolean isGuiEnabled = (flagsMap
+					.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
+			String serverIp = (String) flagsMap
+					.get(GenericFlagInterpreter.FLAG_ADDRESS);
+			Integer serverPort = (Integer) flagsMap
+					.get(GenericFlagInterpreter.FLAG_PORT);
+
+			ComputationalNode computationalNode = new ComputationalNode(
+					serverIp, serverPort, isGuiEnabled);
+			if (isGuiEnabled)
 			{
+				ComputationalNodeWindow mainWindow = new ComputationalNodeWindow(
+						computationalNode);
 				mainWindow.setVisible(true);
 			}
-		} catch (UnknownHostException e)
+		}
+		catch (NumberFormatException | UnknownHostException e)
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 
 }

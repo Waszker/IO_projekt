@@ -1,5 +1,7 @@
 package GenericCommonClasses;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -46,7 +48,7 @@ public class GenericFlagInterpreter
 	 *             , NumberFormatException
 	 */
 	public static Map<String, Object> interpretFlags(String[] args)
-			throws NumberFormatException
+			throws NumberFormatException, UnknownHostException
 	{
 		Map<String, Object> flagMap = new TreeMap<>();
 
@@ -60,6 +62,7 @@ public class GenericFlagInterpreter
 					break;
 
 				case "-address":
+					InetAddress.getByName(args[i + 1]);
 					flagMap.put(FLAG_ADDRESS, args[i + 1]);
 					break;
 

@@ -10,7 +10,6 @@ public class TaskManagerWindowActionListener extends
 	public TaskManagerWindowActionListener(GenericWindowGui window)
 	{
 		super(window);
-		// TODO Auto-generated constructor stub
 	}
 
 }
