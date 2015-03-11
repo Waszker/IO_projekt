@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import GenericCommonClasses.GenericWindowActionListener;
+import GenericCommonClasses.GenericWindowGui;
 
 public class ComputationalClientActionListener extends
 		GenericWindowActionListener
@@ -19,6 +20,11 @@ public class ComputationalClientActionListener extends
 	/******************/
 	/* FUNCTIONS */
 	/******************/
+	public ComputationalClientActionListener(GenericWindowGui window)
+	{
+		super(window);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
