@@ -56,7 +56,7 @@ public abstract class GenericFlagInterpreter
 					break;
 
 				case "-address":
-					flagMap.put("address", InetAddress.getByName(args[i + 1]));
+					flagMap.put("address", args[i + 1]);
 					break;
 
 				case "-t":
