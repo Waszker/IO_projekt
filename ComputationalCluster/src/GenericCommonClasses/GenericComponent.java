@@ -29,6 +29,20 @@ public abstract class GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public enum ComponentType
+	{
+		ComputationalServer("ComputationalServer"), ComputationalNode(
+				"ComputationalServer"), ComputationalClient(
+				"ComputationalServer"), TaskManager("TaskManager");
+
+		public String name;
+
+		private ComponentType(String name)
+		{
+			this.name = name;
+		}
+	}
+
 	public static final String DEFAUL_IP_ADDRESS = "127.0.0.1";
 	public static final int DEFAULT_PORT = 47777;
 	public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
@@ -37,6 +51,8 @@ public abstract class GenericComponent
 	protected int port;
 	protected boolean isGui;
 	protected Socket connectionSocket;
+
+	private ComponentType type;
 
 	/******************/
 	/* FUNCTIONS */
@@ -53,12 +69,13 @@ public abstract class GenericComponent
 	 * @param isGui
 	 */
 	public GenericComponent(String serverIpAddress, Integer serverPort,
-			boolean isGui)
+			boolean isGui, ComponentType type)
 	{
 		this.ipAddress = (null == serverIpAddress ? DEFAUL_IP_ADDRESS
 				: serverIpAddress);
 		this.port = (null == serverPort ? DEFAULT_PORT : serverPort);
 		this.isGui = isGui;
+		this.type = type;
 
 		addShutdownHook();
 	}
@@ -75,9 +92,9 @@ public abstract class GenericComponent
 		{
 			try
 			{
-				sendMessage(new RegisterMessage());
+				sendMessage(new RegisterMessage(type));
 				Parser.parse(receiveMessage());
-				
+
 				// TODO: Do we need to close socket?
 				connectionSocket.close();
 			}
@@ -179,6 +196,19 @@ public abstract class GenericComponent
 	public int getPort()
 	{
 		return port;
+	}
+
+	/**
+	 * <p>
+	 * Returns component type enum.
+	 * 
+	 * @See GenericComponent
+	 *      </p>
+	 * @return component type
+	 */
+	public ComponentType getType()
+	{
+		return type;
 	}
 
 	private Socket getConnectionSocket()

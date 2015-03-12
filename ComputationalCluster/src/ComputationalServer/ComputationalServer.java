@@ -53,7 +53,7 @@ public final class ComputationalServer extends GenericComponent
 	public ComputationalServer(boolean isBackup, Integer port, Integer timeout,
 			String primaryServerIp, boolean isGui)
 	{
-		super(primaryServerIp, port, isGui);
+		super(primaryServerIp, port, isGui, ComponentType.ComputationalServer);
 		this.isBackup = isBackup;
 		this.timeout = (null == timeout ? DEFAULT_TIMEOUT : timeout);
 	}
@@ -112,6 +112,7 @@ public final class ComputationalServer extends GenericComponent
 	 * <p>
 	 * Sets server timeout value.
 	 * </p>
+	 * 
 	 * @param timeout
 	 */
 	public void setTimeout(int timeout)
