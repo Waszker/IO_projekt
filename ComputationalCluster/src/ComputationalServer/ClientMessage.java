@@ -59,6 +59,6 @@ public class ClientMessage
 	 */
 	public String getMessageContent()
 	{
-		return new String(messageContent);
+		return messageContent;
 	}
 }
