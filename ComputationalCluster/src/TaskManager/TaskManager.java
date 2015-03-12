@@ -15,15 +15,13 @@ public final class TaskManager extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-	
-	
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-	
-	public TaskManager(String address, Integer port,
-			boolean isGuiEnabled)
+
+	public TaskManager(String address, Integer port, boolean isGuiEnabled)
 	{
-		super(address,port,isGuiEnabled);
+		super(address, port, isGuiEnabled, ComponentType.TaskManager);
 	}
 }

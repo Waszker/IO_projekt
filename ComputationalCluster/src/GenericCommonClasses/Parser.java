@@ -6,7 +6,7 @@ package GenericCommonClasses;
  * possible message that can be send by each component.
  * </p>
  * 
- * @author Monika ���urkowska
+ * @author Monika Żurkowska
  * @version 0.9
  * 
  */

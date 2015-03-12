@@ -14,6 +14,6 @@ public class ComputationalClient extends GenericComponent
 	public ComputationalClient(String address, Integer port,
 			boolean isGuiEnabled)
 	{
-		super(address, port, isGuiEnabled);
+		super(address, port, isGuiEnabled, ComponentType.ComputationalClient);
 	}
 }
