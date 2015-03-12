@@ -1,10 +1,11 @@
 package ComputationalNode;
 
 import GenericCommonClasses.GenericWindowActionListener;
+import GenericCommonClasses.GenericWindowGui;
 
 /**
  * 
- * @author Monika ¯urkowska
+ * @author Monika ï¿½urkowska
  * 
  *         <p>
  *         ActionListener class for Computational Node
@@ -14,5 +15,9 @@ import GenericCommonClasses.GenericWindowActionListener;
 public class ComputationalNodeActionListener extends
 		GenericWindowActionListener
 {
+	public ComputationalNodeActionListener(GenericWindowGui window)
+	{
+		super(window);
+	}
 
 }
