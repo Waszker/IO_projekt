@@ -27,7 +27,6 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	/******************/
 	public static final String COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON = "COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON";
 	public static final String COMPUTATIONAL_CLIENT_SEND_BUTTON = "COMPUTATIONAL_CLIENT_SEND_BUTTON";
-	public static int DEFAULT_PORT = 47777;
 	private static final long serialVersionUID = -1254898218440155506L;
 	private JTextField computationStatusField;
 	private JButton sendButton;
