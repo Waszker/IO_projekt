@@ -1,8 +1,8 @@
 package ComputationalClient;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
+
 import GenericCommonClasses.GenericFlagInterpreter;
 
 public class ComputationalClientMainActivity
@@ -14,24 +14,29 @@ public class ComputationalClientMainActivity
 		try
 		{
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
-			ComputationalClient client = new ComputationalClient(
-					(InetAddress) flagsMap.get("address"),
-					(Integer) flagsMap.get("port"));
+			boolean isGuiEnabled = (flagsMap
+					.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
+			String serverIp = (String) flagsMap
+					.get(GenericFlagInterpreter.FLAG_ADDRESS);
+			Integer serverPort = (Integer) flagsMap
+					.get(GenericFlagInterpreter.FLAG_PORT);
+			ComputationalClient client = new ComputationalClient(serverIp,
+					serverPort, isGuiEnabled);
 
 			if (flagsMap.get("isGui") != null)
 			{
-				client.setGuiEnabled(true);
 				ComputationalClientWindow window = new ComputationalClientWindow(
 						client);
 				window.setVisible(true);
-			} else
-			{
-				client.setGuiEnabled(false);
-				client.startWork();
 			}
-
-		} catch (UnknownHostException e)
+			else
+			{
+				client.connectToServer();
+			}
+		}
+		catch (NumberFormatException | UnknownHostException e)
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

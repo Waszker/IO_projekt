@@ -5,6 +5,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
 /**
@@ -61,7 +62,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	 */
 	public ComputationalServerWindow(ComputationalServer serverInstance)
 	{
-		super("Computational Server", new ComputationalServerActionListener());
+		super("Computational Server", serverInstance);
 		server = serverInstance;
 
 		hideUnusedFields();
@@ -91,6 +92,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		server.startWork();
 		portField.setEditable(false);
 		timeoutField.setEditable(false);
+	}
+	
+
+	@Override
+	public GenericWindowActionListener createActionListener()
+	{
+		return new ComputationalServerActionListener(this);
 	}
 
 	private void hideUnusedFields()
