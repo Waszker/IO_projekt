@@ -89,11 +89,18 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	public void startWork()
 	{
 		setServerParametersFromFields();
-		server.startWork();
+		server.startWork(this);
 		portField.setEditable(false);
 		timeoutField.setEditable(false);
 	}
-	
+
+	// TODO: This method will change in the future for sure!
+	// This should be done using hashmap and foreach loop
+	public void addConnectedUser(String ipAddress)
+	{
+		connectedModules.setText(connectedModules.getText() + "\n" + ipAddress);
+		this.pack();
+	}
 
 	@Override
 	public GenericWindowActionListener createActionListener()

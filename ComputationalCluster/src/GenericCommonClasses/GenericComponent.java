@@ -31,7 +31,7 @@ public abstract class GenericComponent
 	/******************/
 	public enum ComponentType
 	{
-		ComputationalServer("ComputationalServer"), ComputationalNode(
+		ComputationalServer("CommunicationServer"), ComputationalNode(
 				"ComputationalServer"), ComputationalClient(
 				"ComputationalServer"), TaskManager("TaskManager");
 
@@ -84,25 +84,31 @@ public abstract class GenericComponent
 	 * <p>
 	 * Connects to server.
 	 * </p>
+	 * 
+	 * @return has connection succeded
 	 */
-	public void connectToServer()
+	public boolean connectToServer()
 	{
+		boolean isSuccess = true;
 		connectionSocket = getConnectionSocket();
 		if (null != connectionSocket)
 		{
 			try
 			{
-				sendMessage(new RegisterMessage(type));
-				Parser.parse(receiveMessage());
-
-				// TODO: Do we need to close socket?
+				sendMessage(getComponentRegisterMessage());
+				Parser.parse(receiveMessage()); // TODO: React to timeout (for
+												// example server heavy load)
 				connectionSocket.close();
+				startResendingThread(); // TODO: Change that!
 			}
 			catch (IOException e)
 			{
+				isSuccess = false;
 				showError(e.getMessage());
 			}
 		}
+		
+		return isSuccess;
 	}
 
 	/**
@@ -149,6 +155,8 @@ public abstract class GenericComponent
 
 		return messageBuilder.toString();
 	}
+
+	protected abstract RegisterMessage getComponentRegisterMessage();
 
 	/**
 	 * <p>
@@ -209,6 +217,42 @@ public abstract class GenericComponent
 	public ComponentType getType()
 	{
 		return type;
+	}
+
+	// TODO: Change (probably remove this in the future!)
+	private void startResendingThread()
+	{
+		new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					try
+					{
+						Thread.sleep(30 * 1000);
+					}
+					catch (InterruptedException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try
+					{
+						connectionSocket = getConnectionSocket();
+						sendMessage(getComponentRegisterMessage());
+						receiveMessage();
+					}
+					catch (IOException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}).start();
 	}
 
 	private Socket getConnectionSocket()
