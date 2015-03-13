@@ -29,7 +29,8 @@ public class ComputationalServerMainActivity
 			}
 			else
 			{
-				server.startWork();
+				// we don't have window here
+				server.startWork(null);
 			}
 		}
 		catch (NumberFormatException | UnknownHostException e)

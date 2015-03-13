@@ -2,6 +2,8 @@ package ComputationalServer;
 
 import java.io.IOException;
 
+import XMLMessages.RegisterMessage;
+
 import GenericCommonClasses.GenericComponent;
 
 /**
@@ -63,7 +65,7 @@ public final class ComputationalServer extends GenericComponent
 	 * Creates thread that starts listening for messages.
 	 * </p>
 	 */
-	public void startWork()
+	public void startWork(final ComputationalServerWindow mainWindow)
 	{
 		new Thread(new Runnable()
 		{
@@ -78,7 +80,8 @@ public final class ComputationalServer extends GenericComponent
 								+ timeout
 								+ " seconds.");
 
-				ComputationalServerCore core = new ComputationalServerCore();
+				ComputationalServerCore core = new ComputationalServerCore(
+						mainWindow);
 				try
 				{
 					core.startListening(port);
@@ -118,5 +121,12 @@ public final class ComputationalServer extends GenericComponent
 	public void setTimeout(int timeout)
 	{
 		this.timeout = timeout;
+	}
+
+	@Override
+	protected RegisterMessage getComponentRegisterMessage()
+	{
+		// TODO: Change that!
+		return new RegisterMessage(-1, getType(), false, null, 1);
 	}
 }
