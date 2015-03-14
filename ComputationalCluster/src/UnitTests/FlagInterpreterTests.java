@@ -29,7 +29,8 @@ public class FlagInterpreterTests
 					null);
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
-		} catch (NumberFormatException | UnknownHostException e)
+		}
+		catch (NumberFormatException | UnknownHostException e)
 		{
 			fail(e.getMessage());
 		}
@@ -52,7 +53,8 @@ public class FlagInterpreterTests
 					null);
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
-		} catch (NumberFormatException | UnknownHostException e)
+		}
+		catch (NumberFormatException | UnknownHostException e)
 		{
 			fail(e.getMessage());
 		}
@@ -67,10 +69,12 @@ public class FlagInterpreterTests
 					"-address", "__unknown" });
 			fail("UnknownHostException expected.");
 
-		} catch (NumberFormatException e)
+		}
+		catch (NumberFormatException e)
 		{
 			fail(e.getMessage());
-		} catch (UnknownHostException e)
+		}
+		catch (UnknownHostException e)
 		{
 
 		}
@@ -94,7 +98,8 @@ public class FlagInterpreterTests
 					true);
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), true);
 
-		} catch (NumberFormatException | UnknownHostException e)
+		}
+		catch (NumberFormatException | UnknownHostException e)
 		{
 			fail(e.getMessage());
 		}
@@ -117,7 +122,8 @@ public class FlagInterpreterTests
 					null);
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
-		} catch (NumberFormatException | UnknownHostException e)
+		}
+		catch (NumberFormatException | UnknownHostException e)
 		{
 			fail(e.getMessage());
 		}
@@ -128,14 +134,16 @@ public class FlagInterpreterTests
 	{
 		try
 		{
-			GenericFlagInterpreter
-					.interpretFlags(new String[] { "-port", "4l0a" });
+			GenericFlagInterpreter.interpretFlags(new String[] { "-port",
+					"4l0a" });
 			fail("NumberFormatException expected.");
 
-		} catch (UnknownHostException e)
+		}
+		catch (UnknownHostException e)
 		{
 			fail(e.getMessage());
-		} catch (NumberFormatException e)
+		}
+		catch (NumberFormatException e)
 		{
 
 		}
