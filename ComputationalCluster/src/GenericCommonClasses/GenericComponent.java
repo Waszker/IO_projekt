@@ -87,9 +87,8 @@ public abstract class GenericComponent
 	 * 
 	 * @return has connection succeded
 	 */
-	public boolean connectToServer()
+	public void connectToServer()
 	{
-		boolean isSuccess = true;
 		connectionSocket = getConnectionSocket();
 		if (null != connectionSocket)
 		{
@@ -103,12 +102,9 @@ public abstract class GenericComponent
 			}
 			catch (IOException e)
 			{
-				isSuccess = false;
 				showError(e.getMessage());
 			}
 		}
-		
-		return isSuccess;
 	}
 
 	/**
@@ -252,7 +248,7 @@ public abstract class GenericComponent
 					}
 				}
 			}
-		}).start();
+		}).run();
 	}
 
 	private Socket getConnectionSocket()
