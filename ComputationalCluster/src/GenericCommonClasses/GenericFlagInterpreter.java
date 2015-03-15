@@ -15,12 +15,18 @@ import java.util.TreeMap;
  * @version 1.0
  *
  */
-public abstract class GenericFlagInterpreter
+public class GenericFlagInterpreter
 {
 
 	/******************/
 	/* VARIABLES */
 	/******************/
+	
+	public static final String FLAG_PORT = "port"; 
+	public static final String FLAG_ADDRESS = "address"; 
+	public static final String FLAG_TIMEOUT = "timeout"; 
+	public static final String FLAG_IS_BACKUP= "isBackup"; 
+	public static final String FLAG_IS_GUI = "isGui"; 
 
 	/******************/
 	/* FUNCTIONS */
@@ -42,7 +48,7 @@ public abstract class GenericFlagInterpreter
 	 *             , NumberFormatException
 	 */
 	public static Map<String, Object> interpretFlags(String[] args)
-			throws UnknownHostException, NumberFormatException
+			throws NumberFormatException, UnknownHostException
 	{
 		Map<String, Object> flagMap = new TreeMap<>();
 
@@ -52,24 +58,25 @@ public abstract class GenericFlagInterpreter
 			switch (args[i])
 			{
 				case "-port":
-					flagMap.put("port", Integer.parseInt(args[i + 1]));
+					flagMap.put(FLAG_PORT, Integer.parseInt(args[i + 1]));
 					break;
 
 				case "-address":
-					flagMap.put("address", InetAddress.getByName(args[i + 1]));
+					InetAddress.getByName(args[i + 1]);
+					flagMap.put(FLAG_ADDRESS, args[i + 1]);
 					break;
 
 				case "-t":
-					flagMap.put("timeout", Integer.parseInt(args[i + 1]));
+					flagMap.put(FLAG_TIMEOUT, Integer.parseInt(args[i + 1]));
 					break;
 
 				case "-backup":
-					flagMap.put("isBackup", true);
+					flagMap.put(FLAG_IS_BACKUP, true);
 					i--;
 					break;
 
 				case "-gui":
-					flagMap.put("isGui", true);
+					flagMap.put(FLAG_IS_GUI, true);
 					i--;
 					break;
 			}

@@ -1,7 +1,7 @@
 package TaskManager;
 
+import XMLMessages.RegisterMessage;
 import GenericCommonClasses.GenericComponent;
-import GenericCommonClasses.GenericConnector;
 
 /**
  * <p>
@@ -16,34 +16,20 @@ public final class TaskManager extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-	
-	
-	
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-	
-	public TaskManager()
+
+	public TaskManager(String address, Integer port, boolean isGuiEnabled)
 	{
-		super();
-		// connector = new Connector();
-		//TODO: Add connector class
+		super(address, port, isGuiEnabled, ComponentType.TaskManager);
 	}
-	
-	
-	/**
-	 * <p> Establishes connection to specified server using GenericConnector class <p>
-	 * @see GenericConnector
-	 * @param serverIp
-	 * 			ip address of target server
-	 * @param port
-	 * 			target port; if null the method uses default value: 47777
-	 * @return
-	 * 			true if connection is properly established; otherwise returns false
-	 */
-	public boolean connectToServer(final String serverIp, final Integer port)
+
+	@Override
+	protected RegisterMessage getComponentRegisterMessage()
 	{
-//		connector.connectToServer(serverIp, port);
-		return false;
+		// TODO: Change that!
+		return new RegisterMessage(-1, getType(), false, null, 1);
 	}
 }

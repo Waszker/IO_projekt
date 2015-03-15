@@ -2,8 +2,9 @@ package ComputationalServer;
 
 import java.io.IOException;
 
+import XMLMessages.RegisterMessage;
+
 import GenericCommonClasses.GenericComponent;
-import GenericCommonClasses.GenericConnector;
 
 /**
  * <p>
@@ -16,20 +17,15 @@ import GenericCommonClasses.GenericConnector;
  * @version 1.0
  * 
  */
-public class ComputationalServer extends GenericComponent
+public final class ComputationalServer extends GenericComponent
 {
 	/******************/
 	/* VARIABLES */
 	/******************/
-	public static final int DEFAULT_PORT = 47777;
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	private boolean isBackup;
-	private int port, timeout;
-
-	@SuppressWarnings("unused")
-	// server will never connect to itself
-	private final GenericConnector connector = null;
+	private int timeout;
 
 	/******************/
 	/* FUNCTIONS */
@@ -50,11 +46,17 @@ public class ComputationalServer extends GenericComponent
 	 * @param timeout
 	 *            in seconds after which server will mark connected module as
 	 *            inactive and disconnected (default is '30 seconds')
+	 * @param primaryServerIp
+	 *            that will be used if server starts in backup mode (default is
+	 *            127.0.0.1)
+	 * @param isGui
+	 *            indicating if server is started in windowed mode
 	 */
-	public ComputationalServer(boolean isBackup, Integer port, Integer timeout)
+	public ComputationalServer(boolean isBackup, Integer port, Integer timeout,
+			String primaryServerIp, boolean isGui)
 	{
+		super(primaryServerIp, port, isGui, ComponentType.ComputationalServer);
 		this.isBackup = isBackup;
-		this.port = (null == port ? DEFAULT_PORT : port);
 		this.timeout = (null == timeout ? DEFAULT_TIMEOUT : timeout);
 	}
 
@@ -63,7 +65,7 @@ public class ComputationalServer extends GenericComponent
 	 * Creates thread that starts listening for messages.
 	 * </p>
 	 */
-	public void startWork()
+	public void startWork(final ComputationalServerWindow mainWindow)
 	{
 		new Thread(new Runnable()
 		{
@@ -78,7 +80,8 @@ public class ComputationalServer extends GenericComponent
 								+ timeout
 								+ " seconds.");
 
-				ComputationalServerCore core = new ComputationalServerCore();
+				ComputationalServerCore core = new ComputationalServerCore(
+						mainWindow);
 				try
 				{
 					core.startListening(port);
@@ -101,14 +104,6 @@ public class ComputationalServer extends GenericComponent
 	}
 
 	/**
-	 * @return port number on which server is listening for connections
-	 */
-	public int getPort()
-	{
-		return port;
-	}
-
-	/**
 	 * @return timeout after which server drops connection
 	 */
 	public int getTimeout()
@@ -116,13 +111,22 @@ public class ComputationalServer extends GenericComponent
 		return timeout;
 	}
 
-	public void setPort(int port)
-	{
-		this.port = port;
-	}
-
+	/**
+	 * <p>
+	 * Sets server timeout value.
+	 * </p>
+	 * 
+	 * @param timeout
+	 */
 	public void setTimeout(int timeout)
 	{
 		this.timeout = timeout;
+	}
+
+	@Override
+	protected RegisterMessage getComponentRegisterMessage()
+	{
+		// TODO: Change that!
+		return new RegisterMessage(-1, getType(), false, null, 1);
 	}
 }

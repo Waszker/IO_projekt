@@ -11,8 +11,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
-import GenericCommonClasses.GenericComponent;
-import GenericCommonClasses.GenericConnector;
+import GenericCommonClasses.IMessage;
 
 /**
  * <p>
@@ -34,8 +33,10 @@ public class ComputationalServerCore
 	private final static int MAX_MESSAGES = 150;
 	private int port;
 	private Socket clientSocket;
-	private Semaphore queueSemaphore;
+	private Semaphore queueSemaphore; // used to indicate if there are any
+										// messages in queue
 	private BlockingQueue<ClientMessage> messageQueue;
+	private ComputationalServerWindow mainWindow;
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,9 +45,13 @@ public class ComputationalServerCore
 	 * <p>
 	 * Creates ComputationalServerCore object with empty messageQueue.
 	 * </p>
+	 * 
+	 * @param mainWindow
+	 *            reference to gui window (null if not applicable)
 	 */
-	public ComputationalServerCore()
+	public ComputationalServerCore(ComputationalServerWindow mainWindow)
 	{
+		this.mainWindow = mainWindow;
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 	}
@@ -137,21 +142,8 @@ public class ComputationalServerCore
 			{
 				try
 				{
-					String line;
-					StringBuilder messageBuilder = new StringBuilder();
-					BufferedReader in = new BufferedReader(
-							new InputStreamReader(clientSocket.getInputStream()));
-
-					while (null != (line = in.readLine()))
-					{
-						if (line.contentEquals(GenericConnector.EOF))
-							break;
-
-						messageBuilder.append(line);
-					}
-
-					messageQueue.add(new ClientMessage(messageBuilder
-							.toString(), clientSocket));
+					messageQueue.add(new ClientMessage(
+							receiveMessage(clientSocket), clientSocket));
 					queueSemaphore.release();
 				}
 				catch (IOException e)
@@ -176,12 +168,19 @@ public class ComputationalServerCore
 			Socket socket = message.getClientSocket();
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					socket.getOutputStream()));
+
+			// TODO: Change that
 			System.out.println("Client [" + socket.getInetAddress()
-					+ "] connected\n");
-			
-			out.write("Hello from the server!\n" + GenericConnector.EOF + "\n");
+					+ "] connected and sent message:\n"
+					+ message.getMessageContent());
+			if (null != mainWindow)
+			{
+				mainWindow.addConnectedUser(socket.getInetAddress().toString());
+			}
+
+			out.write("Hello from the server!\n" + IMessage.ETB);
 			out.flush();
-			
+
 			socket.close();
 		}
 		catch (IOException e)
@@ -220,5 +219,22 @@ public class ComputationalServerCore
 				System.out.println("The server is shut down!");
 			}
 		});
+	}
+
+	private String receiveMessage(Socket connectionSocket) throws IOException
+	{
+		int readChar;
+		StringBuilder messageBuilder = new StringBuilder();
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connectionSocket.getInputStream()));
+
+		while ((readChar = in.read()) != -1)
+		{
+			if (readChar == IMessage.ETB)
+				break;
+			messageBuilder.append((char) readChar);
+		}
+
+		return messageBuilder.toString();
 	}
 }

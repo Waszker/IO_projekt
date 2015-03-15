@@ -2,24 +2,23 @@ package ComputationalServer;
 
 import java.net.Socket;
 
-import GenericCommonClasses.GenericMessage;
-
 /**
  * <p>
  * Client message differs from generic one in one thing: it has additional
- * Socket field that enables server to send the response to connection module.
+ * Socket field that enables server to send the response to connected client.
  * </p>
  * 
  * @author Piotr Waszkiewicz
  * @version 1.0
  * 
  */
-public class ClientMessage extends GenericMessage
+public class ClientMessage
 {
 	/******************/
 	/* VARIABLES */
 	/******************/
 	private Socket socket;
+	private String messageContent;
 
 	/******************/
 	/* FUNCTIONS */
@@ -35,8 +34,8 @@ public class ClientMessage extends GenericMessage
 	 */
 	public ClientMessage(String content, Socket clientSocket)
 	{
-		super(content);
 		socket = clientSocket;
+		messageContent = content;
 	}
 
 	/**
@@ -50,5 +49,16 @@ public class ClientMessage extends GenericMessage
 	{
 		return socket;
 	}
-
+	
+	/**
+	 * <p>
+	 * Returns content of message
+	 * </p>
+	 * 
+	 * @return copy of message
+	 */
+	public String getMessageContent()
+	{
+		return messageContent;
+	}
 }
