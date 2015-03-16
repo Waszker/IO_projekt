@@ -1,5 +1,16 @@
 package GenericCommonClasses;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
 /**
  * <p>
  * Class responsible for parsing messages. It should be able to parse every
@@ -92,13 +103,69 @@ public abstract class Parser
 	 * 
 	 * @param messageContent
 	 *            - raw message to be parsed
-	 * @return parsed message
+	 * @return enum indicating what type of message that is
 	 */
-	static IMessage parse(String messageContent)
+	static MessageType parse(String messageContent)
 	{
-		// TODO
-		System.out.println("Got message: " + messageContent);
-		return null;
+		MessageType result = null;
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try
+		{
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(new ByteArrayInputStream(messageContent
+					.getBytes()));
+			Node root = doc.getDocumentElement();
+			result = getMessageTypeFromRoot(root);
+		}
+		catch (ParserConfigurationException | SAXException | IOException e)
+		{}
+		return result;
+	}
+	
+	private static MessageType getMessageTypeFromRoot(Node root)
+	{
+		MessageType result = null;
+		switch(root.getNodeName())
+		{
+			case "Register":
+				result = MessageType.REGISTER;
+				break;
+				
+			case "RegisterResponse":
+				result = MessageType.REGISTER_RESPONSE;
+				break;
+				
+			case "Status":
+				result = MessageType.STATUS;
+				break;
+				
+			case "SolveRequestResponse":
+				result = MessageType.SOLVE_REQUEST_RESPONSE;
+				break;
+
+			case "SolveRequest":
+				result = MessageType.SOLVE_REQUEST;
+				break;
+				
+			case "SolvePartialProblems":
+				result = MessageType.PARTIAL_PROBLEM;
+				break;
+				
+			case "DivideProblem":
+				result = MessageType.DIVIDE_PROBLEM;
+				break;
+				
+			case "NoOperation":
+				result = MessageType.NO_OPERATION;
+				break;
+				
+			case "Solution":
+				result = MessageType.SOLUTION;
+				break;
+		}
+		
+		return result;
 	}
 
 }
