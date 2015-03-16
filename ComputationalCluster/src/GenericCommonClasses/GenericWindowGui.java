@@ -174,6 +174,8 @@ public abstract class GenericWindowGui extends JFrame
 			{
 				component.setIpAddress(serverIpField.getText());
 				component.setPort(getIntegerValueFromField(serverPort));
+				
+				connectButton.setEnabled(false);
 				component.connectToServer();
 				connectButton.setEnabled(true);
 			}

@@ -29,6 +29,20 @@ public abstract class GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public enum ComponentType
+	{
+		ComputationalServer("CommunicationServer"), ComputationalNode(
+				"ComputationalServer"), ComputationalClient(
+				"ComputationalServer"), TaskManager("TaskManager");
+
+		public String name;
+
+		private ComponentType(String name)
+		{
+			this.name = name;
+		}
+	}
+
 	public static final String DEFAUL_IP_ADDRESS = "127.0.0.1";
 	public static final int DEFAULT_PORT = 47777;
 	public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
@@ -37,6 +51,8 @@ public abstract class GenericComponent
 	protected int port;
 	protected boolean isGui;
 	protected Socket connectionSocket;
+
+	private ComponentType type;
 
 	/******************/
 	/* FUNCTIONS */
@@ -53,12 +69,13 @@ public abstract class GenericComponent
 	 * @param isGui
 	 */
 	public GenericComponent(String serverIpAddress, Integer serverPort,
-			boolean isGui)
+			boolean isGui, ComponentType type)
 	{
 		this.ipAddress = (null == serverIpAddress ? DEFAUL_IP_ADDRESS
 				: serverIpAddress);
 		this.port = (null == serverPort ? DEFAULT_PORT : serverPort);
 		this.isGui = isGui;
+		this.type = type;
 
 		addShutdownHook();
 	}
@@ -67,6 +84,8 @@ public abstract class GenericComponent
 	 * <p>
 	 * Connects to server.
 	 * </p>
+	 * 
+	 * @return has connection succeded
 	 */
 	public void connectToServer()
 	{
@@ -75,11 +94,11 @@ public abstract class GenericComponent
 		{
 			try
 			{
-				sendMessage(new RegisterMessage());
-				Parser.parse(receiveMessage());
-				
-				// TODO: Do we need to close socket?
+				sendMessage(getComponentRegisterMessage());
+				Parser.parse(receiveMessage()); // TODO: React to timeout (for
+												// example server heavy load)
 				connectionSocket.close();
+				startResendingThread(); // TODO: Change that!
 			}
 			catch (IOException e)
 			{
@@ -133,6 +152,8 @@ public abstract class GenericComponent
 		return messageBuilder.toString();
 	}
 
+	protected abstract RegisterMessage getComponentRegisterMessage();
+
 	/**
 	 * <p>
 	 * Sets the ip address that will be used when connecting with server.
@@ -179,6 +200,55 @@ public abstract class GenericComponent
 	public int getPort()
 	{
 		return port;
+	}
+
+	/**
+	 * <p>
+	 * Returns component type enum.
+	 * 
+	 * @See GenericComponent
+	 *      </p>
+	 * @return component type
+	 */
+	public ComponentType getType()
+	{
+		return type;
+	}
+
+	// TODO: Change (probably remove this in the future!)
+	private void startResendingThread()
+	{
+		new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					try
+					{
+						Thread.sleep(30 * 1000);
+					}
+					catch (InterruptedException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try
+					{
+						connectionSocket = getConnectionSocket();
+						sendMessage(getComponentRegisterMessage());
+						receiveMessage();
+					}
+					catch (IOException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}).run();
 	}
 
 	private Socket getConnectionSocket()

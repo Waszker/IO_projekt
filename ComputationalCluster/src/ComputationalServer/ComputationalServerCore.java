@@ -36,6 +36,7 @@ public class ComputationalServerCore
 	private Semaphore queueSemaphore; // used to indicate if there are any
 										// messages in queue
 	private BlockingQueue<ClientMessage> messageQueue;
+	private ComputationalServerWindow mainWindow;
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,9 +45,13 @@ public class ComputationalServerCore
 	 * <p>
 	 * Creates ComputationalServerCore object with empty messageQueue.
 	 * </p>
+	 * 
+	 * @param mainWindow
+	 *            reference to gui window (null if not applicable)
 	 */
-	public ComputationalServerCore()
+	public ComputationalServerCore(ComputationalServerWindow mainWindow)
 	{
+		this.mainWindow = mainWindow;
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 	}
@@ -163,9 +168,15 @@ public class ComputationalServerCore
 			Socket socket = message.getClientSocket();
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					socket.getOutputStream()));
+
+			// TODO: Change that
 			System.out.println("Client [" + socket.getInetAddress()
 					+ "] connected and sent message:\n"
 					+ message.getMessageContent());
+			if (null != mainWindow)
+			{
+				mainWindow.addConnectedUser(socket.getInetAddress().toString());
+			}
 
 			out.write("Hello from the server!\n" + IMessage.ETB);
 			out.flush();
