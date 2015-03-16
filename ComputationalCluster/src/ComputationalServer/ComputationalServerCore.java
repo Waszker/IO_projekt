@@ -12,6 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import GenericCommonClasses.IMessage;
+import XMLMessages.Register;
 
 /**
  * <p>
@@ -173,12 +174,9 @@ public class ComputationalServerCore
 			System.out.println("Client [" + socket.getInetAddress()
 					+ "] connected and sent message:\n"
 					+ message.getMessageContent());
-			if (null != mainWindow)
-			{
-				mainWindow.addConnectedUser(socket.getInetAddress().toString());
-			}
 
-			out.write("Hello from the server!\n" + IMessage.ETB);
+			// TODO: END OF CHANGE!
+			out.write((new Register()).toString() + IMessage.ETB);
 			out.flush();
 
 			socket.close();
