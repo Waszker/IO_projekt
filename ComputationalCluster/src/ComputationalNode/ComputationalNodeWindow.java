@@ -6,11 +6,12 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
+import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
 /**
  * 
- * @author Monika ¯urkowska
+ * @author Monika ï¿½urkowska
  * @version 0.9
  * 
  *          <p>
@@ -24,9 +25,9 @@ public final class ComputationalNodeWindow extends GenericWindowGui
 	private JTextField currentTaskField;
 	private JProgressBar currentProgressBar;
 
-	public ComputationalNodeWindow()
+	public ComputationalNodeWindow(ComputationalNode component)
 	{
-		super("Computational Node", new ComputationalNodeActionListener());
+		super("Computational Node", component);
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel("Current task"),
 				currentTaskField = createTextField("none", false)));
@@ -41,5 +42,11 @@ public final class ComputationalNodeWindow extends GenericWindowGui
 
 		this.pack();
 		this.setLocationRelativeTo(null);
+	}
+
+	@Override
+	public GenericWindowActionListener createActionListener()
+	{
+		return new ComputationalNodeActionListener(this);
 	}
 }

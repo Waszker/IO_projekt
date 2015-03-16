@@ -13,12 +13,15 @@ public class ComputationalServerMainActivity
 		try
 		{
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
-			ComputationalServer server = new ComputationalServer(
-					flagsMap.get("isBackup") != null,
-					(Integer) flagsMap.get("port"),
-					(Integer) flagsMap.get("timeout"));
 
-			if (flagsMap.get("isGui") != null)
+			ComputationalServer server = new ComputationalServer(
+					flagsMap.get(GenericFlagInterpreter.FLAG_IS_BACKUP) != null,
+					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_PORT),
+					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_TIMEOUT),
+					(String) flagsMap.get(GenericFlagInterpreter.FLAG_ADDRESS),
+					flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
+
+			if (flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI) != null)
 			{
 				ComputationalServerWindow window = new ComputationalServerWindow(
 						server);
@@ -26,10 +29,11 @@ public class ComputationalServerMainActivity
 			}
 			else
 			{
-				server.startWork();
+				// we don't have window here
+				server.startWork(null);
 			}
 		}
-		catch (UnknownHostException | NumberFormatException e)
+		catch (NumberFormatException | UnknownHostException e)
 		{
 			e.printStackTrace();
 			System.err
