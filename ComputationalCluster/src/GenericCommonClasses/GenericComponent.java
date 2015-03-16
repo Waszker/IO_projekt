@@ -10,8 +10,9 @@ import java.net.Socket;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.xml.bind.JAXBException;
 
-import XMLMessages.RegisterMessage;
+import XMLMessages.Register;
 
 /**
  * <p>
@@ -121,7 +122,13 @@ public abstract class GenericComponent
 		{
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					connectionSocket.getOutputStream()));
-			out.write(message.getString());
+			try
+			{
+				out.write(message.getString());
+			}
+			catch (JAXBException e)
+			{
+			}
 			out.write(IMessage.ETB);
 			out.flush();
 		}
@@ -152,7 +159,7 @@ public abstract class GenericComponent
 		return messageBuilder.toString();
 	}
 
-	protected abstract RegisterMessage getComponentRegisterMessage();
+	protected abstract Register getComponentRegisterMessage();
 
 	/**
 	 * <p>

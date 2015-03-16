@@ -1,5 +1,7 @@
 package GenericCommonClasses;
 
+import javax.xml.bind.JAXBException;
+
 import GenericCommonClasses.Parser.MessageType;
 
 /**
@@ -30,16 +32,14 @@ public interface IMessage
 	 * 
 	 * @returns string message
 	 */
-	public String getString();
+	public String getString() throws JAXBException;
 
 	/**
 	 * <p>
 	 * Gets the type of message.
 	 * </p>
 	 * 
-	 * @param messageContent
-	 *            - message which type we want to check
 	 * @return type of message
 	 */
-	public MessageType getType(String messageContent);
+	public MessageType getMessageType();
 }

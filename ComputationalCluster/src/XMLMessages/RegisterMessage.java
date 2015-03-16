@@ -52,7 +52,7 @@ public class RegisterMessage implements IMessage
 	}
 
 	@Override
-	public MessageType getType(String messageContent)
+	public MessageType getMessageType()
 	{
 		return MessageType.REGISTER;
 	}
