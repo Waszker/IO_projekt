@@ -8,11 +8,14 @@
 
 package XMLMessages;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -399,8 +402,18 @@ public class Status implements IMessage {
 	@Override
 	public String getString() throws JAXBException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		String message;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		JAXBContext jaxbContext = JAXBContext.newInstance(Status.class);
+		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+		// output pretty printed
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+		jaxbMarshaller.marshal(this, out);
+		message = new String(out.toByteArray());
+
+		return message;
 	}
 
 	@Override
