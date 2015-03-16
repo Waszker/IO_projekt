@@ -6,7 +6,7 @@
 //
 
 
-package xml.messages;
+package XMLMessages;
 
 import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlAccessType;
