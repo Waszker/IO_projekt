@@ -39,9 +39,7 @@ public interface IMessage
 	 * Gets the type of message.
 	 * </p>
 	 * 
-	 * @param messageContent
-	 *            - message which type we want to check
 	 * @return type of message
 	 */
-	public MessageType getType(String messageContent);
+	public MessageType getMessageType();
 }

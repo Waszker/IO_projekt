@@ -9,12 +9,17 @@
 package XMLMessages;
 
 import java.math.BigInteger;
+
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
 
 
 /**
@@ -41,7 +46,7 @@ import javax.xml.bind.annotation.XmlType;
     "id"
 })
 @XmlRootElement(name = "SolveRequestResponse")
-public class SolveRequestResponse {
+public class SolveRequestResponse implements IMessage {
 
     @XmlElement(name = "Id", required = true)
     @XmlSchemaType(name = "unsignedLong")
@@ -70,5 +75,18 @@ public class SolveRequestResponse {
     public void setId(BigInteger value) {
         this.id = value;
     }
+
+	@Override
+	public String getString() throws JAXBException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MessageType getMessageType()
+	{
+		return MessageType.SOLVE_REQUEST_RESPONSE;
+	}
 
 }
