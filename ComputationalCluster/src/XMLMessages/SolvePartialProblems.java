@@ -11,12 +11,17 @@ package XMLMessages;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
 
 
 /**
@@ -73,7 +78,7 @@ import javax.xml.bind.annotation.XmlType;
     "partialProblems"
 })
 @XmlRootElement(name = "SolvePartialProblems")
-public class SolvePartialProblems {
+public class SolvePartialProblems implements IMessage {
 
     @XmlElement(name = "ProblemType", required = true)
     protected String problemType;
@@ -388,5 +393,19 @@ public class SolvePartialProblems {
         }
 
     }
+
+
+	@Override
+	public String getString() throws JAXBException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MessageType getMessageType()
+	{
+		return MessageType.PARTIAL_PROBLEM;
+	}
 
 }

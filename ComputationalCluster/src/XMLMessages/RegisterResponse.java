@@ -9,6 +9,8 @@
 package XMLMessages;
 
 import java.math.BigInteger;
+
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -16,6 +18,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
 
 
 /**
@@ -65,7 +70,7 @@ import javax.xml.bind.annotation.XmlType;
     "backupCommunicationServers"
 })
 @XmlRootElement(name = "RegisterResponse")
-public class RegisterResponse {
+public class RegisterResponse implements IMessage {
 
     @XmlElement(name = "Id", required = true)
     @XmlSchemaType(name = "unsignedLong")
@@ -283,5 +288,19 @@ public class RegisterResponse {
         }
 
     }
+
+
+	@Override
+	public String getString() throws JAXBException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MessageType getMessageType()
+	{
+		return MessageType.REGISTER_RESPONSE;
+	}
 
 }

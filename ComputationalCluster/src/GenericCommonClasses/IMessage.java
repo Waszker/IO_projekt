@@ -41,5 +41,5 @@ public interface IMessage
 	 * 
 	 * @return type of message
 	 */
-	public MessageType getType();
+	public MessageType getMessageType();
 }
