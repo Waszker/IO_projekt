@@ -1,4 +1,4 @@
-package ComputationalServer;
+package ComputationalServer.ServerCore;
 
 import java.net.Socket;
 

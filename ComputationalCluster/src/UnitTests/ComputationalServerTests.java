@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ComputationalServer.ClientMessage;
 import ComputationalServer.ComputationalServer;
+import ComputationalServer.ServerCore.ClientMessage;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericComponent.ComponentType;
 
