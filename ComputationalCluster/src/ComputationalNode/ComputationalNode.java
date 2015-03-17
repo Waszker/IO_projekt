@@ -1,8 +1,8 @@
 package ComputationalNode;
 
 import XMLMessages.Register;
-import XMLMessages.RegisterMessage;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.IMessage;
 
 public class ComputationalNode extends GenericComponent
 {
@@ -20,6 +20,13 @@ public class ComputationalNode extends GenericComponent
 	{
 		// TODO: Change that!
 		return new Register();
+	}
+
+	@Override
+	protected void reactToMessage(IMessage message)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }
