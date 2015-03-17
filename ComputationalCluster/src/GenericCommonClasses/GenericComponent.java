@@ -36,9 +36,9 @@ public abstract class GenericComponent
 	/******************/
 	public enum ComponentType
 	{
-		ComputationalServer("CommunicationServer"), ComputationalNode(
-				"ComputationalServer"), ComputationalClient(
-				"ComputationalServer"), TaskManager("TaskManager");
+		ComputationalServer("CommunicationServer"),
+		ComputationalNode("ComputationalNode"),
+		TaskManager("TaskManager");
 
 		public String name;
 
@@ -306,17 +306,32 @@ public abstract class GenericComponent
 		return socket;
 	}
 
-	private void showError(String message)
+	/**
+	 * Shows error message in gui and cmd line mode.
+	 * @param message - to be shown
+	 */
+	protected void showError(String message)
 	{
 		if (isGui)
 		{
-			JOptionPane.showMessageDialog(new JFrame(), message, "Error",
+			JOptionPane.showMessageDialog(null, message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
-		else
+		System.err.println(message);
+	}
+	
+	/**
+	 * Shows information message in gui and cmd line mode.
+	 * @param message - to be shown
+	 */
+	protected void showMessage(String message)
+	{
+		if (isGui)
 		{
-			System.err.println(message);
+			JOptionPane.showMessageDialog(null, message, "",
+					JOptionPane.INFORMATION_MESSAGE);
 		}
+		System.out.println(message);
 	}
 
 	private void addShutdownHook()
