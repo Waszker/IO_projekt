@@ -1,8 +1,8 @@
 package TaskManager;
 
 import XMLMessages.Register;
-import XMLMessages.RegisterMessage;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.IMessage;
 
 /**
  * <p>
@@ -32,5 +32,12 @@ public final class TaskManager extends GenericComponent
 	{
 		// TODO: Change that!
 		return new Register();
+	}
+
+	@Override
+	protected void reactToMessage(IMessage message)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
