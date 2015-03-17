@@ -35,6 +35,11 @@ public class TaskManagerMainActivity
 						taskManager);
 				mainWindow.setVisible(true);
 			}
+			
+			else
+			{
+				taskManager.connectToServer();
+			}
 		}
 		catch (NumberFormatException | UnknownHostException e)
 		{
