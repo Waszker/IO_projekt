@@ -11,7 +11,7 @@ import GenericCommonClasses.Parser.MessageType;
  * should implement this interface.
  * </p>
  * 
- * @author Monika ���urkowska
+ * @author Monika Żurkowska
  * @version 1.0
  * 
  */

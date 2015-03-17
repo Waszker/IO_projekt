@@ -5,15 +5,11 @@
 // Generated on: 2015.03.16 at 05:00:16 PM CET 
 //
 
-
 package XMLMessages;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -22,13 +18,16 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -48,135 +47,116 @@ import GenericCommonClasses.Parser.MessageType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "problemType",
-    "solvingTimeout",
-    "data",
-    "id"
-})
+@XmlType(name = "", propOrder = { "problemType", "solvingTimeout", "data", "id" })
 @XmlRootElement(name = "SolveRequest")
-public class SolveRequest implements IMessage {
+public class SolveRequest implements IMessage
+{
 
-    @XmlElement(name = "ProblemType", required = true)
-    protected String problemType;
-    @XmlElement(name = "SolvingTimeout")
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger solvingTimeout;
-    @XmlElement(name = "Data", required = true)
-    protected byte[] data;
-    @XmlElement(name = "Id")
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger id;
+	@XmlElement(name = "ProblemType", required = true)
+	protected String problemType;
+	@XmlElement(name = "SolvingTimeout")
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger solvingTimeout;
+	@XmlElement(name = "Data", required = true)
+	protected byte[] data;
+	@XmlElement(name = "Id")
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger id;
 
-    /**
-     * Gets the value of the problemType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getProblemType() {
-        return problemType;
-    }
+	/**
+	 * Gets the value of the problemType property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getProblemType()
+	{
+		return problemType;
+	}
 
-    /**
-     * Sets the value of the problemType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setProblemType(String value) {
-        this.problemType = value;
-    }
+	/**
+	 * Sets the value of the problemType property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link String }
+	 * 
+	 */
+	public void setProblemType(String value)
+	{
+		this.problemType = value;
+	}
 
-    /**
-     * Gets the value of the solvingTimeout property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getSolvingTimeout() {
-        return solvingTimeout;
-    }
+	/**
+	 * Gets the value of the solvingTimeout property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getSolvingTimeout()
+	{
+		return solvingTimeout;
+	}
 
-    /**
-     * Sets the value of the solvingTimeout property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setSolvingTimeout(BigInteger value) {
-        this.solvingTimeout = value;
-    }
+	/**
+	 * Sets the value of the solvingTimeout property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setSolvingTimeout(BigInteger value)
+	{
+		this.solvingTimeout = value;
+	}
 
-    /**
-     * Gets the value of the data property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
-     */
-    public byte[] getData() {
-        return data;
-    }
+	/**
+	 * Gets the value of the data property.
+	 * 
+	 * @return possible object is byte[]
+	 */
+	public byte[] getData()
+	{
+		return data;
+	}
 
-    /**
-     * Sets the value of the data property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
-     */
-    public void setData(byte[] value) {
-        this.data = value;
-    }
+	/**
+	 * Sets the value of the data property.
+	 * 
+	 * @param value
+	 *            allowed object is byte[]
+	 */
+	public void setData(byte[] value)
+	{
+		this.data = value;
+	}
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getId() {
-        return id;
-    }
+	/**
+	 * Gets the value of the id property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getId()
+	{
+		return id;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setId(BigInteger value) {
-        this.id = value;
-    }
+	/**
+	 * Sets the value of the id property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setId(BigInteger value)
+	{
+		this.id = value;
+	}
 
 	@Override
 	public String getString() throws JAXBException
 	{
-		String message;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		JAXBContext jaxbContext = JAXBContext.newInstance(SolveRequest.class);
-		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-		jaxbMarshaller.marshal(this, out);
-		message = new String(out.toByteArray());
-
-		return message;
+		return Parser.marshallMessage(this, SolveRequest.class);
 	}
 
 	@Override
@@ -184,5 +164,4 @@ public class SolveRequest implements IMessage {
 	{
 		return MessageType.SOLVE_REQUEST;
 	}
-
 }

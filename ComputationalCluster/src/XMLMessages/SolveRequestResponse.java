@@ -5,15 +5,11 @@
 // Generated on: 2015.03.16 at 05:00:15 PM CET 
 //
 
-
 package XMLMessages;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -22,13 +18,16 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -45,55 +44,42 @@ import GenericCommonClasses.Parser.MessageType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "id"
-})
+@XmlType(name = "", propOrder = { "id" })
 @XmlRootElement(name = "SolveRequestResponse")
-public class SolveRequestResponse implements IMessage {
+public class SolveRequestResponse implements IMessage
+{
 
-    @XmlElement(name = "Id", required = true)
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger id;
+	@XmlElement(name = "Id", required = true)
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger id;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getId() {
-        return id;
-    }
+	/**
+	 * Gets the value of the id property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getId()
+	{
+		return id;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setId(BigInteger value) {
-        this.id = value;
-    }
+	/**
+	 * Sets the value of the id property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setId(BigInteger value)
+	{
+		this.id = value;
+	}
 
 	@Override
 	public String getString() throws JAXBException
 	{
-		String message;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		JAXBContext jaxbContext = JAXBContext.newInstance(SolveRequestResponse.class);
-		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-		jaxbMarshaller.marshal(this, out);
-		message = new String(out.toByteArray());
-
-		return message;
+		return Parser.marshallMessage(this, SolveRequestResponse.class);
 	}
 
 	@Override
