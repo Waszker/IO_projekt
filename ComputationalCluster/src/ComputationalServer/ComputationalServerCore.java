@@ -5,13 +5,20 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
+import javax.xml.bind.JAXBException;
+
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser;
+import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.Register;
+import XMLMessages.RegisterResponse;
 
 /**
  * <p>
@@ -178,12 +185,26 @@ public class ComputationalServerCore
 				mainWindow.addConnectedUser(socket.getInetAddress().toString());
 			}
 
-			out.write("Hello from the server!\n" + IMessage.ETB);
-			out.flush();
+			IMessage recMessage = Parser.parse(message.getMessageContent());
+			if (MessageType.REGISTER == recMessage.getMessageType())
+			{
+				RegisterResponse response = new RegisterResponse();
+				response.setId(new BigInteger("12234"));
+				response.setTimeout(3);
+				out.write(response.getString() + IMessage.ETB);
+				out.flush();
+			}
+			else
+			{
+
+				// TODO: END OF CHANGE!
+				out.write((new Register()).getString() + IMessage.ETB);
+				out.flush();
+			}
 
 			socket.close();
 		}
-		catch (IOException e)
+		catch (IOException | JAXBException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

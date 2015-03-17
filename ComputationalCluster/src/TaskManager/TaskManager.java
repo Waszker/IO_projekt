@@ -1,5 +1,6 @@
 package TaskManager;
 
+import XMLMessages.Register;
 import XMLMessages.RegisterMessage;
 import GenericCommonClasses.GenericComponent;
 
@@ -27,9 +28,9 @@ public final class TaskManager extends GenericComponent
 	}
 
 	@Override
-	protected RegisterMessage getComponentRegisterMessage()
+	protected Register getComponentRegisterMessage()
 	{
 		// TODO: Change that!
-		return new RegisterMessage(-1, getType(), false, null, 1);
+		return new Register();
 	}
 }

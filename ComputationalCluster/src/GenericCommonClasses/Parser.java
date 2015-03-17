@@ -1,5 +1,32 @@
 package GenericCommonClasses;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import XMLMessages.DivideProblem;
+import XMLMessages.NoOperation;
+import XMLMessages.Register;
+import XMLMessages.RegisterResponse;
+import XMLMessages.Solutiones;
+import XMLMessages.SolvePartialProblems;
+import XMLMessages.SolveRequest;
+import XMLMessages.SolveRequestResponse;
+import XMLMessages.Status;
+
 /**
  * <p>
  * Class responsible for parsing messages. It should be able to parse every
@@ -92,13 +119,115 @@ public abstract class Parser
 	 * 
 	 * @param messageContent
 	 *            - raw message to be parsed
-	 * @return parsed message
+	 * @return message or null
 	 */
-	static IMessage parse(String messageContent)
+	public static IMessage parse(String messageContent)
 	{
-		// TODO
-		System.out.println("Got message: " + messageContent);
-		return null;
+		IMessage result = null;
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try
+		{
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(new ByteArrayInputStream(messageContent
+					.getBytes()));
+			Node root = doc.getDocumentElement();
+			result = getMessageTypeFromRoot(root, messageContent);
+		}
+		catch (ParserConfigurationException | SAXException | IOException
+				| JAXBException e)
+		{
+			e.printStackTrace();
+		}
+
+		return result;
+	}
+
+	/**
+	 * <p>
+	 * Marshalls message into string object so it can be easily sent over
+	 * network. Marshalled object can then be unmarshalled using parse() method.
+	 * </p>
+	 * 
+	 * @param message
+	 * @param type
+	 * @return
+	 * @throws JAXBException
+	 */
+	public static String marshallMessage(IMessage message,
+			@SuppressWarnings("rawtypes") Class type) throws JAXBException
+	{
+		String string;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		JAXBContext jaxbContext = JAXBContext.newInstance(type);
+		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+		jaxbMarshaller.marshal(message, out);
+		string = new String(out.toByteArray());
+
+		return string;
+	}
+
+	private static IMessage getMessageTypeFromRoot(Node root,
+			String messageString) throws JAXBException
+	{
+		IMessage result = null;
+		switch (root.getNodeName())
+		{
+			case "Register":
+				result = getMessage(Register.class, messageString);
+				break;
+
+			case "RegisterResponse":
+				result = getMessage(RegisterResponse.class, messageString);
+				break;
+
+			case "Status":
+				result = getMessage(Status.class, messageString);
+				break;
+
+			case "SolveRequestResponse":
+				result = getMessage(SolveRequestResponse.class, messageString);
+				break;
+
+			case "SolveRequest":
+				result = getMessage(SolveRequest.class, messageString);
+				break;
+
+			case "SolvePartialProblems":
+				result = getMessage(SolvePartialProblems.class, messageString);
+				break;
+
+			case "DivideProblem":
+				result = getMessage(DivideProblem.class, messageString);
+				break;
+
+			case "NoOperation":
+				result = getMessage(NoOperation.class, messageString);
+				break;
+
+			case "Solutions":
+				result = getMessage(Solutiones.class, messageString);
+				break;
+		}
+
+		return result;
+	}
+
+	private static IMessage getMessage(
+			@SuppressWarnings("rawtypes") Class classToUnmarshall, String xml)
+			throws JAXBException
+	{
+		IMessage message;
+
+		JAXBContext jaxbContext = JAXBContext.newInstance(classToUnmarshall);
+
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		StringReader reader = new StringReader(xml);
+		message = (IMessage) jaxbUnmarshaller.unmarshal(reader);
+
+		return message;
 	}
 
 }

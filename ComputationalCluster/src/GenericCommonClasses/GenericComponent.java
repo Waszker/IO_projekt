@@ -5,13 +5,18 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.xml.bind.JAXBException;
 
-import XMLMessages.RegisterMessage;
+import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.NoOperation;
+import XMLMessages.Register;
+import XMLMessages.RegisterResponse;
 
 /**
  * <p>
@@ -51,6 +56,8 @@ public abstract class GenericComponent
 	protected int port;
 	protected boolean isGui;
 	protected Socket connectionSocket;
+	protected BigInteger id;
+	protected Long timeout;
 
 	private ComponentType type;
 
@@ -82,34 +89,40 @@ public abstract class GenericComponent
 
 	/**
 	 * <p>
-	 * Connects to server.
+	 * Connects to server. If connection succeeds component sets its id and
+	 * timeout to the values sent by server in RegisterResponse message.
 	 * </p>
 	 * 
 	 * @return has connection succeded
 	 */
 	public void connectToServer()
 	{
-		connectionSocket = getConnectionSocket();
-		if (null != connectionSocket)
+		try
 		{
-			try
+			sendMessage(getComponentRegisterMessage());
+			IMessage receivedMessage = receiveMessage();
+
+			if (null == receivedMessage
+					|| MessageType.REGISTER_RESPONSE != receivedMessage
+							.getMessageType())
 			{
-				sendMessage(getComponentRegisterMessage());
-				Parser.parse(receiveMessage()); // TODO: React to timeout (for
-												// example server heavy load)
-				connectionSocket.close();
-				startResendingThread(); // TODO: Change that!
+				throw new IOException("Unsupported response from server!");
 			}
-			catch (IOException e)
-			{
-				showError(e.getMessage());
-			}
+
+			getRegisterResponseDetails((RegisterResponse) receivedMessage);
+			startResendingThread();
+			connectionSocket.close();
+		}
+		catch (IOException e)
+		{
+			showError(e.getMessage());
 		}
 	}
 
 	/**
 	 * <p>
-	 * Sends the message to server.
+	 * Sends the message to server. This method creates connection before
+	 * sending message.
 	 * </p>
 	 * 
 	 * @param message
@@ -119,9 +132,16 @@ public abstract class GenericComponent
 	{
 		if (null != message)
 		{
+			connectionSocket = getConnectionSocket();
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					connectionSocket.getOutputStream()));
-			out.write(message.getString());
+			try
+			{
+				out.write(message.getString());
+			}
+			catch (JAXBException e)
+			{
+			}
 			out.write(IMessage.ETB);
 			out.flush();
 		}
@@ -135,7 +155,7 @@ public abstract class GenericComponent
 	 * @return received message
 	 * @throws IOException
 	 */
-	protected String receiveMessage() throws IOException
+	protected IMessage receiveMessage() throws IOException
 	{
 		int readChar;
 		StringBuilder messageBuilder = new StringBuilder();
@@ -149,10 +169,26 @@ public abstract class GenericComponent
 			messageBuilder.append((char) readChar);
 		}
 
-		return messageBuilder.toString();
+		return Parser.parse(messageBuilder.toString());
 	}
 
-	protected abstract RegisterMessage getComponentRegisterMessage();
+	/**
+	 * <p>
+	 * Sets id and timeout sent from ComputationalServer.
+	 * </p>
+	 * 
+	 * @param register
+	 *            response message from server
+	 */
+	protected void getRegisterResponseDetails(RegisterResponse message)
+	{
+		id = message.getId();
+		timeout = message.getTimeout();
+	}
+
+	protected abstract Register getComponentRegisterMessage();
+
+	protected abstract void reactToMessage(IMessage message);
 
 	/**
 	 * <p>
@@ -228,23 +264,21 @@ public abstract class GenericComponent
 				{
 					try
 					{
-						Thread.sleep(30 * 1000);
+						Thread.sleep(timeout * 1000); // TODO: Check if seconds
+														// or not
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 					try
 					{
-						connectionSocket = getConnectionSocket();
-						sendMessage(getComponentRegisterMessage());
+						sendMessage(new NoOperation());
 						receiveMessage();
 					}
 					catch (IOException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						// TODO: react to connection error
+						// (Probably Server is not accessible anymore)
 					}
 				}
 			}

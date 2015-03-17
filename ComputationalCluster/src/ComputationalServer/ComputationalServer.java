@@ -2,9 +2,9 @@ package ComputationalServer;
 
 import java.io.IOException;
 
-import XMLMessages.RegisterMessage;
-
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.IMessage;
+import XMLMessages.Register;
 
 /**
  * <p>
@@ -124,9 +124,17 @@ public final class ComputationalServer extends GenericComponent
 	}
 
 	@Override
-	protected RegisterMessage getComponentRegisterMessage()
+	protected Register getComponentRegisterMessage()
 	{
-		// TODO: Change that!
-		return new RegisterMessage(-1, getType(), false, null, 1);
+		Register registerMessage = new Register();
+		registerMessage.setType(ComponentType.ComputationalServer.name);
+		
+		return registerMessage;
+	}
+
+	@Override
+	protected void reactToMessage(IMessage message)
+	{
+		// TODO: Implement that!
 	}
 }
