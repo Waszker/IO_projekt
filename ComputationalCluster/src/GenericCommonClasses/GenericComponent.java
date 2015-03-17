@@ -38,7 +38,7 @@ public abstract class GenericComponent
 	{
 		ComputationalServer("CommunicationServer"), ComputationalNode(
 				"ComputationalServer"), ComputationalClient(
-				"ComputationalServer"), TaskManager("TaskManager");
+				"ComputationaClient"), TaskManager("TaskManager");
 
 		public String name;
 
