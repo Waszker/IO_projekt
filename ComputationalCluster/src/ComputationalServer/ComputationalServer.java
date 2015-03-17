@@ -2,6 +2,8 @@ package ComputationalServer;
 
 import java.io.IOException;
 
+import ComputationalServer.ServerCore.ComputationalServerCore;
+import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Register;
@@ -73,18 +75,14 @@ public final class ComputationalServer extends GenericComponent
 			@Override
 			public void run()
 			{
-				System.out
-						.println("Computational server starts listening\non port: "
-								+ port
-								+ "\nwith timeout: "
-								+ timeout
-								+ " seconds.");
+				Logger.log("Computational server starts listening\non port: "
+						+ port + "\nwith timeout: " + timeout + " seconds.\n");
 
 				ComputationalServerCore core = new ComputationalServerCore(
 						mainWindow);
 				try
 				{
-					core.startListening(port);
+					core.startListening(port, timeout);
 				}
 				catch (IOException e)
 				{
@@ -128,7 +126,7 @@ public final class ComputationalServer extends GenericComponent
 	{
 		Register registerMessage = new Register();
 		registerMessage.setType(ComponentType.ComputationalServer.name);
-		
+
 		return registerMessage;
 	}
 
