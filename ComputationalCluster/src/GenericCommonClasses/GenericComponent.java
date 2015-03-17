@@ -277,7 +277,7 @@ public abstract class GenericComponent
 						status.setId(id);
 						
 						sendMessage(status);
-						receiveMessage();
+						reactToMessage(receiveMessage());
 					}
 					catch (IOException e)
 					{
