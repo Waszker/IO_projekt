@@ -306,16 +306,29 @@ public abstract class GenericComponent
 		return socket;
 	}
 
-	private void showError(String message)
+	protected void showError(String message)
 	{
 		if (isGui)
 		{
-			JOptionPane.showMessageDialog(new JFrame(), message, "Error",
+			JOptionPane.showMessageDialog(null, message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 		else
 		{
 			System.err.println(message);
+		}
+	}
+	
+	protected void showMessage(String message)
+	{
+		if (isGui)
+		{
+			JOptionPane.showMessageDialog(null, message, "",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+		else
+		{
+			System.out.println(message);
 		}
 	}
 
