@@ -306,6 +306,10 @@ public abstract class GenericComponent
 		return socket;
 	}
 
+	/**
+	 * Shows error message in gui and cmd line mode.
+	 * @param message - to be shown
+	 */
 	protected void showError(String message)
 	{
 		if (isGui)
@@ -313,12 +317,13 @@ public abstract class GenericComponent
 			JOptionPane.showMessageDialog(null, message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
-		else
-		{
-			System.err.println(message);
-		}
+		System.err.println(message);
 	}
 	
+	/**
+	 * Shows information message in gui and cmd line mode.
+	 * @param message - to be shown
+	 */
 	protected void showMessage(String message)
 	{
 		if (isGui)
@@ -326,10 +331,7 @@ public abstract class GenericComponent
 			JOptionPane.showMessageDialog(null, message, "",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
-		else
-		{
-			System.out.println(message);
-		}
+		System.out.println(message);
 	}
 
 	private void addShutdownHook()
