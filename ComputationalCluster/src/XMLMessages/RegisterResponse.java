@@ -8,12 +8,9 @@
 
 package XMLMessages;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -23,6 +20,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
 
@@ -296,18 +294,7 @@ public class RegisterResponse implements IMessage {
 	@Override
 	public String getString() throws JAXBException
 	{
-		String message;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		JAXBContext jaxbContext = JAXBContext.newInstance(RegisterResponse.class);
-		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-		jaxbMarshaller.marshal(this, out);
-		message = new String(out.toByteArray());
-
-		return message;
+		return Parser.marshallMessage(this, RegisterResponse.class);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package ComputationalClient;
 
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.IMessage;
 import XMLMessages.Register;
 
 public class ComputationalClient extends GenericComponent
@@ -23,5 +24,12 @@ public class ComputationalClient extends GenericComponent
 	{
 		// TODO: Change that!
 		return new Register();
+	}
+
+	@Override
+	protected void reactToMessage(IMessage message)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
