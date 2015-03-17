@@ -100,7 +100,7 @@ public abstract class GenericComponent
 		try
 		{
 			sendMessage(getComponentRegisterMessage());
-			IMessage receivedMessage = Parser.parse(receiveMessage());
+			IMessage receivedMessage = receiveMessage();
 
 			if (null == receivedMessage
 					|| MessageType.REGISTER_RESPONSE != receivedMessage
@@ -155,7 +155,7 @@ public abstract class GenericComponent
 	 * @return received message
 	 * @throws IOException
 	 */
-	protected String receiveMessage() throws IOException
+	protected IMessage receiveMessage() throws IOException
 	{
 		int readChar;
 		StringBuilder messageBuilder = new StringBuilder();
@@ -169,7 +169,7 @@ public abstract class GenericComponent
 			messageBuilder.append((char) readChar);
 		}
 
-		return messageBuilder.toString();
+		return Parser.parse(messageBuilder.toString());
 	}
 
 	/**
