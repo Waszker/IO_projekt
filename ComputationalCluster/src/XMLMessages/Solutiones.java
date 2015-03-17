@@ -8,15 +8,23 @@
 
 package XMLMessages;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
 
 
 /**
@@ -81,7 +89,7 @@ import javax.xml.bind.annotation.XmlType;
     "solutions"
 })
 @XmlRootElement(name = "Solutions")
-public class Solutiones {
+public class Solutiones implements IMessage {
 
     @XmlElement(name = "ProblemType", required = true)
     protected String problemType;
@@ -435,5 +443,29 @@ public class Solutiones {
         }
 
     }
+
+
+	@Override
+	public String getString() throws JAXBException
+	{
+		String message;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		JAXBContext jaxbContext = JAXBContext.newInstance(Solutiones.class);
+		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+		// output pretty printed
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+		jaxbMarshaller.marshal(this, out);
+		message = new String(out.toByteArray());
+
+		return message;
+	}
+
+	@Override
+	public MessageType getMessageType()
+	{
+		return MessageType.SOLUTION;
+	}
 
 }

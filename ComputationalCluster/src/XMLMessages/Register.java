@@ -268,21 +268,20 @@ public class Register implements IMessage
 	{
 		String message;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Register messRegister = new Register();
 		JAXBContext jaxbContext = JAXBContext.newInstance(Register.class);
 		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
 		// output pretty printed
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-		jaxbMarshaller.marshal(messRegister, out);
+		jaxbMarshaller.marshal(this, out);
 		message = new String(out.toByteArray());
 
 		return message;
 	}
 
 	@Override
-	public MessageType getType(String messageContent)
+	public MessageType getMessageType()
 	{
 		return MessageType.REGISTER;
 	}
