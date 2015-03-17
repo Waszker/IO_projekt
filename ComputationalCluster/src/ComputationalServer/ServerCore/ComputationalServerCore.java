@@ -34,6 +34,10 @@ public class ComputationalServerCore
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
 	BlockingQueue<ClientMessage> messageQueue;
+	BlockingQueue<BigInteger> taskManagers;
+	BlockingQueue<BigInteger> computationalNodes;
+	BlockingQueue<BigInteger> computationalServers;
+	
 	ComputationalServerWindow mainWindow;
 
 	private BigInteger freeId;
@@ -57,6 +61,11 @@ public class ComputationalServerCore
 		this.freeId = new BigInteger("1");
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		
+		taskManagers = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		computationalNodes = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		computationalServers = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		
 		connectionEstabilisherThread = new ConnectionEstabilisherThread(this);
 		messageParserThread = new MessageParserThread(this);
 	}
@@ -85,7 +94,7 @@ public class ComputationalServerCore
 	{
 		BigInteger one = new BigInteger("1");
 		BigInteger result = new BigInteger(freeId.toString());
-		freeId.add(one);
+		freeId = freeId.add(one);
 		return result;
 	}
 
