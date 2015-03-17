@@ -20,6 +20,7 @@ public interface IMessage
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final char ETX = 3;
 	public static final char ETB = 23;
 	
 	/******************/
