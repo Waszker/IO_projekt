@@ -103,7 +103,9 @@ class MessageParserThread extends Thread
 				RegisterResponse registerResponse = new RegisterResponse();
 				BigInteger id = new BigInteger(core.getCurrentFreeId()
 						.toString());
-				registerClient((Register) message, id);
+				// TODO: Remove that in the future
+				if (null != ((Register) message).getType())
+					registerClient((Register) message, id);
 				registerResponse.setId(id);
 				registerResponse.setTimeout(core.timeout);
 				sendMessages(out, registerResponse);
