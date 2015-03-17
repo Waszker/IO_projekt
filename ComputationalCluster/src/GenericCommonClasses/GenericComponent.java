@@ -172,6 +172,20 @@ public abstract class GenericComponent
 		return messageBuilder.toString();
 	}
 
+	/**
+	 * <p>
+	 * Sets id and timeout sent from ComputationalServer.
+	 * </p>
+	 * 
+	 * @param register
+	 *            response message from server
+	 */
+	protected void getRegisterResponseDetails(RegisterResponse message)
+	{
+		id = message.getId();
+		timeout = message.getTimeout();
+	}
+
 	protected abstract Register getComponentRegisterMessage();
 
 	protected abstract void reactToMessage(IMessage message);
@@ -299,12 +313,6 @@ public abstract class GenericComponent
 		{
 			System.err.println(message);
 		}
-	}
-
-	private void getRegisterResponseDetails(RegisterResponse message)
-	{
-		id = message.getId();
-		timeout = message.getTimeout();
 	}
 
 	private void addShutdownHook()
