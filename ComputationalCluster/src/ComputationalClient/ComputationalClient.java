@@ -23,7 +23,7 @@ public class ComputationalClient extends GenericComponent
 	protected Register getComponentRegisterMessage()
 	{
 		// TODO: Change that!
-		return new Register();
+		return (new Register());
 	}
 
 	@Override

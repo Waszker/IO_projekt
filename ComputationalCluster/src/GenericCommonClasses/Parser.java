@@ -137,6 +137,7 @@ public abstract class Parser
 		catch (ParserConfigurationException | SAXException | IOException
 				| JAXBException e)
 		{
+			e.printStackTrace();
 		}
 
 		return result;
@@ -206,7 +207,7 @@ public abstract class Parser
 				result = getMessage(NoOperation.class, messageString);
 				break;
 
-			case "Solution":
+			case "Solutions":
 				result = getMessage(Solutiones.class, messageString);
 				break;
 		}
