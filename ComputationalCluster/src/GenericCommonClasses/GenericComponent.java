@@ -14,9 +14,9 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 
 import GenericCommonClasses.Parser.MessageType;
-import XMLMessages.NoOperation;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -128,21 +128,22 @@ public abstract class GenericComponent
 	 * @param message
 	 * @throws IOException
 	 */
-	protected void sendMessage(IMessage message) throws IOException
+	protected void sendMessage(IMessage ...messages) throws IOException
 	{
-		if (null != message)
+		if (null != messages)
 		{
 			connectionSocket = getConnectionSocket();
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					connectionSocket.getOutputStream()));
 			try
 			{
-				out.write(message.getString());
+				for(IMessage m : messages)
+					out.write(m.getString() + IMessage.ETB);
 			}
 			catch (JAXBException e)
 			{
 			}
-			out.write(IMessage.ETB);
+			out.write(IMessage.ETX);
 			out.flush();
 		}
 	}
@@ -272,7 +273,10 @@ public abstract class GenericComponent
 					}
 					try
 					{
-						sendMessage(new NoOperation());
+						Status status = new Status();
+						status.setId(id);
+						
+						sendMessage(status);
 						receiveMessage();
 					}
 					catch (IOException e)
