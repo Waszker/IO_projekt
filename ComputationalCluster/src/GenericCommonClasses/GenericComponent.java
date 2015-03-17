@@ -36,9 +36,9 @@ public abstract class GenericComponent
 	/******************/
 	public enum ComponentType
 	{
-		ComputationalServer("CommunicationServer"), ComputationalNode(
-				"ComputationalServer"), ComputationalClient(
-				"ComputationaClient"), TaskManager("TaskManager");
+		ComputationalServer("CommunicationServer"),
+		ComputationalNode("ComputationalNode"),
+		TaskManager("TaskManager");
 
 		public String name;
 
