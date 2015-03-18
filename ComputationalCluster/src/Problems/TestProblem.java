@@ -69,4 +69,10 @@ public class TestProblem implements IProblem
 			result.append(partialSolutions.get(i));
 		return result.toString().getBytes();
 	}
+
+	@Override
+	public Object extractSolution(byte[] solutionBinary)
+	{
+		return new String(solutionBinary);
+	}
 }
