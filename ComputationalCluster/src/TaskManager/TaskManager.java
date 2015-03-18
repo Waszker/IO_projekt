@@ -1,6 +1,7 @@
 package TaskManager;
 
 import XMLMessages.Register;
+import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
@@ -32,18 +33,14 @@ public final class TaskManager extends GenericComponent
 	protected Register getComponentRegisterMessage()
 	{
 		Register r = new Register();
-		r.setType("TM");
+		r.setType(ComponentType.TaskManager.name);
 		return r;
 	}
 
 	@Override
 	protected void reactToMessage(IMessage message)
 	{
-		showMessage(message.toString());
-		if ( message.getMessageType() == MessageType.REGISTER_RESPONSE )
-		{
-			Register r = (Register)message;
-			showMessage("Your id is: " + r.getId().toString());
-		}
+		if ( message.getMessageType() == MessageType.NO_OPERATION )
+			Logger.log("Your id is: "+id+"\n");
 	}
 }
