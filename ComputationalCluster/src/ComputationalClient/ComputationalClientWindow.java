@@ -67,7 +67,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	@Override
 	public GenericWindowActionListener createActionListener()
 	{
-		return new ComputationalClientActionListener(this);
+		return new ComputationalClientActionListener(this, (ComputationalClient)component);
 	}
 
 }
