@@ -27,7 +27,7 @@ public abstract class GenericWindowActionListener implements ActionListener
 	/******************/
 	/* VARIABLES */
 	/******************/
-	private GenericWindowGui mainWindow;
+	protected GenericWindowGui mainWindow;
 
 	/******************/
 	/* FUNCTIONS */
