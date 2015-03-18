@@ -139,7 +139,7 @@ public abstract class GenericComponent
 	 */
 	protected IMessage receiveMessage() throws IOException
 	{
-		return GenericProtocol.receiveMessage(connectionSocket);
+		return GenericProtocol.receiveMessage(connectionSocket).get(0);
 	}
 
 	/**

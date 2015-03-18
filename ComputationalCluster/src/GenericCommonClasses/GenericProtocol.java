@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -17,7 +19,7 @@ import javax.xml.bind.JAXBException;
  * 
  * @author Piotr Waszkiewicz
  * @version 1.0
- *
+ * 
  */
 public final class GenericProtocol
 {
@@ -40,17 +42,20 @@ public final class GenericProtocol
 	public static void sendMessages(Socket connectionSocket,
 			IMessage... messages) throws IOException
 	{
-		if (null != messages)
+		if (null != messages && connectionSocket != null)
 		{
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					connectionSocket.getOutputStream()));
-			try
+
+			for (IMessage m : messages)
 			{
-				for (IMessage m : messages)
+				try
+				{
 					out.write(m.getString() + IMessage.ETB);
-			}
-			catch (JAXBException e)
-			{
+				}
+				catch (JAXBException e)
+				{
+				}
 			}
 			out.write(IMessage.ETX);
 			out.flush();
@@ -65,22 +70,37 @@ public final class GenericProtocol
 	 * @return received message
 	 * @throws IOException
 	 */
-	public static IMessage receiveMessage(Socket connectionSocket)
+	public static List<IMessage> receiveMessage(Socket connectionSocket)
 			throws IOException
 	{
 		int readChar;
-		StringBuilder messageBuilder = new StringBuilder();
+		List<IMessage> messages = new ArrayList<>();
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				connectionSocket.getInputStream()));
+		StringBuilder messageBuilder;
 
-		while ((readChar = in.read()) != -1)
+		do
 		{
-			if (readChar == IMessage.ETB)
-				break;
-			messageBuilder.append((char) readChar);
-		}
+			messageBuilder = new StringBuilder();
+			while ((readChar = in.read()) != -1)
+			{
+				if (readChar == IMessage.ETB)
+					break;
+				if (readChar == IMessage.ETX)
+				{
+					messageBuilder = null;
+					break;
+				}
+				messageBuilder.append((char) readChar);
+			}
 
-		return Parser.parse(messageBuilder.toString());
+			if (null != messageBuilder)
+			{
+				messages.add(Parser.parse(messageBuilder.toString()));
+			}
+		} while (null != messageBuilder);
+
+		return messages;
 	}
 
 	private GenericProtocol()
