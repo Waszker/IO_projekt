@@ -18,6 +18,9 @@ import java.util.Date;
 public final class Logger
 {
 	/******************/
+	/* VARIABLES */
+	/******************/
+	/******************/
 	/* FUNCTIONS */
 	/******************/
 	private Logger()
@@ -36,7 +39,7 @@ public final class Logger
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date today = Calendar.getInstance().getTime();
 		System.out.println("/-------------------------------------------\\");
-		System.out.print(df.format(today) + ": " + message);
-		System.out.println("\\-------------------------------------------//");
+		System.out.print(df.format(today) + ":\n" + message);
+		System.out.println("\\-------------------------------------------/\n");
 	}
 }
