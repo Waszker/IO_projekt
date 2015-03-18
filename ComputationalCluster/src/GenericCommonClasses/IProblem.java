@@ -3,8 +3,6 @@ package GenericCommonClasses;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-import XMLMessages.SolvePartialProblems;
-
 
 /**
  * <p>
@@ -65,7 +63,7 @@ public interface IProblem
 	 * </p>
 	 * @param partialSolutions - array of partial solution to merge (the order must be the same
 	 * 							 as divide() method returned)
-	 * @return merged final solution
+	 * @return merged final solution (binary ready to send)
 	 */
-	Object mergeSolutions(List<byte[]> partialSolutions);
+	byte[] mergeSolutions(List<byte[]> partialSolutions);
 }

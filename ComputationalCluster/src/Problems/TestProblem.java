@@ -62,11 +62,11 @@ public class TestProblem implements IProblem
 	}
 
 	@Override
-	public Object mergeSolutions(List<byte[]> partialSolutions)
+	public byte[] mergeSolutions(List<byte[]> partialSolutions)
 	{
 		StringBuilder result = new StringBuilder();
 		for ( int i=0; i<partialSolutions.size(); i++ )
 			result.append(partialSolutions.get(i));
-		return result.toString();
+		return result.toString().getBytes();
 	}
 }
