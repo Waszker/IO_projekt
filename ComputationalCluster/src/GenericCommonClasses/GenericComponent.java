@@ -1,17 +1,11 @@
 package GenericCommonClasses;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.xml.bind.JAXBException;
 
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.Register;
@@ -36,11 +30,9 @@ public abstract class GenericComponent
 	/******************/
 	public enum ComponentType
 	{
-		ComputationalServer("CommunicationServer"),
-		ComputationalNode("ComputationalNode"),
-		TaskManager("TaskManager"),
-		ComputationalClient("ComputationalClient");
-		
+		ComputationalServer("CommunicationServer"), ComputationalNode(
+				"ComputationalNode"), TaskManager("TaskManager"), ComputationalClient(
+				"ComputationalClient");
 
 		public String name;
 
@@ -94,14 +86,12 @@ public abstract class GenericComponent
 	 * Connects to server. If connection succeeds component sets its id and
 	 * timeout to the values sent by server in RegisterResponse message.
 	 * </p>
-	 * 
-	 * @return has connection succeded
 	 */
 	public void connectToServer()
 	{
 		try
 		{
-			sendMessage(getComponentRegisterMessage());
+			sendMessages(getComponentRegisterMessage());
 			IMessage receivedMessage = receiveMessage();
 
 			if (null == receivedMessage
@@ -123,30 +113,19 @@ public abstract class GenericComponent
 
 	/**
 	 * <p>
-	 * Sends the message to server. This method creates connection before
-	 * sending message.
+	 * Sends the messages to server. This method creates connection before
+	 * sending messages.
 	 * </p>
 	 * 
 	 * @param message
 	 * @throws IOException
 	 */
-	protected void sendMessage(IMessage ...messages) throws IOException
+	protected void sendMessages(IMessage... messages) throws IOException
 	{
 		if (null != messages)
 		{
 			connectionSocket = getConnectionSocket();
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-					connectionSocket.getOutputStream()));
-			try
-			{
-				for(IMessage m : messages)
-					out.write(m.getString() + IMessage.ETB);
-			}
-			catch (JAXBException e)
-			{
-			}
-			out.write(IMessage.ETX);
-			out.flush();
+			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
 	}
 
@@ -160,19 +139,7 @@ public abstract class GenericComponent
 	 */
 	protected IMessage receiveMessage() throws IOException
 	{
-		int readChar;
-		StringBuilder messageBuilder = new StringBuilder();
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connectionSocket.getInputStream()));
-
-		while ((readChar = in.read()) != -1)
-		{
-			if (readChar == IMessage.ETB)
-				break;
-			messageBuilder.append((char) readChar);
-		}
-
-		return Parser.parse(messageBuilder.toString());
+		return GenericProtocol.receiveMessage(connectionSocket);
 	}
 
 	/**
@@ -277,8 +244,8 @@ public abstract class GenericComponent
 					{
 						Status status = new Status();
 						status.setId(id);
-						
-						sendMessage(status);
+
+						sendMessages(status);
 						reactToMessage(receiveMessage());
 					}
 					catch (IOException e)
@@ -310,7 +277,9 @@ public abstract class GenericComponent
 
 	/**
 	 * Shows error message in gui and cmd line mode.
-	 * @param message - to be shown
+	 * 
+	 * @param message
+	 *            - to be shown
 	 */
 	protected void showError(String message)
 	{
@@ -321,10 +290,12 @@ public abstract class GenericComponent
 		}
 		System.err.println(message);
 	}
-	
+
 	/**
 	 * Shows information message in gui and cmd line mode.
-	 * @param message - to be shown
+	 * 
+	 * @param message
+	 *            - to be shown
 	 */
 	protected void showMessage(String message)
 	{
