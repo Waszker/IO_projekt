@@ -9,7 +9,7 @@ import GenericCommonClasses.IProblem;
  * TestProblem - makes the string written uppercase
  * </p>
  * 
- * 
+ * @see IProblem
  * @author Filip
  */
 public class TestProblem implements IProblem
@@ -59,5 +59,14 @@ public class TestProblem implements IProblem
 	{
 		data.toUpperCase();
 		return data;
+	}
+
+	@Override
+	public Object mergeSolutions(Object[] partialSolutions)
+	{
+		StringBuilder result = new StringBuilder();
+		for ( int i=0; i<partialSolutions.length; i++ )
+			result.append((String)partialSolutions[i]);
+		return result.toString();
 	}
 }
