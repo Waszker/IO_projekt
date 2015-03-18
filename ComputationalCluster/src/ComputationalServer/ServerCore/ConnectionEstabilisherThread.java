@@ -1,11 +1,9 @@
 package ComputationalServer.ServerCore;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
-import GenericCommonClasses.IMessage;
+import GenericCommonClasses.GenericProtocol;
 
 /**
  * <p>
@@ -71,13 +69,9 @@ class ConnectionEstabilisherThread extends Thread
 			{
 				try
 				{
-					String message;
-					while (null != (message = receiveMessage(clientSocket)))
-					{
-						core.messageQueue.add(new ClientMessage(message,
-								clientSocket));
-						core.queueSemaphore.release();
-					}
+					core.messageQueue.add(new ClientMessage(GenericProtocol
+							.receiveMessage(clientSocket), clientSocket));
+					core.queueSemaphore.release();
 				}
 				catch (IOException e)
 				{
@@ -87,27 +81,5 @@ class ConnectionEstabilisherThread extends Thread
 
 			}
 		}).start();
-	}
-
-	private String receiveMessage(Socket connectionSocket) throws IOException
-	{
-		int readChar;
-		StringBuilder messageBuilder = new StringBuilder();
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connectionSocket.getInputStream()));
-
-		while ((readChar = in.read()) != -1)
-		{
-			if (readChar == IMessage.ETB)
-				break;
-			if (readChar == IMessage.ETX)
-			{
-				messageBuilder = null;
-				break;
-			}
-			messageBuilder.append((char) readChar);
-		}
-
-		return (null == messageBuilder ? null : messageBuilder.toString());
 	}
 }

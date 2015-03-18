@@ -1,18 +1,19 @@
 package ComputationalServer.ServerCore;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.net.Socket;
 
 import javax.xml.bind.JAXBException;
 
 import DebugTools.Logger;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.Parser;
 import XMLMessages.NoOperation;
+import XMLMessages.NoOperation.BackupCommunicationServers;
+import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -72,17 +73,14 @@ class MessageParserThread extends Thread
 		{
 			Socket socket = message.getClientSocket();
 
-			Logger.log("Client [" + socket.getInetAddress()
-					+ "] connected and sent message:\n"
-					+ message.getMessageContent());
-			IMessage receivedMessage = Parser
-					.parse(message.getMessageContent());
-
-			if (receivedMessage != null)
+			for (IMessage receivedMessage : message.getMessageContents())
 			{
-				reactToMessage(receivedMessage, new BufferedWriter(
-						new OutputStreamWriter(socket.getOutputStream())),
-						socket);
+				if (null != receivedMessage)
+				{
+					Logger.log("Client [" + socket.getInetAddress() + "] \n"
+							+ receivedMessage.getString());
+					reactToMessage(receivedMessage, socket);
+				}
 			}
 
 			socket.close();
@@ -92,44 +90,71 @@ class MessageParserThread extends Thread
 		}
 	}
 
-	private void reactToMessage(IMessage message, BufferedWriter out,
-			Socket client) throws JAXBException, IOException
+	private void reactToMessage(IMessage message, Socket socket)
+			throws JAXBException, IOException
 	{
 		switch (message.getMessageType())
 		{
 			case REGISTER:
-				RegisterResponse registerResponse = new RegisterResponse();
-				registerResponse.setId(new BigInteger(core.getCurrentFreeId()
-						.toString()));
-				registerResponse.setTimeout(core.timeout);
-				sendMessages(out, registerResponse);
+				reactToRegisterMessage((Register) message, socket);
 				break;
 
 			case STATUS:
-				NoOperation noOperation = new NoOperation();
-				noOperation.setBackupCommunicationServers(null);
-				sendMessages(out, noOperation);
+				reactToStatusMessage((Status) message, socket);
 				break;
 
 			default:
 				Logger.log("Unsupported message " + message.getString()
 						+ "\n\n");
+				// TODO: Send Error message
 				break;
 		}
 	}
 
-	private void sendMessages(BufferedWriter out, IMessage... messages)
+	private void reactToRegisterMessage(Register message, Socket socket)
 			throws IOException
 	{
-		try
+		BigInteger id = new BigInteger("-1");
+		Integer remotePort = socket.getPort();
+		String remoteAddress = socket.getInetAddress().toString();
+
+		if (null != ((Register) message).getType())
 		{
-			for (IMessage m : messages)
-				out.write(m.getString() + IMessage.ETB);
+			id = core.registerComponent((Register) message, remotePort,
+					remoteAddress);
 		}
-		catch (JAXBException e)
+
+		RegisterResponse registerResponse = new RegisterResponse();
+		registerResponse.setId(id);
+		registerResponse.setTimeout(core.timeout);
+		GenericProtocol.sendMessages(socket, registerResponse);
+	}
+
+	private void reactToStatusMessage(Status message, Socket socket)
+			throws IOException
+	{
+		if (false == core.componentMonitorThread
+				.informaAboutConnectedComponent(message.getId()))
 		{
+			// TODO: Send error message
 		}
-		out.write(IMessage.ETX);
-		out.flush();
+		else
+		{
+			// TODO: Add other reactions
+			NoOperation noOperation = new NoOperation();
+			BackupCommunicationServers backupServers = new BackupCommunicationServers();
+
+			if (null != core.backupServer)
+			{
+				backupServers.getBackupCommunicationServer().setAddress(
+						core.backupServer.address);
+				backupServers.getBackupCommunicationServer().setPort(
+						core.backupServer.port);
+			}
+			noOperation.setBackupCommunicationServers(backupServers);
+
+			GenericProtocol.sendMessages(socket, noOperation);
+
+		}
 	}
 }
