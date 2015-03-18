@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"  targetNamespace="http://www.mini.pw.edu.pl/ucc/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Error">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ErrorDetails">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <!--nieznany komponent-->
+              <xs:enumeration value="UnknownSender" />
+              <!--np. otrzymanie rozwiazania zadania ktorego nie zlecilismy-->
+              <xs:enumeration value="InvalidOperation" />
+              <!--wymagane w przypadku gdy serwer pamięta o wszystkich usuniętych polaczeniach-->
+              <xs:enumeration value="TimeoutExceeded" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
