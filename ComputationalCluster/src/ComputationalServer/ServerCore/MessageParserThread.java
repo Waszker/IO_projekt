@@ -158,5 +158,11 @@ class MessageParserThread extends Thread
 			Logger.log("CS Connected\n");
 			core.computationalServers.add(id);
 		}
+		else if (message.getType().contentEquals(
+				GenericComponent.ComponentType.ComputationalClient.name))
+		{
+			Logger.log("CC Connected\n");
+			core.computationalServers.add(id);
+		}
 	}
 }
