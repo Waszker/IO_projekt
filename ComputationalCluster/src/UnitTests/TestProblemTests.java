@@ -22,9 +22,10 @@ public class TestProblemTests
 		for ( int i=0; i<_tp.length; i++ )
 			partialSolutions.add(_tp[i].doComputation());
 		
-		assert(new String(tp.mergeSolutions(partialSolutions)).contentEquals(new String(tp.doComputation())));
-		assertEquals("ABCDEFGH",new String(tp.doComputation()));
-		
+		String mergedResult = (String)tp.extractSolution(tp.mergeSolutions(partialSolutions));
+		String oneResult = (String)tp.extractSolution(tp.doComputation());
+		assert(mergedResult.contentEquals(oneResult));
+		assertEquals("ABCDEFGH",oneResult);
 	}
 	
 	@Test
@@ -37,8 +38,10 @@ public class TestProblemTests
 		for ( int i=0; i<_tp.length; i++ )
 			partialSolutions.add(_tp[i].doComputation());
 		
-		assert(new String(tp.mergeSolutions(partialSolutions)).contentEquals(new String(tp.doComputation())));
-		assertEquals("ABCDEFGH",new String(tp.doComputation()));
+		String mergedResult = (String)tp.extractSolution(tp.mergeSolutions(partialSolutions));
+		String oneResult = (String)tp.extractSolution(tp.doComputation());
+		assert(mergedResult.contentEquals(oneResult));
+		assertEquals("ABCDEFGH",oneResult);
 		
 	}
 	
@@ -52,8 +55,10 @@ public class TestProblemTests
 		for ( int i=0; i<_tp.length; i++ )
 			partialSolutions.add(_tp[i].doComputation());
 		
-		assert(new String(tp.mergeSolutions(partialSolutions)).contentEquals(new String(tp.doComputation())));
-		assertEquals("ABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGH",new String(tp.doComputation()));
+		String mergedResult = (String)tp.extractSolution(tp.mergeSolutions(partialSolutions));
+		String oneResult = (String)tp.extractSolution(tp.doComputation());
+		assert(mergedResult.contentEquals(oneResult));
+		assertEquals("ABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGH",oneResult);
 		
 	}
 

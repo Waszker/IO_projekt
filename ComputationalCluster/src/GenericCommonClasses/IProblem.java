@@ -61,9 +61,18 @@ public interface IProblem
 	 * <p>
 	 * Merges partial solutions and returns final solution.
 	 * </p>
-	 * @param partialSolutions - array of partial solution to merge (the order must be the same
+	 * @param partialSolutions array of partial solution to merge (the order must be the same
 	 * 							 as divide() method returned)
 	 * @return merged final solution (binary ready to send)
 	 */
 	byte[] mergeSolutions(List<byte[]> partialSolutions);
+	
+	/**
+	 * <p>
+	 * Extracts solution ready to display to the user from raw binary data.
+	 * </p>
+	 * @param solutionBinary binary data of solution
+	 * @return solution readable by human.
+	 */
+	Object extractSolution(byte[] solutionBinary);
 }
