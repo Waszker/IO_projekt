@@ -72,7 +72,7 @@ class ConnectionEstabilisherThread extends Thread
 				try
 				{
 					String message;
-					while (null != (message = receiveMessage(clientSocket)))
+					while (null != (message = receiveMessageString(clientSocket)))
 					{
 						core.messageQueue.add(new ClientMessage(message,
 								clientSocket));
@@ -89,7 +89,7 @@ class ConnectionEstabilisherThread extends Thread
 		}).start();
 	}
 
-	private String receiveMessage(Socket connectionSocket) throws IOException
+	private String receiveMessageString(Socket connectionSocket) throws IOException
 	{
 		// TODO: This will be problem because we share socket inside many messages...
 		int readChar;

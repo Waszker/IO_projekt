@@ -36,7 +36,7 @@ public class ComputationalServerCore
 	BlockingQueue<ClientMessage> messageQueue;
 	BlockingQueue<BigInteger> taskManagers;
 	BlockingQueue<BigInteger> computationalNodes;
-	BlockingQueue<BigInteger> computationalServers;
+	BackupServerInformation backupServer;
 	
 	ComputationalServerWindow mainWindow;
 
@@ -64,7 +64,6 @@ public class ComputationalServerCore
 		
 		taskManagers = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 		computationalNodes = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
-		computationalServers = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 		
 		connectionEstabilisherThread = new ConnectionEstabilisherThread(this);
 		messageParserThread = new MessageParserThread(this);
