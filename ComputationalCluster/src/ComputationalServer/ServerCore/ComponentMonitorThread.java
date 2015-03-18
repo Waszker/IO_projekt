@@ -47,6 +47,7 @@ class ComponentMonitorThread extends Thread
 		pool = new ScheduledThreadPoolExecutor(1024);
 		scheduledRemovals = new HashMap<BigInteger, ScheduledFuture<?>>();
 		invalidId = new ArrayList<>();
+		invalidId.add(new BigInteger("-1"));
 	}
 
 	/**

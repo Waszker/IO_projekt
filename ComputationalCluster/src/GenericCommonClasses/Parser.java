@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 
 import DebugTools.Logger;
 import XMLMessages.DivideProblem;
+import XMLMessages.Error;
 import XMLMessages.NoOperation;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
@@ -107,7 +108,9 @@ public abstract class Parser
 		 * Sent by TM, CN and Backup CS to CS at least as frequent as a timeout
 		 * given in REGISTER_RESPONSE.
 		 */
-		STATUS
+		STATUS,
+		
+		ERROR
 	}
 
 	/******************/
@@ -211,6 +214,10 @@ public abstract class Parser
 			case "Solutions":
 				result = getMessage(Solutiones.class, messageString);
 				break;
+				
+			case "Error":
+				result = getMessage(Error.class, messageString);
+				break;				
 		}
 
 		return result;
