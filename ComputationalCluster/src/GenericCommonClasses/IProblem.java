@@ -2,6 +2,8 @@ package GenericCommonClasses;
 
 import java.security.InvalidParameterException;
 
+import XMLMessages.SolvePartialProblems;
+
 
 /**
  * <p>
@@ -12,7 +14,7 @@ import java.security.InvalidParameterException;
  * @version 1.0
  * 
  */
-interface IProblem
+public interface IProblem
 {
 	/**
 	 * <p>
@@ -24,7 +26,7 @@ interface IProblem
 	
 	/**
 	 * <p>
-	 * Gets binary data needed to solve the problem
+	 * Gets binary data (necessary to solve the problem) in order to send it through network
 	 * </p>
 	 * @return binary data of a problem
 	 */
@@ -32,10 +34,27 @@ interface IProblem
 	
 	/**
 	 * <p>
-	 * Loads binary data needed to solve the problem
+	 * Loads received binary data of the problem.
 	 * </p>
 	 * @param data - binary data of a problem
 	 * @throws InvalidParameterException
 	 */
 	void loadData(byte[] data) throws InvalidParameterException;
+	
+	/**
+	 * <p>
+	 * Divides problem into partial problems.
+	 * </p>
+	 * @param nodes Number of available computational nsodes
+	 * @return array of partial problems
+	 */
+	IProblem[] divide(int nodes);
+	
+	/**
+	 * <p>
+	 * Executed on ComputationalNode. Runs the major computation.
+	 * </p>
+	 * @return result of computation
+	 */
+	Object doComputation();
 }
