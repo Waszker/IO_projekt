@@ -9,7 +9,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 
@@ -36,11 +35,9 @@ public abstract class GenericComponent
 	/******************/
 	public enum ComponentType
 	{
-		ComputationalServer("CommunicationServer"),
-		ComputationalNode("ComputationalNode"),
-		TaskManager("TaskManager"),
-		ComputationalClient("ComputationalClient");
-		
+		ComputationalServer("CommunicationServer"), ComputationalNode(
+				"ComputationalNode"), TaskManager("TaskManager"), ComputationalClient(
+				"ComputationalClient");
 
 		public String name;
 
@@ -130,7 +127,7 @@ public abstract class GenericComponent
 	 * @param message
 	 * @throws IOException
 	 */
-	protected void sendMessage(IMessage ...messages) throws IOException
+	protected void sendMessage(IMessage... messages) throws IOException
 	{
 		if (null != messages)
 		{
@@ -139,7 +136,7 @@ public abstract class GenericComponent
 					connectionSocket.getOutputStream()));
 			try
 			{
-				for(IMessage m : messages)
+				for (IMessage m : messages)
 					out.write(m.getString() + IMessage.ETB);
 			}
 			catch (JAXBException e)
@@ -277,7 +274,7 @@ public abstract class GenericComponent
 					{
 						Status status = new Status();
 						status.setId(id);
-						
+
 						sendMessage(status);
 						reactToMessage(receiveMessage());
 					}
@@ -310,7 +307,9 @@ public abstract class GenericComponent
 
 	/**
 	 * Shows error message in gui and cmd line mode.
-	 * @param message - to be shown
+	 * 
+	 * @param message
+	 *            - to be shown
 	 */
 	protected void showError(String message)
 	{
@@ -321,10 +320,12 @@ public abstract class GenericComponent
 		}
 		System.err.println(message);
 	}
-	
+
 	/**
 	 * Shows information message in gui and cmd line mode.
-	 * @param message - to be shown
+	 * 
+	 * @param message
+	 *            - to be shown
 	 */
 	protected void showMessage(String message)
 	{
