@@ -1,8 +1,6 @@
 package ComputationalServer.ServerCore;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.net.Socket;
 
@@ -10,9 +8,11 @@ import javax.xml.bind.JAXBException;
 
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser;
 import XMLMessages.NoOperation;
+import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
 
@@ -82,9 +82,7 @@ class MessageParserThread extends Thread
 
 			if (receivedMessage != null)
 			{
-				reactToMessage(receivedMessage, new BufferedWriter(
-						new OutputStreamWriter(socket.getOutputStream())),
-						socket);
+				reactToMessage(receivedMessage, socket);
 			}
 
 			socket.close();
@@ -94,8 +92,7 @@ class MessageParserThread extends Thread
 		}
 	}
 
-	private void reactToMessage(IMessage message, BufferedWriter out,
-			Socket client) throws JAXBException, IOException
+	private void reactToMessage(IMessage message, Socket socket) throws JAXBException, IOException
 	{
 		switch (message.getMessageType())
 		{
@@ -103,18 +100,20 @@ class MessageParserThread extends Thread
 				RegisterResponse registerResponse = new RegisterResponse();
 				BigInteger id = new BigInteger(core.getCurrentFreeId()
 						.toString());
+				Integer remotePort = socket.getPort();
+				String remoteAddress = socket.getInetAddress().toString();
+
 				// TODO: Remove that in the future
 				if (null != ((Register) message).getType())
-					registerClient((Register) message, id);
+					registerClient((Register) message, id, remotePort,
+							remoteAddress);
 				registerResponse.setId(id);
 				registerResponse.setTimeout(core.timeout);
-				sendMessages(out, registerResponse);
+				GenericProtocol.sendMessages(socket, registerResponse);
 				break;
 
 			case STATUS:
-				NoOperation noOperation = new NoOperation();
-				noOperation.setBackupCommunicationServers(null);
-				sendMessages(out, noOperation);
+				reactToStatusMessage(socket);
 				break;
 
 			default:
@@ -125,46 +124,52 @@ class MessageParserThread extends Thread
 		}
 	}
 
-	private void sendMessages(BufferedWriter out, IMessage... messages)
-			throws IOException
-	{
-		try
-		{
-			for (IMessage m : messages)
-				out.write(m.getString() + IMessage.ETB);
-		}
-		catch (JAXBException e)
-		{
-		}
-		out.write(IMessage.ETX);
-		out.flush();
-	}
-
-	private void registerClient(Register message, BigInteger id)
+	private void registerClient(Register message, BigInteger id, Integer port,
+			String address)
 	{
 		if (message.getType().contentEquals(
 				GenericComponent.ComponentType.TaskManager.name))
 		{
 			Logger.log("TM Connected\n");
 			core.taskManagers.add(id);
-		}
-		else if (message.getType().contentEquals(
+		} else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalNode.name))
 		{
 			Logger.log("CN Connected\n");
 			core.computationalNodes.add(id);
-		}
-		else if (message.getType().contentEquals(
+		} else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalServer.name))
 		{
 			Logger.log("CS Connected\n");
-			core.computationalServers.add(id);
-		}
-		else if (message.getType().contentEquals(
+			if (null != core.backupServer)
+			{
+				// TODO: Send error if `if` is bad
+				core.backupServer = (new BackupServerInformation(id, port,
+						address));
+			}
+		} else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalClient.name))
 		{
 			Logger.log("CC Connected\n");
-			core.computationalServers.add(id);
+			// Send error because CC cannot register
 		}
+	}
+
+	private void reactToStatusMessage(Socket socket) throws IOException
+	{
+		// TODO: Add other reactions
+		NoOperation noOperation = new NoOperation();
+		BackupCommunicationServers backupServers = new BackupCommunicationServers();
+
+		if (null != core.backupServer)
+		{
+			backupServers.getBackupCommunicationServer().setAddress(
+					core.backupServer.address);
+			backupServers.getBackupCommunicationServer().setPort(
+					core.backupServer.port);
+		}
+		noOperation.setBackupCommunicationServers(backupServers);
+
+		GenericProtocol.sendMessages(socket, noOperation);
 	}
 }
