@@ -1,6 +1,7 @@
 package Problems;
 
 import java.security.InvalidParameterException;
+import java.util.List;
 
 import GenericCommonClasses.IProblem;
 
@@ -55,18 +56,17 @@ public class TestProblem implements IProblem
 	}
 
 	@Override
-	public Object doComputation()
+	public byte[] doComputation()
 	{
-		data.toUpperCase();
-		return data;
+		return data.toUpperCase().getBytes();
 	}
 
 	@Override
-	public Object mergeSolutions(Object[] partialSolutions)
+	public Object mergeSolutions(List<byte[]> partialSolutions)
 	{
 		StringBuilder result = new StringBuilder();
-		for ( int i=0; i<partialSolutions.length; i++ )
-			result.append((String)partialSolutions[i]);
+		for ( int i=0; i<partialSolutions.size(); i++ )
+			result.append(partialSolutions.get(i));
 		return result.toString();
 	}
 }

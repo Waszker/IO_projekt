@@ -1,6 +1,7 @@
 package GenericCommonClasses;
 
 import java.security.InvalidParameterException;
+import java.util.List;
 
 import XMLMessages.SolvePartialProblems;
 
@@ -54,9 +55,9 @@ public interface IProblem
 	 * <p>
 	 * Executed on ComputationalNode. Runs the major computation.
 	 * </p>
-	 * @return result of computation
+	 * @return result of computation (binary ready to send)
 	 */
-	Object doComputation();
+	byte[] doComputation();
 	
 	/**
 	 * <p>
@@ -66,5 +67,5 @@ public interface IProblem
 	 * 							 as divide() method returned)
 	 * @return merged final solution
 	 */
-	Object mergeSolutions(Object[] partialSolutions);
+	Object mergeSolutions(List<byte[]> partialSolutions);
 }
