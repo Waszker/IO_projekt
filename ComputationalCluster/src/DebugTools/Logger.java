@@ -20,6 +20,8 @@ public final class Logger
 	/******************/
 	/* VARIABLES */
 	/******************/
+	private static boolean isDebugOn = true;
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
@@ -36,10 +38,27 @@ public final class Logger
 	 */
 	public static void log(String message)
 	{
-		DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-		Date today = Calendar.getInstance().getTime();
-		System.out.println("/-------------------------------------------\\");
-		System.out.print(df.format(today) + ":\n" + message);
-		System.out.println("\\-------------------------------------------/\n");
+		if (isDebugOn)
+		{
+			DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+			Date today = Calendar.getInstance().getTime();
+			System.out
+					.println("/-------------------------------------------\\");
+			System.out.print(df.format(today) + ":\n" + message);
+			System.out
+					.println("\\-------------------------------------------/\n");
+		}
+	}
+
+	/**
+	 * <p>
+	 * Sets debug mode.
+	 * </p>
+	 * 
+	 * @param isOn
+	 */
+	public static void setDebug(boolean isOn)
+	{
+		isDebugOn = isOn;
 	}
 }

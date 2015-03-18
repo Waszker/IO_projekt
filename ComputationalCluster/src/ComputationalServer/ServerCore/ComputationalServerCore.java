@@ -6,9 +6,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
 
 import ComputationalServer.ComputationalServerWindow;
+import XMLMessages.Register;
 
 /**
  * <p>
@@ -34,11 +37,12 @@ public class ComputationalServerCore
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
 	BlockingQueue<ClientMessage> messageQueue;
-	BlockingQueue<BigInteger> taskManagers;
-	BlockingQueue<BigInteger> computationalNodes;
+	ConcurrentMap<BigInteger, Register> taskManagers;
+	ConcurrentMap<BigInteger, Register> computationalNodes;
 	BackupServerInformation backupServer;
 	
 	ComputationalServerWindow mainWindow;
+	ComponentMonitorThread componentMonitorThread;
 
 	private BigInteger freeId;
 	private ConnectionEstabilisherThread connectionEstabilisherThread;
@@ -62,11 +66,12 @@ public class ComputationalServerCore
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 		
-		taskManagers = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
-		computationalNodes = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		taskManagers = new ConcurrentHashMap<>();
+		computationalNodes = new ConcurrentHashMap<>();
 		
 		connectionEstabilisherThread = new ConnectionEstabilisherThread(this);
 		messageParserThread = new MessageParserThread(this);
+		componentMonitorThread = new ComponentMonitorThread(this);
 	}
 
 	/**

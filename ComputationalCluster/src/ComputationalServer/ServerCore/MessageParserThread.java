@@ -10,11 +10,11 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.Parser;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -74,15 +74,14 @@ class MessageParserThread extends Thread
 		{
 			Socket socket = message.getClientSocket();
 
-			Logger.log("Client [" + socket.getInetAddress()
-					+ "] connected and sent message:\n"
-					+ message.getMessageContent());
-			IMessage receivedMessage = Parser
-					.parse(message.getMessageContent());
-
-			if (receivedMessage != null)
+			for (IMessage receivedMessage : message.getMessageContents())
 			{
-				reactToMessage(receivedMessage, socket);
+				if (null != receivedMessage)
+				{
+					Logger.log("Client [" + socket.getInetAddress() + "] \n"
+							+ receivedMessage.getString());
+					reactToMessage(receivedMessage, socket);
+				}
 			}
 
 			socket.close();
@@ -92,7 +91,8 @@ class MessageParserThread extends Thread
 		}
 	}
 
-	private void reactToMessage(IMessage message, Socket socket) throws JAXBException, IOException
+	private void reactToMessage(IMessage message, Socket socket)
+			throws JAXBException, IOException
 	{
 		switch (message.getMessageType())
 		{
@@ -113,6 +113,9 @@ class MessageParserThread extends Thread
 				break;
 
 			case STATUS:
+				core.componentMonitorThread
+						.informaAboutConnectedComponent(((Status) message)
+								.getId());
 				reactToStatusMessage(socket);
 				break;
 
@@ -131,13 +134,15 @@ class MessageParserThread extends Thread
 				GenericComponent.ComponentType.TaskManager.name))
 		{
 			Logger.log("TM Connected\n");
-			core.taskManagers.add(id);
-		} else if (message.getType().contentEquals(
+			core.taskManagers.put(id, message);
+		}
+		else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalNode.name))
 		{
 			Logger.log("CN Connected\n");
-			core.computationalNodes.add(id);
-		} else if (message.getType().contentEquals(
+			core.computationalNodes.put(id, message);
+		}
+		else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalServer.name))
 		{
 			Logger.log("CS Connected\n");
@@ -147,11 +152,12 @@ class MessageParserThread extends Thread
 				core.backupServer = (new BackupServerInformation(id, port,
 						address));
 			}
-		} else if (message.getType().contentEquals(
+		}
+		else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalClient.name))
 		{
 			Logger.log("CC Connected\n");
-			// Send error because CC cannot register
+			// TODO: Send error because CC should not register
 		}
 	}
 
