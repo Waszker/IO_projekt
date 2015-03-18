@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
 
 import ComputationalServer.ComputationalServerWindow;
+import DebugTools.Logger;
+import GenericCommonClasses.GenericComponent;
 import XMLMessages.Register;
 
 /**
@@ -40,7 +42,7 @@ public class ComputationalServerCore
 	ConcurrentMap<BigInteger, Register> taskManagers;
 	ConcurrentMap<BigInteger, Register> computationalNodes;
 	BackupServerInformation backupServer;
-	
+
 	ComputationalServerWindow mainWindow;
 	ComponentMonitorThread componentMonitorThread;
 
@@ -65,10 +67,10 @@ public class ComputationalServerCore
 		this.freeId = new BigInteger("1");
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
-		
+
 		taskManagers = new ConcurrentHashMap<>();
 		computationalNodes = new ConcurrentHashMap<>();
-		
+
 		connectionEstabilisherThread = new ConnectionEstabilisherThread(this);
 		messageParserThread = new MessageParserThread(this);
 		componentMonitorThread = new ComponentMonitorThread(this);
@@ -93,8 +95,60 @@ public class ComputationalServerCore
 		connectionEstabilisherThread.start();
 		messageParserThread.start();
 	}
+
+	/**
+	 * <p>
+	 * Registers connectiong component and returns its identificator. In case of
+	 * failure (unsupported component) -1 value is returned.
+	 * </p>
+	 * 
+	 * @param message
+	 * @param port
+	 * @param address
+	 * @return
+	 */
+	BigInteger registerComponent(Register message, Integer port, String address)
+	{
+		BigInteger idForComponent = getCurrentFreeId();
+
+		if (message.getType().contentEquals(
+				GenericComponent.ComponentType.TaskManager.name))
+		{
+			Logger.log("TM connected\n");
+			taskManagers.put(idForComponent, message);
+		}
+		else if (message.getType().contentEquals(
+				GenericComponent.ComponentType.ComputationalNode.name))
+		{
+			Logger.log("CN connected\n");
+			computationalNodes.put(idForComponent, message);
+		}
+		else if (message.getType().contentEquals(
+				GenericComponent.ComponentType.ComputationalServer.name))
+		{
+			Logger.log("CS Connected\n");
+			if (null != backupServer)
+			{
+				backupServer = (new BackupServerInformation(idForComponent,
+						port, address));
+			}
+			else
+			{
+				// TODO: Send error because there can be only one BS
+				idForComponent = new BigInteger("-1");
+			}
+		}
+		else
+		{
+			Logger.log("Unsupported component Connected\n");
+			idForComponent = new BigInteger("-1");
+			// TODO: Send error because CC should not register
+		}
+
+		return idForComponent;
+	}
 	
-	synchronized BigInteger getCurrentFreeId()
+	private synchronized BigInteger getCurrentFreeId()
 	{
 		BigInteger one = new BigInteger("1");
 		BigInteger result = new BigInteger(freeId.toString());
