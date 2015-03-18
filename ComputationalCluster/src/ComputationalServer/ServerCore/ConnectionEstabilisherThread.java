@@ -91,6 +91,7 @@ class ConnectionEstabilisherThread extends Thread
 
 	private String receiveMessage(Socket connectionSocket) throws IOException
 	{
+		// TODO: This will be problem because we share socket inside many messages...
 		int readChar;
 		StringBuilder messageBuilder = new StringBuilder();
 		BufferedReader in = new BufferedReader(new InputStreamReader(

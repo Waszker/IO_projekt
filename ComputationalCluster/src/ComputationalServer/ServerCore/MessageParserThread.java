@@ -9,9 +9,11 @@ import java.net.Socket;
 import javax.xml.bind.JAXBException;
 
 import DebugTools.Logger;
+import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser;
 import XMLMessages.NoOperation;
+import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
 
 /**
@@ -99,8 +101,10 @@ class MessageParserThread extends Thread
 		{
 			case REGISTER:
 				RegisterResponse registerResponse = new RegisterResponse();
-				registerResponse.setId(new BigInteger(core.getCurrentFreeId()
-						.toString()));
+				BigInteger id = new BigInteger(core.getCurrentFreeId()
+						.toString());
+				registerClient((Register) message, id);
+				registerResponse.setId(id);
 				registerResponse.setTimeout(core.timeout);
 				sendMessages(out, registerResponse);
 				break;
@@ -114,6 +118,7 @@ class MessageParserThread extends Thread
 			default:
 				Logger.log("Unsupported message " + message.getString()
 						+ "\n\n");
+				// TODO: Send Error message
 				break;
 		}
 	}
@@ -131,5 +136,27 @@ class MessageParserThread extends Thread
 		}
 		out.write(IMessage.ETX);
 		out.flush();
+	}
+
+	private void registerClient(Register message, BigInteger id)
+	{
+		if (message.getType().contentEquals(
+				GenericComponent.ComponentType.TaskManager.name))
+		{
+			Logger.log("TM Connected\n");
+			core.taskManagers.add(id);
+		}
+		else if (message.getType().contentEquals(
+				GenericComponent.ComponentType.ComputationalNode.name))
+		{
+			Logger.log("CN Connected\n");
+			core.computationalNodes.add(id);
+		}
+		else if (message.getType().contentEquals(
+				GenericComponent.ComponentType.ComputationalServer.name))
+		{
+			Logger.log("CS Connected\n");
+			core.computationalServers.add(id);
+		}
 	}
 }
