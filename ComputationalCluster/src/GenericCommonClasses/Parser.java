@@ -1,8 +1,14 @@
 package GenericCommonClasses;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -10,6 +16,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import DebugTools.Logger;
+import XMLMessages.DivideProblem;
+import XMLMessages.NoOperation;
+import XMLMessages.Register;
+import XMLMessages.RegisterResponse;
+import XMLMessages.Solutiones;
+import XMLMessages.SolvePartialProblems;
+import XMLMessages.SolveRequest;
+import XMLMessages.SolveRequestResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -103,11 +120,11 @@ public abstract class Parser
 	 * 
 	 * @param messageContent
 	 *            - raw message to be parsed
-	 * @return enum indicating what type of message that is
+	 * @return message or null
 	 */
-	static MessageType parse(String messageContent)
+	public static IMessage parse(String messageContent)
 	{
-		MessageType result = null;
+		IMessage result = null;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		try
@@ -116,56 +133,102 @@ public abstract class Parser
 			Document doc = db.parse(new ByteArrayInputStream(messageContent
 					.getBytes()));
 			Node root = doc.getDocumentElement();
-			result = getMessageTypeFromRoot(root);
+			result = getMessageTypeFromRoot(root, messageContent);
 		}
-		catch (ParserConfigurationException | SAXException | IOException e)
-		{}
+		catch (ParserConfigurationException | SAXException | IOException
+				| JAXBException e)
+		{
+			Logger.log("Badly formatted message: \n" + messageContent + "\n");
+		}
+
 		return result;
 	}
-	
-	private static MessageType getMessageTypeFromRoot(Node root)
+
+	/**
+	 * <p>
+	 * Marshalls message into string object so it can be easily sent over
+	 * network. Marshalled object can then be unmarshalled using parse() method.
+	 * </p>
+	 * 
+	 * @param message
+	 * @param type
+	 * @return
+	 * @throws JAXBException
+	 */
+	public static String marshallMessage(IMessage message,
+			@SuppressWarnings("rawtypes") Class type) throws JAXBException
 	{
-		MessageType result = null;
-		switch(root.getNodeName())
+		String string;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		JAXBContext jaxbContext = JAXBContext.newInstance(type);
+		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+		jaxbMarshaller.marshal(message, out);
+		string = new String(out.toByteArray());
+
+		return string;
+	}
+
+	private static IMessage getMessageTypeFromRoot(Node root,
+			String messageString) throws JAXBException
+	{
+		IMessage result = null;
+		switch (root.getNodeName())
 		{
 			case "Register":
-				result = MessageType.REGISTER;
+				result = getMessage(Register.class, messageString);
 				break;
-				
+
 			case "RegisterResponse":
-				result = MessageType.REGISTER_RESPONSE;
+				result = getMessage(RegisterResponse.class, messageString);
 				break;
-				
+
 			case "Status":
-				result = MessageType.STATUS;
+				result = getMessage(Status.class, messageString);
 				break;
-				
+
 			case "SolveRequestResponse":
-				result = MessageType.SOLVE_REQUEST_RESPONSE;
+				result = getMessage(SolveRequestResponse.class, messageString);
 				break;
 
 			case "SolveRequest":
-				result = MessageType.SOLVE_REQUEST;
+				result = getMessage(SolveRequest.class, messageString);
 				break;
-				
+
 			case "SolvePartialProblems":
-				result = MessageType.PARTIAL_PROBLEM;
+				result = getMessage(SolvePartialProblems.class, messageString);
 				break;
-				
+
 			case "DivideProblem":
-				result = MessageType.DIVIDE_PROBLEM;
+				result = getMessage(DivideProblem.class, messageString);
 				break;
-				
+
 			case "NoOperation":
-				result = MessageType.NO_OPERATION;
+				result = getMessage(NoOperation.class, messageString);
 				break;
-				
-			case "Solution":
-				result = MessageType.SOLUTION;
+
+			case "Solutions":
+				result = getMessage(Solutiones.class, messageString);
 				break;
 		}
-		
+
 		return result;
+	}
+
+	private static IMessage getMessage(
+			@SuppressWarnings("rawtypes") Class classToUnmarshall, String xml)
+			throws JAXBException
+	{
+		IMessage message;
+
+		JAXBContext jaxbContext = JAXBContext.newInstance(classToUnmarshall);
+
+		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		StringReader reader = new StringReader(xml);
+		message = (IMessage) jaxbUnmarshaller.unmarshal(reader);
+
+		return message;
 	}
 
 }

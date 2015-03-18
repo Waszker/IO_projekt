@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
 
@@ -293,8 +294,7 @@ public class RegisterResponse implements IMessage {
 	@Override
 	public String getString() throws JAXBException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return Parser.marshallMessage(this, RegisterResponse.class);
 	}
 
 	@Override

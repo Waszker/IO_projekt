@@ -11,7 +11,7 @@ import GenericCommonClasses.Parser.MessageType;
  * should implement this interface.
  * </p>
  * 
- * @author Monika ���urkowska
+ * @author Monika Żurkowska
  * @version 1.0
  * 
  */
@@ -20,6 +20,7 @@ public interface IMessage
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final char ETX = 3;
 	public static final char ETB = 23;
 	
 	/******************/

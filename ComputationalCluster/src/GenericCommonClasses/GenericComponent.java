@@ -1,18 +1,16 @@
 package GenericCommonClasses;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.xml.bind.JAXBException;
 
+import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.Register;
+import XMLMessages.RegisterResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -33,8 +31,8 @@ public abstract class GenericComponent
 	public enum ComponentType
 	{
 		ComputationalServer("CommunicationServer"), ComputationalNode(
-				"ComputationalServer"), ComputationalClient(
-				"ComputationalServer"), TaskManager("TaskManager");
+				"ComputationalNode"), TaskManager("TaskManager"), ComputationalClient(
+				"ComputationalClient");
 
 		public String name;
 
@@ -52,6 +50,8 @@ public abstract class GenericComponent
 	protected int port;
 	protected boolean isGui;
 	protected Socket connectionSocket;
+	protected BigInteger id;
+	protected Long timeout;
 
 	private ComponentType type;
 
@@ -83,54 +83,49 @@ public abstract class GenericComponent
 
 	/**
 	 * <p>
-	 * Connects to server.
+	 * Connects to server. If connection succeeds component sets its id and
+	 * timeout to the values sent by server in RegisterResponse message.
 	 * </p>
-	 * 
-	 * @return has connection succeded
 	 */
 	public void connectToServer()
 	{
-		connectionSocket = getConnectionSocket();
-		if (null != connectionSocket)
+		try
 		{
-			try
+			sendMessages(getComponentRegisterMessage());
+			IMessage receivedMessage = receiveMessage();
+
+			if (null == receivedMessage
+					|| MessageType.REGISTER_RESPONSE != receivedMessage
+							.getMessageType())
 			{
-				sendMessage(getComponentRegisterMessage());
-				Parser.parse(receiveMessage()); // TODO: React to timeout (for
-												// example server heavy load)
-				connectionSocket.close();
-				startResendingThread(); // TODO: Change that!
+				throw new IOException("Unsupported response from server!");
 			}
-			catch (IOException e)
-			{
-				showError(e.getMessage());
-			}
+
+			getRegisterResponseDetails((RegisterResponse) receivedMessage);
+			startResendingThread();
+			connectionSocket.close();
+		}
+		catch (IOException e)
+		{
+			showError(e.getMessage());
 		}
 	}
 
 	/**
 	 * <p>
-	 * Sends the message to server.
+	 * Sends the messages to server. This method creates connection before
+	 * sending messages.
 	 * </p>
 	 * 
 	 * @param message
 	 * @throws IOException
 	 */
-	protected void sendMessage(IMessage message) throws IOException
+	protected void sendMessages(IMessage... messages) throws IOException
 	{
-		if (null != message)
+		if (null != messages)
 		{
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-					connectionSocket.getOutputStream()));
-			try
-			{
-				out.write(message.getString());
-			}
-			catch (JAXBException e)
-			{
-			}
-			out.write(IMessage.ETB);
-			out.flush();
+			connectionSocket = getConnectionSocket();
+			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
 	}
 
@@ -142,24 +137,28 @@ public abstract class GenericComponent
 	 * @return received message
 	 * @throws IOException
 	 */
-	protected String receiveMessage() throws IOException
+	protected IMessage receiveMessage() throws IOException
 	{
-		int readChar;
-		StringBuilder messageBuilder = new StringBuilder();
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connectionSocket.getInputStream()));
+		return GenericProtocol.receiveMessage(connectionSocket).get(0);
+	}
 
-		while ((readChar = in.read()) != -1)
-		{
-			if (readChar == IMessage.ETB)
-				break;
-			messageBuilder.append((char) readChar);
-		}
-
-		return messageBuilder.toString();
+	/**
+	 * <p>
+	 * Sets id and timeout sent from ComputationalServer.
+	 * </p>
+	 * 
+	 * @param register
+	 *            response message from server
+	 */
+	protected void getRegisterResponseDetails(RegisterResponse message)
+	{
+		id = message.getId();
+		timeout = message.getTimeout();
 	}
 
 	protected abstract Register getComponentRegisterMessage();
+
+	protected abstract void reactToMessage(IMessage message);
 
 	/**
 	 * <p>
@@ -235,23 +234,24 @@ public abstract class GenericComponent
 				{
 					try
 					{
-						Thread.sleep(30 * 1000);
+						Thread.sleep(timeout * 1000); // TODO: Check if seconds
+														// or not
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 					try
 					{
-						connectionSocket = getConnectionSocket();
-						sendMessage(getComponentRegisterMessage());
-						receiveMessage();
+						Status status = new Status();
+						status.setId(id);
+
+						sendMessages(status);
+						reactToMessage(receiveMessage());
 					}
 					catch (IOException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						// TODO: react to connection error
+						// (Probably Server is not accessible anymore)
 					}
 				}
 			}
@@ -275,17 +275,36 @@ public abstract class GenericComponent
 		return socket;
 	}
 
-	private void showError(String message)
+	/**
+	 * Shows error message in gui and cmd line mode.
+	 * 
+	 * @param message
+	 *            - to be shown
+	 */
+	protected void showError(String message)
 	{
 		if (isGui)
 		{
-			JOptionPane.showMessageDialog(new JFrame(), message, "Error",
+			JOptionPane.showMessageDialog(null, message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
-		else
+		System.err.println(message);
+	}
+
+	/**
+	 * Shows information message in gui and cmd line mode.
+	 * 
+	 * @param message
+	 *            - to be shown
+	 */
+	protected void showMessage(String message)
+	{
+		if (isGui)
 		{
-			System.err.println(message);
+			JOptionPane.showMessageDialog(null, message, "",
+					JOptionPane.INFORMATION_MESSAGE);
 		}
+		System.out.println(message);
 	}
 
 	private void addShutdownHook()

@@ -1,8 +1,9 @@
 package TaskManager;
 
 import XMLMessages.Register;
-import XMLMessages.RegisterMessage;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
 
 /**
  * <p>
@@ -30,7 +31,19 @@ public final class TaskManager extends GenericComponent
 	@Override
 	protected Register getComponentRegisterMessage()
 	{
-		// TODO: Change that!
-		return new Register();
+		Register r = new Register();
+		r.setType("TM");
+		return r;
+	}
+
+	@Override
+	protected void reactToMessage(IMessage message)
+	{
+		showMessage(message.toString());
+		if ( message.getMessageType() == MessageType.REGISTER_RESPONSE )
+		{
+			Register r = (Register)message;
+			showMessage("Your id is: " + r.getId().toString());
+		}
 	}
 }
