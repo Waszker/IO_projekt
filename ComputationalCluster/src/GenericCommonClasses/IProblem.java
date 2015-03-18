@@ -57,4 +57,14 @@ public interface IProblem
 	 * @return result of computation
 	 */
 	Object doComputation();
+	
+	/**
+	 * <p>
+	 * Merges partial solutions and returns final solution.
+	 * </p>
+	 * @param partialSolutions - array of partial solution to merge (the order must be the same
+	 * 							 as divide() method returned)
+	 * @return merged final solution
+	 */
+	Object mergeSolutions(Object[] partialSolutions);
 }
