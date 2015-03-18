@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import DebugTools.Logger;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
 import XMLMessages.Register;
@@ -137,7 +138,7 @@ public abstract class Parser
 		catch (ParserConfigurationException | SAXException | IOException
 				| JAXBException e)
 		{
-			e.printStackTrace();
+			Logger.log("Badly formatted message: \n" + messageContent + "\n");
 		}
 
 		return result;

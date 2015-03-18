@@ -7,14 +7,13 @@ import java.net.Socket;
 import javax.xml.bind.JAXBException;
 
 import DebugTools.Logger;
-import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.Parser;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -74,15 +73,14 @@ class MessageParserThread extends Thread
 		{
 			Socket socket = message.getClientSocket();
 
-			Logger.log("Client [" + socket.getInetAddress()
-					+ "] connected and sent message:\n"
-					+ message.getMessageContent());
-			IMessage receivedMessage = Parser
-					.parse(message.getMessageContent());
-
-			if (receivedMessage != null)
+			for (IMessage receivedMessage : message.getMessageContents())
 			{
-				reactToMessage(receivedMessage, socket);
+				if (null != receivedMessage)
+				{
+					Logger.log("Client [" + socket.getInetAddress() + "] \n"
+							+ receivedMessage.getString());
+					reactToMessage(receivedMessage, socket);
+				}
 			}
 
 			socket.close();
@@ -92,28 +90,17 @@ class MessageParserThread extends Thread
 		}
 	}
 
-	private void reactToMessage(IMessage message, Socket socket) throws JAXBException, IOException
+	private void reactToMessage(IMessage message, Socket socket)
+			throws JAXBException, IOException
 	{
 		switch (message.getMessageType())
 		{
 			case REGISTER:
-				RegisterResponse registerResponse = new RegisterResponse();
-				BigInteger id = new BigInteger(core.getCurrentFreeId()
-						.toString());
-				Integer remotePort = socket.getPort();
-				String remoteAddress = socket.getInetAddress().toString();
-
-				// TODO: Remove that in the future
-				if (null != ((Register) message).getType())
-					registerClient((Register) message, id, remotePort,
-							remoteAddress);
-				registerResponse.setId(id);
-				registerResponse.setTimeout(core.timeout);
-				GenericProtocol.sendMessages(socket, registerResponse);
+				reactToRegisterMessage((Register) message, socket);
 				break;
 
 			case STATUS:
-				reactToStatusMessage(socket);
+				reactToStatusMessage((Status) message, socket);
 				break;
 
 			default:
@@ -124,52 +111,50 @@ class MessageParserThread extends Thread
 		}
 	}
 
-	private void registerClient(Register message, BigInteger id, Integer port,
-			String address)
+	private void reactToRegisterMessage(Register message, Socket socket)
+			throws IOException
 	{
-		if (message.getType().contentEquals(
-				GenericComponent.ComponentType.TaskManager.name))
+		BigInteger id = new BigInteger("-1");
+		Integer remotePort = socket.getPort();
+		String remoteAddress = socket.getInetAddress().toString();
+
+		if (null != ((Register) message).getType())
 		{
-			Logger.log("TM Connected\n");
-			core.taskManagers.add(id);
-		} else if (message.getType().contentEquals(
-				GenericComponent.ComponentType.ComputationalNode.name))
-		{
-			Logger.log("CN Connected\n");
-			core.computationalNodes.add(id);
-		} else if (message.getType().contentEquals(
-				GenericComponent.ComponentType.ComputationalServer.name))
-		{
-			Logger.log("CS Connected\n");
-			if (null != core.backupServer)
-			{
-				// TODO: Send error if `if` is bad
-				core.backupServer = (new BackupServerInformation(id, port,
-						address));
-			}
-		} else if (message.getType().contentEquals(
-				GenericComponent.ComponentType.ComputationalClient.name))
-		{
-			Logger.log("CC Connected\n");
-			// Send error because CC cannot register
+			id = core.registerComponent((Register) message, remotePort,
+					remoteAddress);
 		}
+
+		RegisterResponse registerResponse = new RegisterResponse();
+		registerResponse.setId(id);
+		registerResponse.setTimeout(core.timeout);
+		GenericProtocol.sendMessages(socket, registerResponse);
 	}
 
-	private void reactToStatusMessage(Socket socket) throws IOException
+	private void reactToStatusMessage(Status message, Socket socket)
+			throws IOException
 	{
-		// TODO: Add other reactions
-		NoOperation noOperation = new NoOperation();
-		BackupCommunicationServers backupServers = new BackupCommunicationServers();
-
-		if (null != core.backupServer)
+		if (false == core.componentMonitorThread
+				.informaAboutConnectedComponent(message.getId()))
 		{
-			backupServers.getBackupCommunicationServer().setAddress(
-					core.backupServer.address);
-			backupServers.getBackupCommunicationServer().setPort(
-					core.backupServer.port);
+			// TODO: Send error message
 		}
-		noOperation.setBackupCommunicationServers(backupServers);
+		else
+		{
+			// TODO: Add other reactions
+			NoOperation noOperation = new NoOperation();
+			BackupCommunicationServers backupServers = new BackupCommunicationServers();
 
-		GenericProtocol.sendMessages(socket, noOperation);
+			if (null != core.backupServer)
+			{
+				backupServers.getBackupCommunicationServer().setAddress(
+						core.backupServer.address);
+				backupServers.getBackupCommunicationServer().setPort(
+						core.backupServer.port);
+			}
+			noOperation.setBackupCommunicationServers(backupServers);
+
+			GenericProtocol.sendMessages(socket, noOperation);
+
+		}
 	}
 }
