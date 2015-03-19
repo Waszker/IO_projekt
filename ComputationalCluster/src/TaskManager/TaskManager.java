@@ -72,11 +72,13 @@ public final class TaskManager extends GenericComponent
 			case DIVIDE_PROBLEM:
 				handleDivideProblemMessage((DivideProblem)message);
 				break;
+			case SOLUTION:
+				handleSolutionsMessage((Solutiones)message);
+				break;
 			default:
 				break;
 		}
 	}
-	
 	
 	private void handleDivideProblemMessage(DivideProblem dvm)
 	{
@@ -86,33 +88,15 @@ public final class TaskManager extends GenericComponent
 			return;
 		}
 		
-		//divide problem
-		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
-		final int numOfComputationalNodes = dvm.getComputationalNodes().intValue();
-		byte[][] divided = currentProblemTaskSolver.DivideProblem(numOfComputationalNodes);
-		
-		//prepare message
-		SolvePartialProblems response = new SolvePartialProblems();
-		response.setProblemType(dvm.getProblemType());
-		response.setId(dvm.getId());
-		response.setSolvingTimeout(BigInteger.valueOf(0));
-		response.setCommonData(null);
-		
-		PartialProblems partialProblems = new PartialProblems();
-		List<PartialProblem> list = partialProblems.getPartialProblem();
-		for ( int i=0; i<divided.length; i++ )
+		if ( dvm.getNodeID().compareTo(id) != 0 )
 		{
-			PartialProblem pp = new PartialProblem();
-			pp.setNodeID(id);
-			pp.setTaskId(BigInteger.valueOf(i));
-			pp.setData(divided[i]);
-			
-			list.add(pp);
+			//TODO: Error - shouldn't receive this message (not our id)
+			return;
 		}
-		response.setPartialProblems(partialProblems);
 		
+		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
+		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
 		
-		//send the response
 		try
 		{
 			sendMessages(response);
@@ -132,26 +116,7 @@ public final class TaskManager extends GenericComponent
 			return;
 		}
 		
-		//retreive the solutions
-		List<Solution> list = sm.getSolutions().getSolution();
-		byte[][] solutions = new byte[list.size()][];
-		for ( int i=0; i<list.size(); i++ ) //kolejność po getTaskID
-			solutions[i] = list.get(i).getData();
-		
-		byte[] dataToSend = currentProblemTaskSolver.MergeSolution(solutions);
-		
-		Solution finalSolution = new Solution();
-		finalSolution.setTaskId(BigInteger.valueOf(0));
-		finalSolution.setType("Final");
-		finalSolution.setData(dataToSend);
-		
-		Solutions solutionsToSend = new Solutions();
-		solutionsToSend.getSolution().add(finalSolution);
-		
-		Solutiones response = new Solutiones();
-		response.setProblemType(sm.getProblemType());
-		response.setId(sm.getId());
-		response.setSolutions(solutionsToSend);
+		Solutiones response = generateResponse(sm, currentProblemTaskSolver);
 		
 		try
 		{
@@ -164,5 +129,60 @@ public final class TaskManager extends GenericComponent
 		
 		
 		currentProblemTaskSolver = null;
+	}
+	
+	
+	
+	private static SolvePartialProblems generateResponse(DivideProblem dvm, TaskSolver ts, BigInteger id)
+	{
+		//divide problem
+		final int numOfComputationalNodes = dvm.getComputationalNodes().intValue();
+		byte[][] divided = ts.DivideProblem(numOfComputationalNodes);
+			
+		//prepare message
+		SolvePartialProblems response = new SolvePartialProblems();
+		response.setProblemType(dvm.getProblemType());
+		response.setId(dvm.getId());
+		response.setSolvingTimeout(BigInteger.valueOf(0));
+		response.setCommonData(null);
+			
+		PartialProblems partialProblems = new PartialProblems();
+		List<PartialProblem> list = partialProblems.getPartialProblem();
+		for ( int i=0; i<divided.length; i++ )
+		{
+			PartialProblem pp = new PartialProblem();
+			pp.setNodeID(id);
+			pp.setTaskId(BigInteger.valueOf(i));
+			pp.setData(divided[i]);
+				
+			list.add(pp);
+		}
+		response.setPartialProblems(partialProblems);
+		return response;
+	}
+	
+	private static Solutiones generateResponse(Solutiones sm, TaskSolver ts)
+	{
+		//retreive the solutions
+		List<Solution> list = sm.getSolutions().getSolution();
+		byte[][] solutions = new byte[list.size()][];
+		for ( int i=0; i<list.size(); i++ ) //kolejność po getTaskID
+			solutions[i] = list.get(i).getData();
+				
+		byte[] dataToSend = ts.MergeSolution(solutions);
+			
+		Solution finalSolution = new Solution();
+		finalSolution.setTaskId(null);
+		finalSolution.setType("Final");
+		finalSolution.setData(dataToSend);
+				
+		Solutions solutionsToSend = new Solutions();
+		solutionsToSend.getSolution().add(finalSolution);
+				
+		Solutiones response = new Solutiones();
+		response.setProblemType(sm.getProblemType());
+		response.setId(sm.getId());
+		response.setSolutions(solutionsToSend);
+		return response;
 	}
 }
