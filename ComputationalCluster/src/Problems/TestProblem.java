@@ -1,78 +1,91 @@
 package Problems;
 
-import java.security.InvalidParameterException;
-import java.util.List;
-
-import GenericCommonClasses.IProblem;
+import pl.edu.pw.mini.se2.TaskSolver;
+import pl.edu.pw.mini.se2.TaskSolverState;
 
 /**
  * <p>
- * TestProblem - makes the string written uppercase
+ * TestProblem - makes the string uppercase
  * </p>
  * 
  * @see IProblem
  * @author Filip
  */
-public class TestProblem implements IProblem
+public class TestProblem extends TaskSolver
 {
-	private String data;
-	
-	public TestProblem()
+	public TestProblem(String sdata)
 	{
-		data = "";
+		super(sdata.getBytes());
 	}
 	
-	public TestProblem(String s)
+	public TestProblem(byte[] problemData)
 	{
-		data = new String(s);
+		super(problemData);
 	}
-	
+
 	@Override
-	public String getType()
+	public byte[][] DivideProblem(int nodes)
+	{
+		double step = ((double)_problemData.length / (double)nodes) + 0.0000000000001;
+		byte[][] ret = new byte[nodes][];
+		String theString = new String(_problemData);
+		
+		for ( int i=0; i<nodes; i++ )
+			ret[i] = theString.substring((int)(i*step), (int)((i+1)*step)).getBytes();
+		
+		return ret;
+	}
+
+	@Override
+	public byte[] MergeSolution(byte[][] ps)
+	{
+		StringBuilder b = new StringBuilder();
+		for ( int i=0; i<ps.length; i++ )
+			b.append(new String(ps[i]));
+		return b.toString().getBytes();
+	}
+
+	@Override
+	public byte[] Solve(byte[] partialData, long timeout)
+	{
+		return new String(partialData).toUpperCase().getBytes();
+	}
+
+	@Override
+	public Exception getException()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getName()
 	{
 		return "TestProblem";
 	}
 
 	@Override
-	public byte[] getData()
+	public TaskSolverState getState()
 	{
-		return data.getBytes();
+		return TaskSolverState.OK;
 	}
 
 	@Override
-	public void loadData(byte[] data) throws InvalidParameterException
+	protected void setException(Exception arg0)
 	{
-		this.data = new String(data);
+		throw new UnsupportedOperationException();
+		
 	}
 
 	@Override
-	public IProblem[] divide(int nodes)
+	protected void setName(String arg0)
 	{
-		double step = ((double)data.length() / (double)nodes) + 0.0000000000001;
-		TestProblem[] ret = new TestProblem[nodes];
-		for ( int i=0; i<nodes; i++ )
-			ret[i] = new TestProblem(data.substring( (int)(i*step), (int)((i+1)*step)));
-		return ret;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public byte[] doComputation()
+	protected void setState(TaskSolverState arg0)
 	{
-		return data.toUpperCase().getBytes();
-	}
-
-	@Override
-	public byte[] mergeSolutions(List<byte[]> partialSolutions)
-	{
-		StringBuilder result = new StringBuilder();
-		for ( int i=0; i<partialSolutions.size(); i++ )
-			result.append(partialSolutions.get(i));
-		return result.toString().getBytes();
-	}
-
-	@Override
-	public Object extractSolution(byte[] solutionBinary)
-	{
-		return new String(solutionBinary);
+		// TODO Auto-generated method stub
+		
 	}
 }
