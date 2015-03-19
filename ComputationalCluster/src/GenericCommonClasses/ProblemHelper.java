@@ -22,7 +22,7 @@ public class ProblemHelper
 	 * @param message received DivideProblem message
 	 * @return proper problem object
 	 */
-	public static TaskSolver instantinateProblem(DivideProblem message)
+	public static TaskSolver instantinateTaskSolver(DivideProblem message)
 	{
 		return instantinate(message.getProblemType(), message.getData());
 	}
@@ -34,7 +34,7 @@ public class ProblemHelper
 	 * @param message received PartialProblems message
 	 * @return proper problem objects array
 	 */
-	public static TaskSolver[] instantinateProblem(PartialProblems message)
+	public static TaskSolver[] instantinateTaskSolver(PartialProblems message)
 	{
 		//TODO: Complete!!!!
 		

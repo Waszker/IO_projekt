@@ -34,5 +34,42 @@ public class TestProblemTests
 		assert (compareArrays(result_m, result_1));
 		assert (compareArrays(result_1, resultBytesByString));
 	}
+	
+	@Test
+	public void test2()
+	{
+		final String testString = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh";
+		final int parts = 3;
 
+		byte[] inputData = testString.getBytes();
+		TestProblem tp = new TestProblem(inputData);
+		byte[][] d = tp.DivideProblem(parts);
+		for (int i = 0; i < d.length; i++)
+			d[i] = tp.Solve(d[i], 0);
+		byte[] result_m = tp.MergeSolution(d);
+		byte[] result_1 = tp.Solve(inputData, 0);
+		byte[] resultBytesByString = testString.toUpperCase().getBytes();
+
+		assert (compareArrays(result_m, result_1));
+		assert (compareArrays(result_1, resultBytesByString));
+	}
+	
+	@Test
+	public void test3()
+	{
+		final String testString = "aaaaaa";
+		final int parts = 3000;
+
+		byte[] inputData = testString.getBytes();
+		TestProblem tp = new TestProblem(inputData);
+		byte[][] d = tp.DivideProblem(parts);
+		for (int i = 0; i < d.length; i++)
+			d[i] = tp.Solve(d[i], 0);
+		byte[] result_m = tp.MergeSolution(d);
+		byte[] result_1 = tp.Solve(inputData, 0);
+		byte[] resultBytesByString = testString.toUpperCase().getBytes();
+
+		assert (compareArrays(result_m, result_1));
+		assert (compareArrays(result_1, resultBytesByString));
+	}
 }
