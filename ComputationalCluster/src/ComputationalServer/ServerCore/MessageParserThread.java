@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import XMLMessages.Error;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
@@ -106,7 +107,9 @@ class MessageParserThread extends Thread
 			default:
 				Logger.log("Unsupported message " + message.getString()
 						+ "\n\n");
-				// TODO: Send Error message
+				XMLMessages.Error errorMessage = new Error();
+				errorMessage.setErrorDetails("Unsupported message");
+				GenericProtocol.sendMessages(socket, errorMessage);
 				break;
 		}
 	}
@@ -136,7 +139,10 @@ class MessageParserThread extends Thread
 		if (false == core.componentMonitorThread
 				.informaAboutConnectedComponent(message.getId()))
 		{
-			// TODO: Send error message
+			Logger.log("Component not registered\n");
+			XMLMessages.Error errorMessage = new Error();
+			errorMessage.setErrorDetails("Component not registered");
+			GenericProtocol.sendMessages(socket, errorMessage);
 		}
 		else
 		{

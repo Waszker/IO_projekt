@@ -57,8 +57,8 @@ public final class GenericProtocol
 				{
 				}
 			}
-			out.write(IMessage.ETX);
 			out.flush();
+			connectionSocket.shutdownOutput();
 		}
 	}
 
@@ -82,23 +82,18 @@ public final class GenericProtocol
 		do
 		{
 			messageBuilder = new StringBuilder();
-			while ((readChar = in.read()) != -1)
+			while (-1 != (readChar = in.read()))
 			{
 				if (readChar == IMessage.ETB)
 					break;
-				if (readChar == IMessage.ETX)
-				{
-					messageBuilder = null;
-					break;
-				}
 				messageBuilder.append((char) readChar);
 			}
 
-			if (null != messageBuilder)
+			if (messageBuilder.length() > 0)
 			{
 				messages.add(Parser.parse(messageBuilder.toString()));
 			}
-		} while (null != messageBuilder);
+		} while (readChar != -1);
 
 		return messages;
 	}
