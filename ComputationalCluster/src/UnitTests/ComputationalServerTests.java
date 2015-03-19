@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 
 import org.junit.Test;
@@ -18,6 +19,8 @@ import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.SolveRequest;
+import XMLMessages.SolveRequestResponse;
 
 public class ComputationalServerTests
 {
@@ -96,6 +99,37 @@ public class ComputationalServerTests
 		}
 		catch (IOException e)
 		{
+		}
+
+	}
+	
+	@Test
+	public void ComputationalServerSolverRequestTest1()
+	{
+		Logger.setDebug(false);
+		int port = 9999, timeout = 5;
+		byte[] data = {55, 45, 63};
+		ComputationalServerCore core = new ComputationalServerCore(null);
+		SolveRequest message = new SolveRequest();
+		message.setProblemType("TestProblem");
+		message.setData(data);
+
+		try
+		{
+			core.startListening(port, timeout);
+			Socket socket = new Socket("127.0.0.1", port);
+
+			GenericProtocol.sendMessages(socket, message);
+			IMessage received = GenericProtocol.receiveMessage(socket).get(0);
+
+			assertEquals(received.getMessageType(),
+					Parser.MessageType.SOLVE_REQUEST_RESPONSE);
+			assertEquals(((SolveRequestResponse) received).getId(), new BigInteger("1"));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			fail("Should not throw exception!");
 		}
 
 	}
