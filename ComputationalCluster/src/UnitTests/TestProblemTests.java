@@ -1,65 +1,38 @@
 package UnitTests;
 
-import static org.junit.Assert.*;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.Test;
 
 import Problems.TestProblem;
 
 public class TestProblemTests
 {
+	private boolean compareArrays(byte[] arr1, byte[] arr2)
+	{
+		if (arr1.length != arr2.length)
+			return false;
+		for (int i = 0; i < arr1.length; i++)
+			if (arr1[i] != arr2[i])
+				return false;
+		return true;
+	}
 
 	@Test
 	public void test1()
 	{
-		TestProblem tp = new TestProblem("abcdefgh");
-		TestProblem[] _tp = (TestProblem[])tp.divide(3);
-		List<byte[]> partialSolutions = new LinkedList<byte[]>();
-		
-		for ( int i=0; i<_tp.length; i++ )
-			partialSolutions.add(_tp[i].doComputation());
-		
-		String mergedResult = (String)tp.extractSolution(tp.mergeSolutions(partialSolutions));
-		String oneResult = (String)tp.extractSolution(tp.doComputation());
-		assert(mergedResult.contentEquals(oneResult));
-		assertEquals("ABCDEFGH",oneResult);
-	}
-	
-	@Test
-	public void test2()
-	{
-		TestProblem tp = new TestProblem("abcdefgh");
-		TestProblem[] _tp = (TestProblem[])tp.divide(300);
-		List<byte[]> partialSolutions = new LinkedList<byte[]>();
-		
-		for ( int i=0; i<_tp.length; i++ )
-			partialSolutions.add(_tp[i].doComputation());
-		
-		String mergedResult = (String)tp.extractSolution(tp.mergeSolutions(partialSolutions));
-		String oneResult = (String)tp.extractSolution(tp.doComputation());
-		assert(mergedResult.contentEquals(oneResult));
-		assertEquals("ABCDEFGH",oneResult);
-		
-	}
-	
-	@Test
-	public void test3()
-	{
-		TestProblem tp = new TestProblem("abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh");
-		TestProblem[] _tp = (TestProblem[])tp.divide(2);
-		List<byte[]> partialSolutions = new LinkedList<byte[]>();
-		
-		for ( int i=0; i<_tp.length; i++ )
-			partialSolutions.add(_tp[i].doComputation());
-		
-		String mergedResult = (String)tp.extractSolution(tp.mergeSolutions(partialSolutions));
-		String oneResult = (String)tp.extractSolution(tp.doComputation());
-		assert(mergedResult.contentEquals(oneResult));
-		assertEquals("ABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGHABCDEFGH",oneResult);
-		
+		final String testString = "abcdefgh";
+		final int parts = 3;
+
+		byte[] inputData = testString.getBytes();
+		TestProblem tp = new TestProblem(inputData);
+		byte[][] d = tp.DivideProblem(parts);
+		for (int i = 0; i < d.length; i++)
+			d[i] = tp.Solve(d[i], 0);
+		byte[] result_m = tp.MergeSolution(d);
+		byte[] result_1 = tp.Solve(inputData, 0);
+		byte[] resultBytesByString = testString.toUpperCase().getBytes();
+
+		assert (compareArrays(result_m, result_1));
+		assert (compareArrays(result_1, resultBytesByString));
 	}
 
 }
