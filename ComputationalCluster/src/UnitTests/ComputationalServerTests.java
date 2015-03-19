@@ -96,8 +96,6 @@ public class ComputationalServerTests
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
-			fail("Should not throw exception!");
 		}
 
 	}
