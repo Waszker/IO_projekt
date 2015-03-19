@@ -97,16 +97,40 @@ class ComponentMonitorThread extends Thread
 	{
 		if (core.backupServer.id == id)
 		{
+			// TODO: React to backup server failure
 			core.backupServer = null;
 		}
 		else if (core.taskManagers.containsKey(id))
 		{
-			core.taskManagers.remove(id);
+			reactToTaskManagerFailure(id);
 		}
 		else if (core.computationalNodes.containsKey(id))
 		{
-			core.computationalNodes.remove(id);
+			reactToComputationalNodeFailure(id);
 		}
 		invalidId.add(id);
+	}
+
+	private void reactToTaskManagerFailure(BigInteger id)
+	{
+		// TaskManager failure is easy to serve - just restore assigned problems
+		// (their states are still kept inside ProblemInfo object)
+		TaskManagerInfo info = core.taskManagers.get(id);
+
+		for (BigInteger problemId : info.assignedProblems)
+		{
+			core.problemsToSolve.get(problemId).isProblemCurrentlyDelegated = false;
+		}
+
+		core.taskManagers.remove(id);
+	}
+
+	private void reactToComputationalNodeFailure(BigInteger id)
+	{
+		ComputationalNodeInfo info = core.computationalNodes.get(id);
+
+		// TODO: React to PartialProblems/Solutions retrieval
+
+		core.computationalNodes.remove(id);
 	}
 }

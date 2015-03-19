@@ -49,8 +49,8 @@ class ConnectionEstabilisherThread extends Thread
 		{
 			try
 			{
-				core.clientSocket = core.serverSocket.accept();
-				retrieveClientMessage(core.clientSocket);
+				Socket clientSocket = core.serverSocket.accept();
+				retrieveClientMessage(clientSocket);
 			}
 			catch (IOException e)
 			{
