@@ -40,7 +40,16 @@ public final class TaskManager extends GenericComponent
 	@Override
 	protected void reactToMessage(IMessage message)
 	{
-		if ( message.getMessageType() == MessageType.NO_OPERATION )
-			Logger.log("Your id is: "+id+"\n");
+		switch (message.getMessageType())
+		{
+			case NO_OPERATION:
+				Logger.log("Your id is: "+id+"\n");
+				break;
+			case ERROR:
+				Logger.log(((XMLMessages.Error)message).getErrorDetails());
+				break;
+			default:
+				break;
+		}
 	}
 }
