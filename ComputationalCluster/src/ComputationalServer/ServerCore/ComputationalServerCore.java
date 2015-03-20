@@ -99,8 +99,9 @@ public class ComputationalServerCore
 
 	/**
 	 * <p>
-	 * Registers connectiong component and returns its identificator. In case of
-	 * failure (unsupported component) -1 value is returned.
+	 * Logs information about connecting component and returns its new
+	 * identificator. In case of failure (unsupported component) -1 value is
+	 * returned.
 	 * </p>
 	 * 
 	 * @param message

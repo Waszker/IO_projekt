@@ -4,9 +4,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 import DebugTools.Logger;
 
@@ -83,7 +86,7 @@ class ComponentMonitorThread extends Thread
 				@Override
 				public void run()
 				{
-					Logger.log("Timeout for " + id
+					Logger.log("Timeout for component id: " + id
 							+ " has passed!\nDropping lease\n");
 					dropComponent(id);
 				}
@@ -127,10 +130,20 @@ class ComponentMonitorThread extends Thread
 
 	private void reactToComputationalNodeFailure(BigInteger id)
 	{
+		// ComputationalNode failure involves restoring partial problems
 		ComputationalNodeInfo info = core.computationalNodes.get(id);
 
-		// TODO: React to PartialProblems/Solutions retrieval
-
+		for (Map.Entry<BigInteger, List<PartialProblem>> entry : info.assignedPartialProblems.entrySet())
+		{
+			ProblemInfo problem = core.problemsToSolve.get(entry.getKey());
+			List<PartialProblem> partialProblems = entry.getValue();
+			
+			for(PartialProblem p : partialProblems)
+			{
+				problem.partialProblems.put(p.getTaskId(), p);
+			}
+		}
+		
 		core.computationalNodes.remove(id);
 	}
 }
