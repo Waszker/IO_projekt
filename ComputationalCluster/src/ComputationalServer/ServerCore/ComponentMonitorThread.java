@@ -4,9 +4,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 import DebugTools.Logger;
 
@@ -83,7 +86,7 @@ class ComponentMonitorThread extends Thread
 				@Override
 				public void run()
 				{
-					Logger.log("Timeout for " + id
+					Logger.log("Timeout for component id: " + id
 							+ " has passed!\nDropping lease\n");
 					dropComponent(id);
 				}
@@ -97,16 +100,50 @@ class ComponentMonitorThread extends Thread
 	{
 		if (core.backupServer.id == id)
 		{
+			// TODO: React to backup server failure
 			core.backupServer = null;
 		}
 		else if (core.taskManagers.containsKey(id))
 		{
-			core.taskManagers.remove(id);
+			reactToTaskManagerFailure(id);
 		}
 		else if (core.computationalNodes.containsKey(id))
 		{
-			core.computationalNodes.remove(id);
+			reactToComputationalNodeFailure(id);
 		}
 		invalidId.add(id);
+	}
+
+	private void reactToTaskManagerFailure(BigInteger id)
+	{
+		// TaskManager failure is easy to serve - just restore assigned problems
+		// (their states are still kept inside ProblemInfo object)
+		TaskManagerInfo info = core.taskManagers.get(id);
+
+		for (BigInteger problemId : info.assignedProblems)
+		{
+			core.problemsToSolve.get(problemId).isProblemCurrentlyDelegated = false;
+		}
+
+		core.taskManagers.remove(id);
+	}
+
+	private void reactToComputationalNodeFailure(BigInteger id)
+	{
+		// ComputationalNode failure involves restoring partial problems
+		ComputationalNodeInfo info = core.computationalNodes.get(id);
+
+		for (Map.Entry<BigInteger, List<PartialProblem>> entry : info.assignedPartialProblems.entrySet())
+		{
+			ProblemInfo problem = core.problemsToSolve.get(entry.getKey());
+			List<PartialProblem> partialProblems = entry.getValue();
+			
+			for(PartialProblem p : partialProblems)
+			{
+				problem.partialProblems.put(p.getTaskId(), p);
+			}
+		}
+		
+		core.computationalNodes.remove(id);
 	}
 }

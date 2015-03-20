@@ -3,7 +3,6 @@ package ComputationalServer.ServerCore;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,18 +34,18 @@ public class ComputationalServerCore
 	final static int MAX_MESSAGES = 150;
 	int port, timeout;
 	ServerSocket serverSocket;
-	Socket clientSocket;
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
 	BlockingQueue<ClientMessage> messageQueue;
-	ConcurrentMap<BigInteger, Register> taskManagers;
-	ConcurrentMap<BigInteger, Register> computationalNodes;
+	ConcurrentMap<BigInteger, TaskManagerInfo> taskManagers;
+	ConcurrentMap<BigInteger, ComputationalNodeInfo> computationalNodes;
+	ConcurrentMap<BigInteger, ProblemInfo> problemsToSolve;
 	BackupServerInformation backupServer;
 
 	ComputationalServerWindow mainWindow;
 	ComponentMonitorThread componentMonitorThread;
 
-	private BigInteger freeId;
+	private BigInteger freeComponentId, freeProblemId;
 	private ConnectionEstabilisherThread connectionEstabilisherThread;
 	private MessageParserThread messageParserThread;
 
@@ -64,12 +63,14 @@ public class ComputationalServerCore
 	public ComputationalServerCore(ComputationalServerWindow mainWindow)
 	{
 		this.mainWindow = mainWindow;
-		this.freeId = new BigInteger("1");
+		this.freeComponentId = new BigInteger("1");
+		this.freeProblemId = new BigInteger("1");
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 
 		taskManagers = new ConcurrentHashMap<>();
 		computationalNodes = new ConcurrentHashMap<>();
+		problemsToSolve = new ConcurrentHashMap<>();
 
 		connectionEstabilisherThread = new ConnectionEstabilisherThread(this);
 		messageParserThread = new MessageParserThread(this);
@@ -98,8 +99,9 @@ public class ComputationalServerCore
 
 	/**
 	 * <p>
-	 * Registers connectiong component and returns its identificator. In case of
-	 * failure (unsupported component) -1 value is returned.
+	 * Logs information about connecting component and returns its new
+	 * identificator. In case of failure (unsupported component) -1 value is
+	 * returned.
 	 * </p>
 	 * 
 	 * @param message
@@ -109,19 +111,21 @@ public class ComputationalServerCore
 	 */
 	BigInteger registerComponent(Register message, Integer port, String address)
 	{
-		BigInteger idForComponent = getCurrentFreeId();
+		BigInteger idForComponent = getCurrentFreeComponentId();
 
 		if (message.getType().contentEquals(
 				GenericComponent.ComponentType.TaskManager.name))
 		{
 			Logger.log("TM connected\n");
-			taskManagers.put(idForComponent, message);
+			taskManagers.put(idForComponent, new TaskManagerInfo(
+					idForComponent, message));
 		}
 		else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalNode.name))
 		{
 			Logger.log("CN connected\n");
-			computationalNodes.put(idForComponent, message);
+			computationalNodes.put(idForComponent, new ComputationalNodeInfo(
+					idForComponent, message));
 		}
 		else if (message.getType().contentEquals(
 				GenericComponent.ComponentType.ComputationalServer.name))
@@ -134,7 +138,7 @@ public class ComputationalServerCore
 			}
 			else
 			{
-				// TODO: Send error because there can be only one BS
+				Logger.log("Only one Backup Server permitted! Rejecting...\n");
 				idForComponent = new BigInteger("-1");
 			}
 		}
@@ -142,17 +146,24 @@ public class ComputationalServerCore
 		{
 			Logger.log("Unsupported component Connected\n");
 			idForComponent = new BigInteger("-1");
-			// TODO: Send error because CC should not register
 		}
 
 		return idForComponent;
 	}
-	
-	private synchronized BigInteger getCurrentFreeId()
+
+	synchronized BigInteger getCurrentFreeProblemId()
 	{
 		BigInteger one = new BigInteger("1");
-		BigInteger result = new BigInteger(freeId.toString());
-		freeId = freeId.add(one);
+		BigInteger result = new BigInteger(freeProblemId.toString());
+		freeProblemId = freeProblemId.add(one);
+		return result;
+	}
+
+	private synchronized BigInteger getCurrentFreeComponentId()
+	{
+		BigInteger one = new BigInteger("1");
+		BigInteger result = new BigInteger(freeComponentId.toString());
+		freeComponentId = freeComponentId.add(one);
 		return result;
 	}
 
@@ -175,14 +186,12 @@ public class ComputationalServerCore
 
 					for (ClientMessage m : messageQueue)
 						m.getClientSocket().close();
-
-					clientSocket.close();
 				}
 				catch (IOException | NullPointerException e)
 				{ /* failed */
 				}
 
-				System.out.println("The server is shut down!");
+				Logger.log("The server is shut down!\n");
 			}
 		});
 	}

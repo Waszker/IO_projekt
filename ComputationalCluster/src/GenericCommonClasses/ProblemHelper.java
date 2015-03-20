@@ -1,5 +1,6 @@
 package GenericCommonClasses;
 
+import pl.edu.pw.mini.se2.TaskSolver;
 import Problems.TestProblem;
 import XMLMessages.DivideProblem;
 import XMLMessages.SolvePartialProblems.PartialProblems;
@@ -21,7 +22,7 @@ public class ProblemHelper
 	 * @param message received DivideProblem message
 	 * @return proper problem object
 	 */
-	public static IProblem instantinateProblem(DivideProblem message)
+	public static TaskSolver instantinateTaskSolver(DivideProblem message)
 	{
 		return instantinate(message.getProblemType(), message.getData());
 	}
@@ -33,7 +34,7 @@ public class ProblemHelper
 	 * @param message received PartialProblems message
 	 * @return proper problem objects array
 	 */
-	public static IProblem[] instantinateProblem(PartialProblems message)
+	public static TaskSolver[] instantinateTaskSolver(PartialProblems message)
 	{
 		//TODO: Complete!!!!
 		
@@ -42,22 +43,17 @@ public class ProblemHelper
 	
 	
 	//private method doing main work
-	private static IProblem instantinate(String type, byte[] data)
+	private static TaskSolver instantinate(String type, byte[] data)
 	{
-		IProblem ret = null;
+		TaskSolver ret = null;
 		
 		switch ( type )
 		{
 			case "TestProblem":
-				ret = new TestProblem();
+				ret = new TestProblem(data);
 				break;
-			
-			default:
-				throw new UnsupportedOperationException("Unknown problem type!");
 		}
 		
-		
-		ret.loadData(data);
 		return ret;
 	}
 }

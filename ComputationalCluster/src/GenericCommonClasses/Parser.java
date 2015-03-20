@@ -23,6 +23,7 @@ import XMLMessages.Error;
 import XMLMessages.NoOperation;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolveRequest;
@@ -109,7 +110,10 @@ public abstract class Parser
 		 * given in REGISTER_RESPONSE.
 		 */
 		STATUS,
-		
+
+		/**
+		 * Sent by CS after error has been recognized.
+		 */
 		ERROR
 	}
 
@@ -214,10 +218,14 @@ public abstract class Parser
 			case "Solutions":
 				result = getMessage(Solutiones.class, messageString);
 				break;
-				
+
+			case "SolutionRequest":
+				result = getMessage(SolutionRequest.class, messageString);
+				break;
+
 			case "Error":
 				result = getMessage(Error.class, messageString);
-				break;				
+				break;
 		}
 
 		return result;
