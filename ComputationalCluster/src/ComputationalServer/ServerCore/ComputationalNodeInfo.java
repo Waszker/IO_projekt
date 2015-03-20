@@ -2,9 +2,12 @@ package ComputationalServer.ServerCore;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import XMLMessages.Register;
+import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 /**
  * <p>
@@ -23,7 +26,11 @@ class ComputationalNodeInfo
 	/******************/
 	BigInteger id;
 	Register info;
-	List<ProblemInfo> assignedProblems;
+	/**
+	 * Map with key responding to ProblemInfo and containing PartialProblems
+	 * assigned for this Node.
+	 */
+	ConcurrentHashMap<BigInteger, List<PartialProblem>> assignedPartialProblems;
 
 	/******************/
 	/* FUNCTIONS */
@@ -39,6 +46,6 @@ class ComputationalNodeInfo
 	{
 		this.id = id;
 		info = message;
-		assignedProblems = new ArrayList<>(info.getParallelThreads());		
+		assignedPartialProblems = new ConcurrentHashMap<>();
 	}
 }

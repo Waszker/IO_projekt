@@ -74,7 +74,6 @@ public class ComputationalServerTests
 		}
 
 	}
-	
 
 	@Test
 	public void ComputationalServerCoreBadConnectionTest1()
@@ -102,13 +101,13 @@ public class ComputationalServerTests
 		}
 
 	}
-	
+
 	@Test
 	public void ComputationalServerSolverRequestTest1()
 	{
 		Logger.setDebug(false);
-		int port = 9999, timeout = 5;
-		byte[] data = {55, 45, 63};
+		int port = 9998, timeout = 5;
+		byte[] data = { 55, 45, 63 };
 		ComputationalServerCore core = new ComputationalServerCore(null);
 		SolveRequest message = new SolveRequest();
 		message.setProblemType("TestProblem");
@@ -124,7 +123,8 @@ public class ComputationalServerTests
 
 			assertEquals(received.getMessageType(),
 					Parser.MessageType.SOLVE_REQUEST_RESPONSE);
-			assertEquals(((SolveRequestResponse) received).getId(), new BigInteger("1"));
+			assertEquals(((SolveRequestResponse) received).getId(),
+					new BigInteger("1"));
 		}
 		catch (IOException e)
 		{

@@ -49,12 +49,15 @@ public final class GenericProtocol
 
 			for (IMessage m : messages)
 			{
-				try
+				if (null != m)
 				{
-					out.write(m.getString() + IMessage.ETB);
-				}
-				catch (JAXBException e)
-				{
+					try
+					{
+						out.write(m.getString() + IMessage.ETB);
+					}
+					catch (JAXBException e)
+					{
+					}
 				}
 			}
 			out.flush();

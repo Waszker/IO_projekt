@@ -109,7 +109,10 @@ public abstract class Parser
 		 * given in REGISTER_RESPONSE.
 		 */
 		STATUS,
-		
+
+		/**
+		 * Sent by CS after error has been recognized.
+		 */
 		ERROR
 	}
 
@@ -214,10 +217,10 @@ public abstract class Parser
 			case "Solutions":
 				result = getMessage(Solutiones.class, messageString);
 				break;
-				
+
 			case "Error":
 				result = getMessage(Error.class, messageString);
-				break;				
+				break;
 		}
 
 		return result;
