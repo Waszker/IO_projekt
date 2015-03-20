@@ -28,10 +28,12 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public static final String COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON = "COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON";
 	public static final String COMPUTATIONAL_CLIENT_SEND_BUTTON = "COMPUTATIONAL_CLIENT_SEND_BUTTON";
 	public static final String COMPUTATIONAL_CLIENT_REQUEST_BUTTON = "COMPUTATIONAL_CLIENT_REQUEST_BUTTON";
-	
+
 	private static final long serialVersionUID = -1254898218440155506L;
 	private JTextField computationStatusField;
-	private JButton sendButton;
+	protected JButton sendButton;
+	protected JLabel fileName;
+	protected JButton requestButton;
 
 	/******************/
 	/* FUNCTIONS */
@@ -49,32 +51,44 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public ComputationalClientWindow(ComputationalClient clientInstance)
 	{
 		super("Computational Client", clientInstance);
+		hideUnusedFields();
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),
 				createButton("Choose file",
 						COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON)));
 
-		this.add(sendButton = createButton("Send",
-				COMPUTATIONAL_CLIENT_SEND_BUTTON));
+		this.add(createTwoHorizontalComponentsPanel(
+				fileName = new JLabel(""),
+				sendButton = createButton("Send",
+						COMPUTATIONAL_CLIENT_SEND_BUTTON)));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Computation status"),
 				computationStatusField = createTextField("unknown", false)));
-		
+
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Solution request"),
-				createButton("Request",
+				requestButton = createButton("Request",
 						COMPUTATIONAL_CLIENT_REQUEST_BUTTON)));
-
+		
+		sendButton.setEnabled(false);
+		requestButton.setEnabled(false);
 		this.pack();
 		this.setLocationRelativeTo(null);
+	}
+
+	private void hideUnusedFields()
+	{
+		this.connectionStatusField.getParent().setVisible(false);
+		this.connectButton.setVisible(false);
 	}
 
 	@Override
 	public GenericWindowActionListener createActionListener()
 	{
-		return new ComputationalClientActionListener(this, (ComputationalClient)component);
+		return new ComputationalClientActionListener(this,
+				(ComputationalClient) component);
 	}
 
 }
