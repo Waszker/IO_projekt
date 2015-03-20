@@ -27,16 +27,19 @@ public class ComputationalClientActionListener extends
 	/******************/
 
 	private ComputationalClient client;
-    private byte[] data;
+	private byte[] data;
+	private ComputationalClientWindow window;
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
+
 	public ComputationalClientActionListener(GenericWindowGui window,
 			ComputationalClient client)
 	{
 		super(window);
 		this.client = client;
-
+		this.window = (ComputationalClientWindow) window;
 	}
 
 	@Override
@@ -52,6 +55,10 @@ public class ComputationalClientActionListener extends
 			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_SEND_BUTTON:
 				reactToSendButtonPress();
 				break;
+
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_REQUEST_BUTTON:
+				reactToRequestButtonPress();
+				break;
 		}
 	}
 
@@ -62,6 +69,8 @@ public class ComputationalClientActionListener extends
 		if (returnVal == JFileChooser.APPROVE_OPTION)
 		{
 			File file = fc.getSelectedFile();
+			String filename = file.getName();
+
 			try
 			{
 				this.data = loadFile(file);
@@ -69,20 +78,29 @@ public class ComputationalClientActionListener extends
 			{
 				e.printStackTrace();
 			}
+			this.window.fileName.setText(filename);
+			this.window.sendButton.setEnabled(true);
 		}
 	}
 
 	private void reactToSendButtonPress()
 	{
+		SolveRequest sr = new SolveRequest();
+		sr.setProblemType("typ problemu");
+		sr.setSolvingTimeout(new BigInteger("60"));
+		sr.setData(data);
+		// sr.setId(client.getProblemId()); //nie mamy tutaj jeszcze problemid
+		client.sendSolveRequestMessage(sr);
+
 		JOptionPane.showMessageDialog(new JFrame(), "SENT", "Dialog",
 				JOptionPane.INFORMATION_MESSAGE);
-		
-		SolveRequest sr=new SolveRequest();
-		sr.setId(client.getProblemId());
-		sr.setData(data);
-		sr.setProblemType("problem");
-		sr.setSolvingTimeout(new BigInteger("60"));
-        client.sendSolveRequestMessage(sr);
+
+		this.window.requestButton.setEnabled(true);
+	}
+
+	private void reactToRequestButtonPress()
+	{
+		client.sendSolutionRequestMessage();
 	}
 
 	private static byte[] loadFile(File file) throws IOException
