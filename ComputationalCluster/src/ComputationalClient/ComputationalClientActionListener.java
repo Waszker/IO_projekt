@@ -52,9 +52,20 @@ public class ComputationalClientActionListener extends
 			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_SEND_BUTTON:
 				reactToSendButtonPress();
 				break;
+				
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_REQUEST_BUTTON:
+				reactToRequestButtonPress();
+				break;
+				
 		}
+		
 	}
 
+	private void reactToRequestButtonPress()
+	{	
+		client.sendSolutionRequestMessage();
+	}
+	
 	private void reactToChooseFiletButtonPress()
 	{
 		final JFileChooser fc = new JFileChooser();
