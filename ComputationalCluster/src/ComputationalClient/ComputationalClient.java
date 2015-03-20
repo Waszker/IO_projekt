@@ -3,7 +3,6 @@ package ComputationalClient;
 import java.io.IOException;
 import java.math.BigInteger;
 
-
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
@@ -13,6 +12,15 @@ import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolveRequest;
 import XMLMessages.SolveRequestResponse;
 import DebugTools.Logger;
+
+
+/**
+ * <p>
+ * ComputationalClient is a class providing the Computational Client logic.
+ * </p>
+ * 
+ * @author Anna Zawadzka
+ */
 
 public class ComputationalClient extends GenericComponent
 {
@@ -34,7 +42,7 @@ public class ComputationalClient extends GenericComponent
 
 	@Override
 	protected Register getComponentRegisterMessage()
-	{
+	{	//to jest niepotrzebne
 		Register r = new Register();
 		r.setType(GenericComponent.ComponentType.ComputationalClient.name);
 		return r;
@@ -48,14 +56,15 @@ public class ComputationalClient extends GenericComponent
 		if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
 		{
 			problemId = ((SolveRequestResponse) message).getId();
-			//sendSolutionRequestMessage();
-			// pytanie sie co timeout o solution - wysylanie solutionrequest
+			//server ma timeout czasu na rozwiazanie problemu, 
+			//jesli timeout mija, klient konczy prace?
+			// sendSolutionRequestMessage();
 		}
 		if (message.getMessageType() == MessageType.SOLUTION)
 		{
-			taskId=((Solution) message).getTaskId();
-			
-			Logger.log("Your id is: "+taskId+"\n");
+			taskId = ((Solution) message).getTaskId();	
+			byte[] solutionData =((Solution) message).getData();
+			Logger.log("Task id: " + taskId + "\n");
 		}
 
 	}
@@ -73,7 +82,8 @@ public class ComputationalClient extends GenericComponent
 
 	protected void sendSolutionRequestMessage()
 	{
-		SolutionRequest sr=new SolutionRequest();
+		SolutionRequest sr = new SolutionRequest();
+		//sr.setId(problemId);
 		sr.setId(new BigInteger("1"));
 		try
 		{
