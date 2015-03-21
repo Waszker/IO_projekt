@@ -50,7 +50,7 @@ public final class TaskManager extends GenericComponent
 	{
 		Register r = new Register();
 		r.setType(ComponentType.TaskManager.name);
-		r.setParallelThreads((short) 1);
+		r.setParallelThreads((short)1);
 		return r;
 	}
 
