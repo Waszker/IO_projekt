@@ -115,7 +115,7 @@ public class ComputationalNode extends GenericComponent
 
 		Logger.log("Problem Type: " + problemType + " " + id
 				+ " sending partial solution: " + taskId + "\n");
-		Logger.log("Solution: "
+		Logger.log("Solution "
 				+ ProblemHelper.extractResult(problemType, solutions) + "\n");
 
 		try
