@@ -50,6 +50,7 @@ public final class TaskManager extends GenericComponent
 	{
 		Register r = new Register();
 		r.setType(ComponentType.TaskManager.name);
+		r.setParallelThreads((short)1);
 		return r;
 	}
 
@@ -166,7 +167,7 @@ public final class TaskManager extends GenericComponent
 		//retreive the solutions
 		List<Solution> list = sm.getSolutions().getSolution();
 		byte[][] solutions = new byte[list.size()][];
-		for ( int i=0; i<list.size(); i++ ) //kolejność po getTaskID
+		for ( int i=0; i<list.size(); i++ ) //kolejno���� po getTaskID
 			solutions[i] = list.get(i).getData();
 				
 		byte[] dataToSend = ts.MergeSolution(solutions);
