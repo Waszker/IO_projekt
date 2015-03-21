@@ -2,7 +2,6 @@ package TaskManager;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.LinkedList;
 import java.util.List;
 
 import pl.edu.pw.mini.se2.TaskSolver;
@@ -18,7 +17,6 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.ProblemHelper;
-import GenericCommonClasses.Parser.MessageType;
 
 /**
  * <p>
@@ -26,7 +24,7 @@ import GenericCommonClasses.Parser.MessageType;
  * </p>
  * 
  * @author Filip Turkot
- * @version 1.0
+ * @version 1.1
  */
 public final class TaskManager extends GenericComponent
 {
@@ -100,6 +98,7 @@ public final class TaskManager extends GenericComponent
 			return;
 		}
 		
+		Logger.log("Dividing problem among " + dvm.getComputationalNodes().intValue() + " nodes...\n");
 		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
 		try
 		{
@@ -123,6 +122,7 @@ public final class TaskManager extends GenericComponent
 			return;
 		}
 		
+		Logger.log("Merging " + sm.getSolutions().getSolution().size() + " results...\n");
 		Solutiones response = generateResponse(sm, currentProblemTaskSolver);
 		try
 		{
@@ -173,7 +173,7 @@ public final class TaskManager extends GenericComponent
 		//retreive the solutions
 		List<Solution> list = sm.getSolutions().getSolution();
 		byte[][] solutions = new byte[list.size()][];
-		for ( int i=0; i<list.size(); i++ ) //kolejno���� po getTaskID
+		for ( int i=0; i<list.size(); i++ ) // order by TaskID
 			solutions[i] = list.get(i).getData();
 				
 		byte[] dataToSend = ts.MergeSolution(solutions);
