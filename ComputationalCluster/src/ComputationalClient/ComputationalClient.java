@@ -56,6 +56,7 @@ public class ComputationalClient extends GenericComponent
 		if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
 		{
 			problemId = ((SolveRequestResponse) message).getId();
+			Logger.log("problem id: " + problemId + "\n");
 			//server ma timeout czasu na rozwiazanie problemu, 
 			//jesli timeout mija, klient konczy prace?
 			// sendSolutionRequestMessage();
