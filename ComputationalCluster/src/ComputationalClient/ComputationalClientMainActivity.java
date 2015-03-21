@@ -20,8 +20,10 @@ public class ComputationalClientMainActivity
 					.get(GenericFlagInterpreter.FLAG_ADDRESS);
 			Integer serverPort = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_PORT);
+			String fileName = (String) flagsMap
+					.get(GenericFlagInterpreter.FLAG_FILE);
 			ComputationalClient client = new ComputationalClient(serverIp,
-					serverPort, isGuiEnabled);
+					serverPort, isGuiEnabled, fileName);
 
 			if (isGuiEnabled)
 			{
@@ -32,6 +34,7 @@ public class ComputationalClientMainActivity
 			else
 			{
 				client.connectToServer();
+				client.sendSolveRequestMessage();
 			}
 		}
 		catch (NumberFormatException | UnknownHostException e)
