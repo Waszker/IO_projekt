@@ -57,7 +57,7 @@ public class ComputationalNode extends GenericComponent
 			}
 		} else if (message.getMessageType() == MessageType.PARTIAL_PROBLEM)
 		{
-			Logger.log("Node: " + id + "recieved PARTIAL_PROBLEM message");
+			Logger.log("Node: " + id + "recieved PARTIAL_PROBLEM message\n");
 			handlePartialProblemMessage((SolvePartialProblems) message);
 		}
 
