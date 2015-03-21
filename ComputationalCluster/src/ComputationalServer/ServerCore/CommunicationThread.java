@@ -10,11 +10,14 @@ import java.util.Map;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Error;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
 import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
+import XMLMessages.Solutiones.Solutions;
+import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 import XMLMessages.SolveRequest;
@@ -165,9 +168,21 @@ class CommunicationThread
 		ProblemInfo problem = core.problemsToSolve.get(id);
 		Solutiones result = new Solutiones();
 		result.setId(id);
-		// TODO: Fill information about computation
+		result.setSolutions(new Solutions());
 
-		GenericProtocol.sendMessages(socket, message);
+		if (null != problem.finalSolution)
+		{
+			result.getSolutions().getSolution().add(problem.finalSolution);
+			result.getSolutions().getSolution().get(0).setType("Final");
+		}
+		else
+		{
+			Solution sol = new Solution();
+			sol.setType("Ongoing");
+			result.getSolutions().getSolution().add(sol);
+		}
+
+		GenericProtocol.sendMessages(socket, result);
 	}
 
 	/**
@@ -291,6 +306,20 @@ class CommunicationThread
 		// received final solution
 		{
 			problem.finalSolution = message.getSolutions().getSolution().get(0);
+			Logger.log("\n\n!!!! Message content : "
+					+ ProblemHelper.extractResult(message.getProblemType(),
+							message.getSolutions().getSolution().get(0)
+									.getData()) + "!!!!\n\n");
+			
+			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
+					.entrySet())
+			{
+				if (entry.getValue().assignedProblems.contains(problemId))
+				{
+					entry.getValue().assignedProblems.remove(problemId);
+				}
+			}
+
 		}
 
 		GenericProtocol.sendMessages(socket,

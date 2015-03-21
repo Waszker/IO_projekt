@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 import XMLMessages.SolveRequest;
