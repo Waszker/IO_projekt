@@ -61,8 +61,6 @@ public class TaskManagerTests
 	}
 
 	
-	static TaskSolver theTaskSolver = null;
-	
 	@Test
 	public void responseOnDivideProblem() throws NoSuchMethodException,
 			SecurityException, IllegalAccessException,
@@ -83,7 +81,7 @@ public class TaskManagerTests
 		dvm.setData(testString.getBytes());
 		
 		//extract problem type, instantinate TaskSolver
-		theTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
+		TaskSolver theTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
 		
 		//invoke private static method in TaskManager
 		//-------------------------------------------
@@ -143,6 +141,9 @@ public class TaskManagerTests
 			sol.setData(testResults[i].getBytes());
 			list.add(sol);
 		}
+		
+		//extract TaskSolver
+		TaskSolver theTaskSolver = ProblemHelper.instantinateTaskSolver(sm);
 		
 		//invoke private static method in TaskManager
 		//-------------------------------------------
