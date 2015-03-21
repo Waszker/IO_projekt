@@ -5,7 +5,7 @@ import GenericCommonClasses.GenericWindowGui;
 
 /**
  * 
- * @author Monika ï¿½urkowska
+ * @author Monika ¯urkowska
  * 
  *         <p>
  *         ActionListener class for Computational Node

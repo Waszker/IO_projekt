@@ -3,6 +3,7 @@ package ComputationalNode;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import ComputationalClient.ComputationalClientWindow;
 import GenericCommonClasses.GenericFlagInterpreter;
 
 /**
@@ -26,16 +27,21 @@ public class ComputationalNodeMainActivity
 					.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
 			String serverIp = (String) flagsMap
 					.get(GenericFlagInterpreter.FLAG_ADDRESS);
+			//String serverIp = "89.77.45.185";
 			Integer serverPort = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_PORT);
 
 			ComputationalNode computationalNode = new ComputationalNode(
 					serverIp, serverPort, isGuiEnabled);
-			if (isGuiEnabled)
+			if (flagsMap.get("isGui") != null)
 			{
-				ComputationalNodeWindow mainWindow = new ComputationalNodeWindow(
+				ComputationalNodeWindow window = new ComputationalNodeWindow(
 						computationalNode);
-				mainWindow.setVisible(true);
+				window.setVisible(true);
+			}
+			else
+			{
+				computationalNode.connectToServer();
 			}
 		}
 		catch (NumberFormatException | UnknownHostException e)
