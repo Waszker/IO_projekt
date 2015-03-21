@@ -88,7 +88,7 @@ public class ComputationalClientActionListener extends
 		Integer timeout = window.getIntegerValueFromField(window.timeoutField);
 		SolveRequest sr = new SolveRequest();
 		sr.setProblemType("TestProblem");
-		sr.setSolvingTimeout(new BigInteger("60"));
+		sr.setSolvingTimeout(new BigInteger(timeout.toString()));
 		sr.setData(data);
 		// sr.setId(client.getProblemId()); //nie mamy tutaj jeszcze problemid
 		client.sendSolveRequestMessage(sr);
