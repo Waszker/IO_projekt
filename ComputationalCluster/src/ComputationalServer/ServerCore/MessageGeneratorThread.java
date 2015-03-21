@@ -11,8 +11,12 @@ import DebugTools.Logger;
 import GenericCommonClasses.IMessage;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
-import XMLMessages.Solutiones;
 import XMLMessages.NoOperation.BackupCommunicationServers;
+import XMLMessages.Solutiones;
+import XMLMessages.Solutiones.Solutions;
+import XMLMessages.SolvePartialProblems;
+import XMLMessages.SolvePartialProblems.PartialProblems;
+import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 public class MessageGeneratorThread
 {
@@ -71,8 +75,8 @@ public class MessageGeneratorThread
 	 * @return
 	 * @throws IOException
 	 */
-	private DivideProblem getDivideProblemRequest(ProblemInfo problem)
-			throws IOException
+	private DivideProblem getDivideProblemRequest(ProblemInfo problem,
+			BigInteger nodeId) throws IOException
 	{
 		DivideProblem message = null;
 		if (null != problem)
@@ -82,6 +86,7 @@ public class MessageGeneratorThread
 					.valueOf(core.computationalNodes.size())));
 			message.setProblemType(problem.problemType);
 			message.setId(problem.id);
+			message.setNodeID(nodeId);
 			message.setData(problem.data);
 		}
 
@@ -106,7 +111,28 @@ public class MessageGeneratorThread
 			message.setCommonData(problem.data);
 			message.setId(problem.id);
 			message.setProblemType(problem.problemType);
-			// TODO: Set solutions data
+			message.setSolutions(new Solutions());
+			message.getSolutions().getSolution()
+					.addAll(problem.partialSolutions);
+		}
+
+		return message;
+	}
+
+	SolvePartialProblems getPartialProblem(ProblemInfo problem,
+			PartialProblem partialProblem)
+	{
+		SolvePartialProblems message = null;
+		if (null != problem)
+		{
+			message = new SolvePartialProblems();
+			message.setCommonData(problem.data);
+			message.setId(problem.id);
+			message.setProblemType(problem.problemType);
+			message.setProblemType(problem.problemType);
+			message.setPartialProblems(new PartialProblems());
+			message.getPartialProblems().getPartialProblem()
+					.add(partialProblem);
 		}
 
 		return message;
@@ -154,13 +180,16 @@ public class MessageGeneratorThread
 				messageList.add(getSolutionRequest(core.problemsToSolve
 						.get(problem.id)));
 			}
-			else
+			else if (!problem.isProblemDivided
+					&& core.computationalNodes.size() > 0)
 			// problem needs division
 			{
 				Logger.log("Sent problem " + problem.id + " for division\n");
-				messageList.add(getDivideProblemRequest(core.problemsToSolve
-						.get(problem.id)));
+				messageList.add(getDivideProblemRequest(
+						core.problemsToSolve.get(problem.id), taskManager.id));
 			}
+			else if (problem.isProblemDivided || core.computationalNodes.size() <= 0)
+				continue;
 			taskManager.assignedProblems.add(problem.id);
 			problem.isProblemCurrentlyDelegated = true;
 
@@ -181,12 +210,64 @@ public class MessageGeneratorThread
 	 * @param computationalNode
 	 * @throws IOException
 	 */
-	void makeComputationalNodeWorkHard(Socket socket,
+	synchronized List<IMessage> makeComputationalNodeWorkHard(Socket socket,
 			ComputationalNodeInfo computationalNode) throws IOException
 	{
 		// Get number of partialProblems currently working
-		
-		// Get free threads 
-//		int freeThreads
+		List<IMessage> messageList = new ArrayList<>();
+		int partialProblemsCount = 0;
+		for (Map.Entry<BigInteger, List<PartialProblem>> entry : computationalNode.assignedPartialProblems
+				.entrySet())
+		{
+			partialProblemsCount += entry.getValue().size();
+		}
+
+		// Get free threads
+		int freeThreads = computationalNode.info.getParallelThreads()
+				- partialProblemsCount;
+		Logger.log("Looks like ComputationalNode " + computationalNode.id
+				+ " has " + freeThreads + " free threads\n");
+
+		for (Map.Entry<BigInteger, ProblemInfo> entry : core.problemsToSolve
+				.entrySet())
+		{
+			ProblemInfo problem = entry.getValue();
+
+			if (freeThreads == 0)
+				break;
+
+			// For partial problems
+			if (problem.isProblemDivided && !problem.isProblemReadyToSolve
+					&& !problem.partialProblems.isEmpty())
+			{
+				PartialProblem pproblem = problem.partialProblems.remove(0);
+				Logger.log("Sent parital problem " + problem.id
+						+ " for solution\n");
+
+				if (freeThreads == 0)
+					break;
+
+				// Add partial problem to solve
+				messageList.add(getPartialProblem(problem, pproblem));
+
+				List<PartialProblem> delegatedProblems = computationalNode.assignedPartialProblems
+						.get(problem.id);
+
+				if (null != delegatedProblems)
+					delegatedProblems.add(pproblem);
+				else
+				{
+					delegatedProblems = new ArrayList<>();
+					delegatedProblems.add(pproblem);
+					computationalNode.assignedPartialProblems.put(problem.id,
+							delegatedProblems);
+				}
+
+				freeThreads--;
+			}
+		}
+
+		return messageList;
+
 	}
 }
