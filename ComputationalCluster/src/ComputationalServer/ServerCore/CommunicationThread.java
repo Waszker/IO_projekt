@@ -169,7 +169,7 @@ class CommunicationThread
 		Solutiones result = new Solutiones();
 		result.setId(id);
 		result.setSolutions(new Solutions());
-
+		
 		if (null != problem.finalSolution)
 		{
 			result.getSolutions().getSolution().add(problem.finalSolution);
