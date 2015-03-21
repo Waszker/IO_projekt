@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
+import pl.edu.pw.mini.se2.TaskSolver;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
-import Problems.TestProblem;
+import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Register;
 import XMLMessages.Solutiones;
 import XMLMessages.Solutiones.Solutions;
@@ -25,7 +26,8 @@ public class ComputationalNode extends GenericComponent
 	private BigInteger problemId;
 	private String problemType;
 	private BigInteger taskId;
-	private boolean finalSolution = false;
+	private TaskSolver currentProblemTaskSolver = null; // if null - we hav no
+														// problem assigned
 
 	public ComputationalNode(String serverIpAddress, Integer serverPort,
 			boolean isGui)
@@ -57,8 +59,12 @@ public class ComputationalNode extends GenericComponent
 			}
 		} else if (message.getMessageType() == MessageType.PARTIAL_PROBLEM)
 		{
-			Logger.log("Node: " + id + "recieved PARTIAL_PROBLEM message");
+			Logger.log("Node: " + id + " recieved PARTIAL_PROBLEM message\n");
 			handlePartialProblemMessage((SolvePartialProblems) message);
+		} else if (message.getMessageType() == MessageType.ERROR)
+		{
+			showError("Error message from server: "
+					+ ((XMLMessages.Error) message).getErrorDetails());
 		}
 
 	}
@@ -68,60 +74,51 @@ public class ComputationalNode extends GenericComponent
 		// TODO
 		commonData = sppm.getCommonData();
 		problemId = sppm.getId();
+		Logger.log("Problem ID: " + problemId + "\n");
 		problemType = sppm.getProblemType();
-		
-		if (problemType == "TestProblem")
+
+		if (problemType.contentEquals("TestProblem"))
 		{
-			TestProblem tp = new TestProblem(commonData);
+			Logger.log("Type of message: " + problemType + "\n");
 
 			List<PartialProblem> lpp = sppm.getPartialProblems()
 					.getPartialProblem();
 
+			currentProblemTaskSolver = ProblemHelper
+					.instantinateTaskSolver(sppm);
+
 			for (int i = 0; i < lpp.size(); ++i)
 			{
 				taskId = lpp.get(i).getTaskId();
-				solutions = tp.Solve(lpp.get(i).getData(), sppm
-						.getSolvingTimeout().longValue());
-				
-				if (i == lpp.size() - 1)
-				{
-					finalSolution = true;
-				}
-				
+				Logger.log("Task ID: " + taskId + "\n");
+				solutions = currentProblemTaskSolver.Solve(
+						lpp.get(i).getData(), sppm.getSolvingTimeout()
+								.longValue());
 				sendSolutionsMessage();
 			}
 		}
 	}
-	
+
 	protected void sendSolutionsMessage()
 	{
 		Solutiones response = new Solutiones();
-		
+
 		response.setCommonData(commonData);
 		response.setId(problemId);
 		response.setProblemType(problemType);
-		
+
 		Solution s = new Solution();
 		s.setTaskId(taskId);
 		s.setTimeoutOccured(false);
-		
-		if (!finalSolution)
-		{
-			s.setType("Ongoing");
-		}
-		else
-		{
-			s.setType("Partial");
-		}
-		
+
 		s.setData(solutions);
-		
+
 		Solutions ss = new Solutions();
 		List<Solution> ls = ss.getSolution();
 		ls.add(s);
-		
+
 		response.setSolutions(ss);
-		
+
 		try
 		{
 			this.sendMessages(response);
