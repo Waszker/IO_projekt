@@ -26,7 +26,7 @@ public class ComputationalNode extends GenericComponent
 	private BigInteger problemId;
 	private String problemType;
 	private BigInteger taskId;
-	private TaskSolver currentProblemTaskSolver = null; // if null - we hav no
+	private TaskSolver currentProblemTaskSolver = null; // if null - we have no
 														// problem assigned
 
 	public ComputationalNode(String serverIpAddress, Integer serverPort,
@@ -74,33 +74,27 @@ public class ComputationalNode extends GenericComponent
 		// TODO
 		commonData = sppm.getCommonData();
 		problemId = sppm.getId();
-		Logger.log("Problem ID: " + problemId + "\n");
 		problemType = sppm.getProblemType();
 
-		if (problemType.contentEquals("TestProblem"))
+		Logger.log("Type of message: " + problemType + "\n");
+
+		List<PartialProblem> lpp = sppm.getPartialProblems()
+				.getPartialProblem();
+
+		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(sppm);
+
+		for (int i = 0; i < lpp.size(); ++i)
 		{
-			Logger.log("Type of message: " + problemType + "\n");
-
-			List<PartialProblem> lpp = sppm.getPartialProblems()
-					.getPartialProblem();
-
-			currentProblemTaskSolver = ProblemHelper
-					.instantinateTaskSolver(sppm);
-
-			for (int i = 0; i < lpp.size(); ++i)
-			{
-				taskId = lpp.get(i).getTaskId();
-				Logger.log("Task ID: " + taskId + "\n");
-				solutions = currentProblemTaskSolver.Solve(
-						lpp.get(i).getData(), sppm.getSolvingTimeout()
-								.longValue());
-				sendSolutionsMessage();
-			}
+			taskId = lpp.get(i).getTaskId();
+			solutions = currentProblemTaskSolver.Solve(lpp.get(i).getData(),
+					sppm.getSolvingTimeout().longValue());
+			sendSolutionsMessage();
 		}
 	}
 
 	protected void sendSolutionsMessage()
 	{
+		Logger.log("sendSolutionsMessage\n");
 		Solutiones response = new Solutiones();
 
 		response.setCommonData(commonData);
@@ -118,6 +112,11 @@ public class ComputationalNode extends GenericComponent
 		ls.add(s);
 
 		response.setSolutions(ss);
+
+		Logger.log("Problem Type: " + problemType + " " + id
+				+ " sending partial solution: " + taskId + "\n");
+		Logger.log("Solution: "
+				+ ProblemHelper.extractResult(problemType, solutions) + "\n");
 
 		try
 		{
