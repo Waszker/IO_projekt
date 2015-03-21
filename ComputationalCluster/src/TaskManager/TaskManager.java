@@ -2,6 +2,7 @@ package TaskManager;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.LinkedList;
 import java.util.List;
 
 import pl.edu.pw.mini.se2.TaskSolver;
@@ -33,7 +34,6 @@ public final class TaskManager extends GenericComponent
 	/* VARIABLES */
 	/******************/
 	
-	private TaskSolver currentProblemTaskSolver = null; //if null - we hav no problem assigned
 	private boolean firstNoOp = true; //if true, print assigned id, then turn into false
 
 	/******************/
@@ -50,6 +50,7 @@ public final class TaskManager extends GenericComponent
 	{
 		Register r = new Register();
 		r.setType(ComponentType.TaskManager.name);
+		r.setParallelThreads((short) 1);
 		return r;
 	}
 
@@ -82,56 +83,62 @@ public final class TaskManager extends GenericComponent
 	
 	private void handleDivideProblemMessage(DivideProblem dvm)
 	{
-		if ( currentProblemTaskSolver != null )
-		{
-			//TODO: Error - we have other job assigned
-			return;
-		}
+		Logger.log("Received problem to divide...\n");
 		
 		if ( dvm.getNodeID().compareTo(id) != 0 )
 		{
+			Logger.log( "Wrong id!\n");
+			
 			//TODO: Error - shouldn't receive this message (not our id)
 			return;
 		}
 		
-		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
-		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
+		TaskSolver currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
+		if ( currentProblemTaskSolver == null )
+		{
+			unknownProblemType();
+			return;
+		}
 		
+		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
 		try
 		{
+			Logger.log( "OK. Sending response...\n");
 			sendMessages(response);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			currentProblemTaskSolver = null;
 		}
 	}
 	
 	private void handleSolutionsMessage(Solutiones sm)
 	{
+		Logger.log("Received solutions to merge...\n");
+		
+		TaskSolver currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(sm);
 		if ( currentProblemTaskSolver == null )
 		{
-			//TODO: Error - no active jobs
+			unknownProblemType();
 			return;
 		}
 		
 		Solutiones response = generateResponse(sm, currentProblemTaskSolver);
-		
 		try
 		{
+			Logger.log("Sending response...\n");
 			sendMessages(response);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		currentProblemTaskSolver = null;
 	}
 	
-	
+	private void unknownProblemType()
+	{
+		//TODO: Error - unknown problem type
+	}
 	
 	private static SolvePartialProblems generateResponse(DivideProblem dvm, TaskSolver ts, BigInteger id)
 	{
