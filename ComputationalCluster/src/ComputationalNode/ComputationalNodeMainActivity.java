@@ -8,7 +8,7 @@ import GenericCommonClasses.GenericFlagInterpreter;
 
 /**
  * 
- * @author Monika ï¿½urkowska
+ * @author Monika ¯urkowska
  * 
  *         <p>
  *         Main class of Computational Node
