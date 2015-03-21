@@ -67,4 +67,23 @@ public class ProblemHelper
 		
 		return ret;
 	}
+	
+	/**
+	 * <p>
+	 * Turns binary data of result into form readable by human. 
+	 * </p>
+	 * @param problemType type of problem; how to interprete data
+	 * @param data result binary data
+	 * @return result readable by human
+	 */
+	public static String extractResult(String problemType, byte[] data)
+	{
+		switch(problemType)
+		{
+			case "TestProblem":
+				return new String(data);
+			default:
+				return null;
+		}
+	}
 }
