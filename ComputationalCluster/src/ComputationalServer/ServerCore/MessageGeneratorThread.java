@@ -129,7 +129,7 @@ public class MessageGeneratorThread
 			message.setCommonData(problem.data);
 			message.setId(problem.id);
 			message.setProblemType(problem.problemType);
-			message.setProblemType(problem.problemType);
+			message.setSolvingTimeout(problem.timeout);
 			message.setPartialProblems(new PartialProblems());
 			message.getPartialProblems().getPartialProblem()
 					.add(partialProblem);
