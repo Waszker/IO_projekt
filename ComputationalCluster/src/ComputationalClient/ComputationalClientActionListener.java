@@ -86,7 +86,7 @@ public class ComputationalClientActionListener extends
 	private void reactToSendButtonPress()
 	{
 		SolveRequest sr = new SolveRequest();
-		sr.setProblemType("typ problemu");
+		sr.setProblemType("TestProblem");
 		sr.setSolvingTimeout(new BigInteger("60"));
 		sr.setData(data);
 		// sr.setId(client.getProblemId()); //nie mamy tutaj jeszcze problemid

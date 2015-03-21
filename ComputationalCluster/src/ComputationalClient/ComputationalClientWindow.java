@@ -51,7 +51,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public ComputationalClientWindow(ComputationalClient clientInstance)
 	{
 		super("Computational Client", clientInstance);
-		hideUnusedFields();
+		//hideUnusedFields();
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),

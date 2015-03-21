@@ -1,9 +1,10 @@
 package ComputationalServer.ServerCore;
 
 import java.math.BigInteger;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-import XMLMessages.Solutiones;
+import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 import XMLMessages.SolveRequest;
 
@@ -40,9 +41,10 @@ class ProblemInfo
 	boolean isProblemReadyToSolve;
 	boolean isProblemCurrentlyDelegated;
 	String problemType;
+	int parts;
 
-	ConcurrentHashMap<BigInteger, PartialProblem> partialProblems;
-	ConcurrentHashMap<BigInteger, Solutiones> partialSolutions;
+	List<PartialProblem> partialProblems;
+	List<Solution> partialSolutions;
 
 	/******************/
 	/* FUNCTIONS */
@@ -61,10 +63,11 @@ class ProblemInfo
 		this.data = message.getData().clone();
 		this.problemType = message.getProblemType();
 		this.timeout = message.getSolvingTimeout();
+		this.parts = 0;
 
 		isProblemDivided = isProblemReadyToSolve = isProblemCurrentlyDelegated = false;
-		partialProblems = new ConcurrentHashMap<>();
-		partialSolutions = new ConcurrentHashMap<>();
+		partialProblems = new ArrayList<>();
+		partialSolutions = new ArrayList<>();
 	}
 
 }

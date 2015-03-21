@@ -138,8 +138,9 @@ class CommunicationThread
 			}
 			else if (core.computationalNodes.containsKey(id))
 			{
-				messageGenerator.makeComputationalNodeWorkHard(socket,
-						core.computationalNodes.get(id));
+				messagesList.addAll(messageGenerator
+						.makeComputationalNodeWorkHard(socket,
+								core.computationalNodes.get(id)));
 			}
 
 			GenericProtocol.sendMessages(socket,
@@ -207,12 +208,13 @@ class CommunicationThread
 	{
 		ProblemInfo problem = core.problemsToSolve.get(message.getId());
 		problem.data = message.getCommonData();
+		problem.parts = message.getPartialProblems().getPartialProblem().size();
 
 		// Set ProblemInfo about partial problems
 		for (PartialProblem p : message.getPartialProblems()
 				.getPartialProblem())
 		{
-			problem.partialProblems.put(p.getTaskId(), p);
+			problem.partialProblems.add(p);
 		}
 
 		// Remove problem from specific taskManager
@@ -230,6 +232,45 @@ class CommunicationThread
 		// Set problem information
 		problem.isProblemDivided = true;
 		problem.isProblemCurrentlyDelegated = false;
+		GenericProtocol.sendMessages(socket,
+				messageGenerator.getNoOperationMessage());
+	}
+
+	void reactToSolution(Solutiones message, Socket socket) throws IOException
+	{
+		BigInteger problemId = message.getId();
+		ProblemInfo problem = core.problemsToSolve.get(problemId);
+		problem.partialSolutions.addAll(message.getSolutions().getSolution());
+		problem.parts -= message.getSolutions().getSolution().size();
+		if (problem.parts == 0)
+		{
+			problem.isProblemReadyToSolve = true;
+		}
+
+		// Remove problems from CN
+		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
+				.entrySet())
+		{
+			ComputationalNodeInfo computationalNode = entry.getValue();
+			if (computationalNode.assignedPartialProblems
+					.containsKey(problemId))
+			{
+				List<PartialProblem> partialProblems = computationalNode.assignedPartialProblems
+						.get(problemId);
+				for (int i = 0; i < partialProblems.size(); i++)
+				{
+					if (partialProblems
+							.get(i)
+							.getTaskId()
+							.equals(message.getSolutions().getSolution().get(0)
+									.getTaskId()))
+					{
+						partialProblems.remove(i);
+					}
+				}
+			}
+		}
+
 		GenericProtocol.sendMessages(socket,
 				messageGenerator.getNoOperationMessage());
 	}

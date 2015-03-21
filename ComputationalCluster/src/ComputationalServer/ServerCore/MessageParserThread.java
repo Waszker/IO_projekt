@@ -11,6 +11,7 @@ import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
 import XMLMessages.Register;
 import XMLMessages.SolutionRequest;
+import XMLMessages.Solutiones;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolveRequest;
 import XMLMessages.Status;
@@ -120,6 +121,11 @@ class MessageParserThread extends Thread
 			case PARTIAL_PROBLEM:
 				communicationThread.reactToPartialProblems(
 						(SolvePartialProblems) message, socket);
+				break;
+
+			case SOLUTION:
+				communicationThread.reactToSolution((Solutiones) message,
+						socket);
 				break;
 
 			default:
