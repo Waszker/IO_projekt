@@ -10,11 +10,14 @@ import java.util.Map;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Error;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
 import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
+import XMLMessages.Solutiones.Solutions;
+import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 import XMLMessages.SolveRequest;
@@ -165,9 +168,21 @@ class CommunicationThread
 		ProblemInfo problem = core.problemsToSolve.get(id);
 		Solutiones result = new Solutiones();
 		result.setId(id);
-		// TODO: Fill information about computation
+		result.setSolutions(new Solutions());
+		
+		if (null != problem.finalSolution)
+		{
+			result.getSolutions().getSolution().add(problem.finalSolution);
+			result.getSolutions().getSolution().get(0).setType("Final");
+		}
+		else
+		{
+			Solution sol = new Solution();
+			sol.setType("Ongoing");
+			result.getSolutions().getSolution().add(sol);
+		}
 
-		GenericProtocol.sendMessages(socket, message);
+		GenericProtocol.sendMessages(socket, result);
 	}
 
 	/**
@@ -236,39 +251,75 @@ class CommunicationThread
 				messageGenerator.getNoOperationMessage());
 	}
 
+	/**
+	 * <p>
+	 * Solutiones message can be obtained by server if sent from TaskManager
+	 * (with final solution) or ComputationalNode (if sending partial
+	 * solutions).
+	 * </p>
+	 * 
+	 * @param message
+	 * @param socket
+	 * @throws IOException
+	 */
 	void reactToSolution(Solutiones message, Socket socket) throws IOException
 	{
 		BigInteger problemId = message.getId();
 		ProblemInfo problem = core.problemsToSolve.get(problemId);
-		problem.partialSolutions.addAll(message.getSolutions().getSolution());
-		problem.parts -= message.getSolutions().getSolution().size();
-		if (problem.parts == 0)
-		{
-			problem.isProblemReadyToSolve = true;
-		}
 
-		// Remove problems from CN
-		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
-				.entrySet())
+		// Received partial solution?
+		if (problem.isProblemReadyToSolve == false)
 		{
-			ComputationalNodeInfo computationalNode = entry.getValue();
-			if (computationalNode.assignedPartialProblems
-					.containsKey(problemId))
+			problem.partialSolutions.addAll(message.getSolutions()
+					.getSolution());
+			problem.parts -= message.getSolutions().getSolution().size();
+			if (problem.parts == 0)
 			{
-				List<PartialProblem> partialProblems = computationalNode.assignedPartialProblems
-						.get(problemId);
-				for (int i = 0; i < partialProblems.size(); i++)
+				problem.isProblemReadyToSolve = true;
+			}
+
+			// Remove problems from CN
+			for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
+					.entrySet())
+			{
+				ComputationalNodeInfo computationalNode = entry.getValue();
+				if (computationalNode.assignedPartialProblems
+						.containsKey(problemId))
 				{
-					if (partialProblems
-							.get(i)
-							.getTaskId()
-							.equals(message.getSolutions().getSolution().get(0)
-									.getTaskId()))
+					List<PartialProblem> partialProblems = computationalNode.assignedPartialProblems
+							.get(problemId);
+					for (int i = 0; i < partialProblems.size(); i++)
 					{
-						partialProblems.remove(i);
+						if (partialProblems
+								.get(i)
+								.getTaskId()
+								.equals(message.getSolutions().getSolution()
+										.get(0).getTaskId()))
+						{
+							partialProblems.remove(i);
+						}
 					}
 				}
 			}
+		}
+		else
+		// received final solution
+		{
+			problem.finalSolution = message.getSolutions().getSolution().get(0);
+			Logger.log("\n\n!!!! Message content : "
+					+ ProblemHelper.extractResult(message.getProblemType(),
+							message.getSolutions().getSolution().get(0)
+									.getData()) + "!!!!\n\n");
+			
+			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
+					.entrySet())
+			{
+				if (entry.getValue().assignedProblems.contains(problemId))
+				{
+					entry.getValue().assignedProblems.remove(problemId);
+				}
+			}
+
 		}
 
 		GenericProtocol.sendMessages(socket,

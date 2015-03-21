@@ -45,6 +45,7 @@ class ProblemInfo
 
 	List<PartialProblem> partialProblems;
 	List<Solution> partialSolutions;
+	Solution finalSolution;
 
 	/******************/
 	/* FUNCTIONS */
@@ -68,6 +69,7 @@ class ProblemInfo
 		isProblemDivided = isProblemReadyToSolve = isProblemCurrentlyDelegated = false;
 		partialProblems = new ArrayList<>();
 		partialSolutions = new ArrayList<>();
+		finalSolution = null;
 	}
 
 }

@@ -17,7 +17,6 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.ProblemHelper;
-import GenericCommonClasses.Parser.MessageType;
 
 /**
  * <p>
@@ -25,7 +24,7 @@ import GenericCommonClasses.Parser.MessageType;
  * </p>
  * 
  * @author Filip Turkot
- * @version 1.0
+ * @version 1.1
  */
 public final class TaskManager extends GenericComponent
 {
@@ -33,7 +32,6 @@ public final class TaskManager extends GenericComponent
 	/* VARIABLES */
 	/******************/
 	
-	private TaskSolver currentProblemTaskSolver = null; //if null - we hav no problem assigned
 	private boolean firstNoOp = true; //if true, print assigned id, then turn into false
 
 	/******************/
@@ -83,56 +81,64 @@ public final class TaskManager extends GenericComponent
 	
 	private void handleDivideProblemMessage(DivideProblem dvm)
 	{
-		if ( currentProblemTaskSolver != null )
-		{
-			//TODO: Error - we have other job assigned
-			return;
-		}
+		Logger.log("Received problem to divide...\n");
 		
 		if ( dvm.getNodeID().compareTo(id) != 0 )
 		{
+			Logger.log( "Wrong id!\n");
+			
 			//TODO: Error - shouldn't receive this message (not our id)
 			return;
 		}
 		
-		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
-		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
+		TaskSolver currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
+		if ( currentProblemTaskSolver == null )
+		{
+			unknownProblemType();
+			return;
+		}
 		
+		Logger.log("Dividing problem among " + dvm.getComputationalNodes().intValue() + " nodes...\n");
+		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
 		try
 		{
+			Logger.log( "OK. Sending response...\n");
 			sendMessages(response);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			currentProblemTaskSolver = null;
 		}
 	}
 	
 	private void handleSolutionsMessage(Solutiones sm)
 	{
+		Logger.log("Received solutions to merge...\n");
+		
+		TaskSolver currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(sm);
 		if ( currentProblemTaskSolver == null )
 		{
-			//TODO: Error - no active jobs
+			unknownProblemType();
 			return;
 		}
 		
+		Logger.log("Merging " + sm.getSolutions().getSolution().size() + " results...\n");
 		Solutiones response = generateResponse(sm, currentProblemTaskSolver);
-		
 		try
 		{
+			Logger.log("Sending response...\n");
 			sendMessages(response);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		currentProblemTaskSolver = null;
 	}
 	
-	
+	private void unknownProblemType()
+	{
+		//TODO: Error - unknown problem type
+	}
 	
 	private static SolvePartialProblems generateResponse(DivideProblem dvm, TaskSolver ts, BigInteger id)
 	{
@@ -167,7 +173,7 @@ public final class TaskManager extends GenericComponent
 		//retreive the solutions
 		List<Solution> list = sm.getSolutions().getSolution();
 		byte[][] solutions = new byte[list.size()][];
-		for ( int i=0; i<list.size(); i++ ) //kolejno���� po getTaskID
+		for ( int i=0; i<list.size(); i++ ) // order by TaskID
 			solutions[i] = list.get(i).getData();
 				
 		byte[] dataToSend = ts.MergeSolution(solutions);
