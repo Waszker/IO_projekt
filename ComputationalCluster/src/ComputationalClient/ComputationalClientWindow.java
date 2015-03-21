@@ -1,6 +1,7 @@
 package ComputationalClient;
 
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -32,6 +33,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	private static final long serialVersionUID = -1254898218440155506L;
 	private JTextField computationStatusField;
 	protected JButton sendButton;
+	protected JFormattedTextField timeoutField;
 	protected JLabel fileName;
 	protected JButton requestButton;
 
@@ -51,12 +53,16 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public ComputationalClientWindow(ComputationalClient clientInstance)
 	{
 		super("Computational Client", clientInstance);
-		hideUnusedFields();
+		//hideUnusedFields();
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),
 				createButton("Choose file",
 						COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON)));
+		
+		this.add(createTwoHorizontalComponentsPanel(new JLabel(
+				"Specify timeout"),
+				timeoutField = createIntegerFormattedTextField("", true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
 				fileName = new JLabel(""),
@@ -81,7 +87,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	private void hideUnusedFields()
 	{
 		this.connectionStatusField.getParent().setVisible(false);
-		this.connectButton.setVisible(false);
+		//this.connectButton.setVisible(false);
 	}
 
 	@Override
@@ -89,6 +95,11 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	{
 		return new ComputationalClientActionListener(this,
 				(ComputationalClient) component);
+	}
+	
+	protected Integer getIntegerValueFromField(JFormattedTextField field)
+	{
+		return super.getIntegerValueFromField(field);
 	}
 
 }
