@@ -1,7 +1,6 @@
 package ComputationalServer.ServerCore;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.Socket;
 
 import javax.xml.bind.JAXBException;
@@ -10,10 +9,10 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
-import XMLMessages.NoOperation;
-import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
-import XMLMessages.RegisterResponse;
+import XMLMessages.SolutionRequest;
+import XMLMessages.SolvePartialProblems;
+import XMLMessages.SolveRequest;
 import XMLMessages.Status;
 
 /**
@@ -32,6 +31,7 @@ class MessageParserThread extends Thread
 	/* VARIABLES */
 	/******************/
 	ComputationalServerCore core;
+	private CommunicationThread communicationThread;
 
 	/******************/
 	/* FUNCTIONS */
@@ -46,6 +46,7 @@ class MessageParserThread extends Thread
 	MessageParserThread(ComputationalServerCore core)
 	{
 		this.core = core;
+		communicationThread = new CommunicationThread(core);
 	}
 
 	@Override
@@ -97,11 +98,28 @@ class MessageParserThread extends Thread
 		switch (message.getMessageType())
 		{
 			case REGISTER:
-				reactToRegisterMessage((Register) message, socket);
+				communicationThread.reactToRegisterMessage((Register) message,
+						socket);
 				break;
 
 			case STATUS:
-				reactToStatusMessage((Status) message, socket);
+				communicationThread.reactToStatusMessage((Status) message,
+						socket);
+				break;
+
+			case SOLVE_REQUEST:
+				communicationThread.reactToSolveRequest((SolveRequest) message,
+						socket);
+				break;
+
+			case SOLUTION_REQUEST:
+				communicationThread.reactToSolutionRequest(
+						(SolutionRequest) message, socket);
+				break;
+
+			case PARTIAL_PROBLEM:
+				communicationThread.reactToPartialProblems(
+						(SolvePartialProblems) message, socket);
 				break;
 
 			default:
@@ -111,56 +129,6 @@ class MessageParserThread extends Thread
 				errorMessage.setErrorDetails("Unsupported message");
 				GenericProtocol.sendMessages(socket, errorMessage);
 				break;
-		}
-	}
-
-	private void reactToRegisterMessage(Register message, Socket socket)
-			throws IOException
-	{
-		BigInteger id = new BigInteger("-1");
-		Integer remotePort = socket.getPort();
-		String remoteAddress = socket.getInetAddress().toString();
-
-		if (null != ((Register) message).getType())
-		{
-			id = core.registerComponent((Register) message, remotePort,
-					remoteAddress);
-		}
-
-		RegisterResponse registerResponse = new RegisterResponse();
-		registerResponse.setId(id);
-		registerResponse.setTimeout(core.timeout);
-		GenericProtocol.sendMessages(socket, registerResponse);
-	}
-
-	private void reactToStatusMessage(Status message, Socket socket)
-			throws IOException
-	{
-		if (false == core.componentMonitorThread
-				.informaAboutConnectedComponent(message.getId()))
-		{
-			Logger.log("Component not registered\n");
-			XMLMessages.Error errorMessage = new Error();
-			errorMessage.setErrorDetails("Component not registered");
-			GenericProtocol.sendMessages(socket, errorMessage);
-		}
-		else
-		{
-			// TODO: Add other reactions
-			NoOperation noOperation = new NoOperation();
-			BackupCommunicationServers backupServers = new BackupCommunicationServers();
-
-			if (null != core.backupServer)
-			{
-				backupServers.getBackupCommunicationServer().setAddress(
-						core.backupServer.address);
-				backupServers.getBackupCommunicationServer().setPort(
-						core.backupServer.port);
-			}
-			noOperation.setBackupCommunicationServers(backupServers);
-
-			GenericProtocol.sendMessages(socket, noOperation);
-
 		}
 	}
 }
