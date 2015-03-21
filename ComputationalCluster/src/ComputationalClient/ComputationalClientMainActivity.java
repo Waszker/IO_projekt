@@ -23,7 +23,7 @@ public class ComputationalClientMainActivity
 			ComputationalClient client = new ComputationalClient(serverIp,
 					serverPort, isGuiEnabled);
 
-			if (flagsMap.get("isGui") != null)
+			if (isGuiEnabled)
 			{
 				ComputationalClientWindow window = new ComputationalClientWindow(
 						client);
