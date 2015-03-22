@@ -27,6 +27,7 @@ public class GenericFlagInterpreter
 	public static final String FLAG_TIMEOUT = "timeout"; 
 	public static final String FLAG_IS_BACKUP= "isBackup"; 
 	public static final String FLAG_IS_GUI = "isGui"; 
+	public static final String FLAG_FILE = "file"; 
 
 	/******************/
 	/* FUNCTIONS */
@@ -77,6 +78,11 @@ public class GenericFlagInterpreter
 
 				case "-gui":
 					flagMap.put(FLAG_IS_GUI, true);
+					i--;
+					break;
+					
+				case "-file":
+					flagMap.put(FLAG_FILE, args[i+1]);
 					i--;
 					break;
 			}
