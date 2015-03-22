@@ -129,6 +129,11 @@ public class ComputationalClient extends GenericComponent
 	{
 		return problemId;
 	}
+	
+	public File getDataFile()
+	{
+		return dataFile;
+	}
 
 	private static byte[] loadFile(File file) throws IOException
 	{
