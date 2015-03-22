@@ -213,6 +213,7 @@ public class MessageGeneratorThread
 	synchronized List<IMessage> makeComputationalNodeWorkHard(Socket socket,
 			ComputationalNodeInfo computationalNode) throws IOException
 	{
+		// TODO: Refactore this method
 		// Get number of partialProblems currently working
 		List<IMessage> messageList = new ArrayList<>();
 		int partialProblemsCount = 0;
@@ -241,7 +242,7 @@ public class MessageGeneratorThread
 					&& !problem.partialProblems.isEmpty())
 			{
 				PartialProblem pproblem = problem.partialProblems.remove(0);
-				Logger.log("Sent parital problem " + problem.id
+				Logger.log("Sent partial problem " + problem.id
 						+ " for solution\n");
 
 				if (freeThreads == 0)
