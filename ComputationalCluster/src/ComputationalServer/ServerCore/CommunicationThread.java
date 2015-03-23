@@ -10,7 +10,6 @@ import java.util.Map;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Error;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
@@ -276,10 +275,10 @@ class CommunicationThread
 		// received final solution
 		{
 			problem.finalSolution = message.getSolutions().getSolution().get(0);
-			Logger.log("\n\n!!!! Message content : "
-					+ ProblemHelper.extractResult(message.getProblemType(),
-							message.getSolutions().getSolution().get(0)
-									.getData()) + "!!!!\n\n");
+//			Logger.log("\n\n!!!! Message content : "
+//					+ ProblemHelper.extractResult(message.getProblemType(),
+//							message.getSolutions().getSolution().get(0)
+//									.getData()) + "!!!!\n\n");
 
 			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
 					.entrySet())
