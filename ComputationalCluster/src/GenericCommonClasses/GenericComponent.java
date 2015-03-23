@@ -95,18 +95,20 @@ public abstract class GenericComponent
 			sendMessages(getComponentRegisterMessage());
 			List<IMessage> receivedMessages = receiveMessage();
 
-			if (null == receivedMessages
-					|| receivedMessages.size() == 0
-					|| MessageType.REGISTER_RESPONSE != receivedMessages.get(0)
-							.getMessageType())
+			if (null != receivedMessages && receivedMessages.size() > 0)
 			{
-				throw new IOException("Unsupported response from server!");
-			}
+				if (MessageType.REGISTER_RESPONSE != receivedMessages.get(0)
+						.getMessageType())
+				{
+					throw new IOException("Unsupported response from server!");
+				}
 
-			getRegisterResponseDetails((RegisterResponse) receivedMessages.get(0));
-			startResendingThread();
-			connectionSocket.close();
-		} catch (IOException e)
+				getRegisterResponseDetails((RegisterResponse) receivedMessages
+						.get(0));
+				startResendingThread();
+			}
+		}
+		catch (IOException e)
 		{
 			showError(e.getMessage());
 		}
@@ -237,7 +239,8 @@ public abstract class GenericComponent
 					{
 						Thread.sleep(timeout * 1000); // TODO: Check if seconds
 														// or not
-					} catch (InterruptedException e)
+					}
+					catch (InterruptedException e)
 					{
 					}
 					try
@@ -248,7 +251,8 @@ public abstract class GenericComponent
 						sendMessages(status);
 						for (IMessage message : receiveMessage())
 							reactToMessage(message);
-					} catch (IOException e)
+					}
+					catch (IOException e)
 					{
 						// TODO: react to connection error
 						// (Probably Server is not accessible anymore)
@@ -265,7 +269,8 @@ public abstract class GenericComponent
 		{
 			socket.connect(new InetSocketAddress(ipAddress, port),
 					DEFAULT_CONNECTION_TIMEOUT);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			socket = null;
 			showError(e.getMessage());
@@ -317,7 +322,8 @@ public abstract class GenericComponent
 				try
 				{
 					connectionSocket.close();
-				} catch (IOException | NullPointerException e)
+				}
+				catch (IOException | NullPointerException e)
 				{ /* failed */
 				}
 			}

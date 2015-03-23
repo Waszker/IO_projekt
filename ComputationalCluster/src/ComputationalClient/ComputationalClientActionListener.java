@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import XMLMessages.SolveRequest;
 import XMLMessages.SolveRequestResponse;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericFlagInterpreter;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
@@ -70,14 +71,8 @@ public class ComputationalClientActionListener extends
 		{
 			File file = fc.getSelectedFile();
 			String filename = file.getName();
-
-			try
-			{
-				this.data = loadFile(file);
-			} catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			client.dataFile = file;
+			client.filePath=file.getAbsolutePath();
 			this.window.fileName.setText(filename);
 			this.window.sendButton.setEnabled(true);
 		}
@@ -85,16 +80,15 @@ public class ComputationalClientActionListener extends
 
 	private void reactToSendButtonPress()
 	{
-		SolveRequest sr = new SolveRequest();
-		sr.setProblemType("typ problemu");
-		sr.setSolvingTimeout(new BigInteger("60"));
-		sr.setData(data);
-		// sr.setId(client.getProblemId()); //nie mamy tutaj jeszcze problemid
-		client.sendSolveRequestMessage(sr);
-
+		/*
+		 * Integer timeout =
+		 * window.getIntegerValueFromField(window.timeoutField); SolveRequest sr
+		 * = new SolveRequest(); sr.setProblemType("TestProblem");
+		 * sr.setSolvingTimeout(new BigInteger(timeout.toString()));
+		 */
+		client.sendSolveRequestMessage();
 		JOptionPane.showMessageDialog(new JFrame(), "SENT", "Dialog",
 				JOptionPane.INFORMATION_MESSAGE);
-
 		this.window.requestButton.setEnabled(true);
 	}
 
@@ -103,32 +97,4 @@ public class ComputationalClientActionListener extends
 		client.sendSolutionRequestMessage();
 	}
 
-	private static byte[] loadFile(File file) throws IOException
-	{
-		InputStream is = new FileInputStream(file);
-
-		long length = file.length();
-		if (length > Integer.MAX_VALUE)
-		{
-			// File is too large
-		}
-		byte[] bytes = new byte[(int) length];
-
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length
-				&& (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)
-		{
-			offset += numRead;
-		}
-
-		if (offset < bytes.length)
-		{
-			throw new IOException("Could not completely read file "
-					+ file.getName());
-		}
-
-		is.close();
-		return bytes;
-	}
 }

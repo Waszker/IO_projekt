@@ -98,12 +98,12 @@ class ComponentMonitorThread extends Thread
 
 	private void dropComponent(BigInteger id)
 	{
-		if (core.backupServer.id == id)
-		{
-			// TODO: React to backup server failure
-			core.backupServer = null;
-		}
-		else if (core.taskManagers.containsKey(id))
+//		if (core.backupServer.id == id)
+//		{
+//			// TODO: React to backup server failure
+//			core.backupServer = null;
+//		}
+		if (core.taskManagers.containsKey(id))
 		{
 			reactToTaskManagerFailure(id);
 		}
@@ -140,7 +140,7 @@ class ComponentMonitorThread extends Thread
 			
 			for(PartialProblem p : partialProblems)
 			{
-				problem.partialProblems.put(p.getTaskId(), p);
+				problem.partialProblems.add(p);
 			}
 		}
 		

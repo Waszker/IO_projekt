@@ -3,7 +3,8 @@ package GenericCommonClasses;
 import pl.edu.pw.mini.se2.TaskSolver;
 import Problems.TestProblem;
 import XMLMessages.DivideProblem;
-import XMLMessages.SolvePartialProblems.PartialProblems;
+import XMLMessages.Solutiones;
+import XMLMessages.SolvePartialProblems;
 
 /**
  * <p>
@@ -29,16 +30,26 @@ public class ProblemHelper
 	
 	/**
 	 * <p>
-	 * Method recognizes types of problem and instantinates them from PartialProblems message.
+	 * Method recognizes type of problem and instantinates it from Solutiones message.
+	 * </p>
+	 * @param message received Solutiones message
+	 * @return proper problem object
+	 */
+	public static TaskSolver instantinateTaskSolver(Solutiones message)
+	{
+		return instantinate(message.getProblemType(), null);
+	}
+	
+	/**
+	 * <p>
+	 * Method recognizes type of problem and instantinates it from SolvePartialProblems message.
 	 * </p>
 	 * @param message received PartialProblems message
-	 * @return proper problem objects array
+	 * @return proper problem object
 	 */
-	public static TaskSolver[] instantinateTaskSolver(PartialProblems message)
+	public static TaskSolver instantinateTaskSolver(SolvePartialProblems message)
 	{
-		//TODO: Complete!!!!
-		
-		return null;
+		return instantinate(message.getProblemType(), null);
 	}
 	
 	
@@ -55,5 +66,24 @@ public class ProblemHelper
 		}
 		
 		return ret;
+	}
+	
+	/**
+	 * <p>
+	 * Turns binary data of result into form readable by human. 
+	 * </p>
+	 * @param problemType type of problem; how to interprete data
+	 * @param data result binary data
+	 * @return result readable by human
+	 */
+	public static String extractResult(String problemType, byte[] data)
+	{
+		switch(problemType)
+		{
+			case "TestProblem":
+				return new String(data);
+			default:
+				return null;
+		}
 	}
 }
