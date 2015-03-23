@@ -169,7 +169,7 @@ class CommunicationThread
 		Solutiones result = new Solutiones();
 		result.setId(id);
 		result.setSolutions(new Solutions());
-		
+
 		if (null != problem.finalSolution)
 		{
 			result.getSolutions().getSolution().add(problem.finalSolution);
@@ -270,37 +270,7 @@ class CommunicationThread
 		// Received partial solution?
 		if (problem.isProblemReadyToSolve == false)
 		{
-			problem.partialSolutions.addAll(message.getSolutions()
-					.getSolution());
-			problem.parts -= message.getSolutions().getSolution().size();
-			if (problem.parts == 0)
-			{
-				problem.isProblemReadyToSolve = true;
-			}
-
-			// Remove problems from CN
-			for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
-					.entrySet())
-			{
-				ComputationalNodeInfo computationalNode = entry.getValue();
-				if (computationalNode.assignedPartialProblems
-						.containsKey(problemId))
-				{
-					List<PartialProblem> partialProblems = computationalNode.assignedPartialProblems
-							.get(problemId);
-					for (int i = 0; i < partialProblems.size(); i++)
-					{
-						if (partialProblems
-								.get(i)
-								.getTaskId()
-								.equals(message.getSolutions().getSolution()
-										.get(0).getTaskId()))
-						{
-							partialProblems.remove(i);
-						}
-					}
-				}
-			}
+			receivePartialSolution(problem, message);
 		}
 		else
 		// received final solution
@@ -310,7 +280,7 @@ class CommunicationThread
 					+ ProblemHelper.extractResult(message.getProblemType(),
 							message.getSolutions().getSolution().get(0)
 									.getData()) + "!!!!\n\n");
-			
+
 			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
 					.entrySet())
 			{
@@ -326,4 +296,40 @@ class CommunicationThread
 				messageGenerator.getNoOperationMessage());
 	}
 
+	private void receivePartialSolution(ProblemInfo problem, Solutiones message)
+	{
+		BigInteger problemId = message.getId();
+
+		problem.partialSolutions.addAll(message.getSolutions().getSolution());
+		problem.parts -= message.getSolutions().getSolution().size();
+		
+		if (problem.parts == 0)
+		{
+			problem.isProblemReadyToSolve = true;
+		}
+
+		// Remove problems from CN
+		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
+				.entrySet())
+		{
+			ComputationalNodeInfo computationalNode = entry.getValue();
+			if (computationalNode.assignedPartialProblems
+					.containsKey(problemId))
+			{
+				List<PartialProblem> partialProblems = computationalNode.assignedPartialProblems
+						.get(problemId);
+				for (int i = 0; i < partialProblems.size(); i++)
+				{
+					if (partialProblems
+							.get(i)
+							.getTaskId()
+							.equals(message.getSolutions().getSolution().get(0)
+									.getTaskId()))
+					{
+						partialProblems.remove(i);
+					}
+				}
+			}
+		}
+	}
 }

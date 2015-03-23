@@ -3,6 +3,7 @@ package ComputationalServer;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import DebugTools.Logger;
 import GenericCommonClasses.GenericFlagInterpreter;
 
 public class ComputationalServerMainActivity
@@ -36,8 +37,7 @@ public class ComputationalServerMainActivity
 		catch (NumberFormatException | UnknownHostException e)
 		{
 			e.printStackTrace();
-			System.err
-					.println("Incorrectly formatted flags.\nProgram exiting.");
+			Logger.log("Incorrectly formatted flags.\nProgram exiting.");
 		}
 	}
 }

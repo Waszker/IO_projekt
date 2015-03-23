@@ -72,6 +72,7 @@ public class ComputationalClientActionListener extends
 			File file = fc.getSelectedFile();
 			String filename = file.getName();
 			client.dataFile = file;
+			client.filePath=file.getAbsolutePath();
 			this.window.fileName.setText(filename);
 			this.window.sendButton.setEnabled(true);
 		}
