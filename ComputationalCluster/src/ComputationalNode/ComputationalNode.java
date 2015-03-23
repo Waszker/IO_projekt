@@ -2,6 +2,7 @@ package ComputationalNode;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 import pl.edu.pw.mini.se2.TaskSolver;
@@ -11,6 +12,7 @@ import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
 import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Register;
+import XMLMessages.Register.SolvableProblems;
 import XMLMessages.Solutiones;
 import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
@@ -43,6 +45,10 @@ public class ComputationalNode extends GenericComponent
 		Register r = new Register();
 		r.setType(ComponentType.ComputationalNode.name);
 		r.setParallelThreads((short) 1);
+		
+		SolvableProblems problems = (new SolvableProblems());
+		problems.getProblemName().addAll(Arrays.asList(ProblemHelper.types));
+		r.setSolvableProblems(problems);
 		return r;
 	}
 
