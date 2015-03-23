@@ -41,7 +41,7 @@ public class ComputationalClient extends GenericComponent
 	protected File dataFile;
 	private Integer timeout;
 	private byte[] solutionData;
-	private String filePath;
+	protected String filePath;
 
 	/******************/
 	/* FUNCTIONS */
