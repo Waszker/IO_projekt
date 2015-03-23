@@ -1,9 +1,11 @@
 package ComputationalServer.ServerCore;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import DebugTools.Logger;
 import XMLMessages.Register;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
@@ -24,6 +26,7 @@ class ComputationalNodeInfo
 	/******************/
 	BigInteger id;
 	Register info;
+	List<String> supportedProblems;
 	/**
 	 * Map with key responding to ProblemInfo and containing PartialProblems
 	 * assigned for this Node.
@@ -45,5 +48,15 @@ class ComputationalNodeInfo
 		this.id = id;
 		info = message;
 		assignedPartialProblems = new ConcurrentHashMap<>();
+		try
+		{
+			supportedProblems = new ArrayList<>(message.getSolvableProblems()
+					.getProblemName());
+		}
+		catch (NullPointerException e)
+		{
+			Logger.log("Looks like component " + id
+					+ " solves no problems at all!\n");
+		}
 	}
 }

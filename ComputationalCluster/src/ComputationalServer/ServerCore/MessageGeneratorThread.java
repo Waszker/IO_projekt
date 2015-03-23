@@ -169,8 +169,12 @@ public class MessageGeneratorThread
 			if (problem.isProblemCurrentlyDelegated)
 				continue;
 
-			if (freeThreads == 0)
+			if (freeThreads == 0
+					|| !taskManager.supportedProblems
+							.contains(problem.problemType))
+			{
 				break;
+			}
 
 			// For problems ready to solve
 			if (problem.isProblemDivided && problem.isProblemReadyToSolve)
@@ -188,7 +192,8 @@ public class MessageGeneratorThread
 				messageList.add(getDivideProblemRequest(
 						core.problemsToSolve.get(problem.id), taskManager.id));
 			}
-			else if (problem.isProblemDivided || core.computationalNodes.size() <= 0)
+			else if (problem.isProblemDivided
+					|| core.computationalNodes.size() <= 0)
 				continue;
 			taskManager.assignedProblems.add(problem.id);
 			problem.isProblemCurrentlyDelegated = true;
@@ -229,12 +234,15 @@ public class MessageGeneratorThread
 		Logger.log("Looks like ComputationalNode " + computationalNode.id
 				+ " has " + freeThreads + " free threads\n");
 
+		// Assign partial problems
 		for (Map.Entry<BigInteger, ProblemInfo> entry : core.problemsToSolve
 				.entrySet())
 		{
 			ProblemInfo problem = entry.getValue();
 
-			if (freeThreads == 0)
+			if (freeThreads == 0
+					|| !computationalNode.supportedProblems
+							.contains(problem.problemType))
 				break;
 
 			// For partial problems
@@ -254,6 +262,7 @@ public class MessageGeneratorThread
 				List<PartialProblem> delegatedProblems = computationalNode.assignedPartialProblems
 						.get(problem.id);
 
+				// if there were some problems assigned earlier
 				if (null != delegatedProblems)
 					delegatedProblems.add(pproblem);
 				else

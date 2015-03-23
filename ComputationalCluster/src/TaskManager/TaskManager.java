@@ -2,12 +2,14 @@ package TaskManager;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 import pl.edu.pw.mini.se2.TaskSolver;
 import XMLMessages.DivideProblem;
 import XMLMessages.Register;
 import XMLMessages.Solutiones;
+import XMLMessages.Register.SolvableProblems;
 import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
@@ -49,6 +51,12 @@ public final class TaskManager extends GenericComponent
 		Register r = new Register();
 		r.setType(ComponentType.TaskManager.name);
 		r.setParallelThreads((short)1);
+		
+
+		SolvableProblems problems = (new SolvableProblems());
+		problems.getProblemName().addAll(Arrays.asList(ProblemHelper.types));
+		r.setSolvableProblems(problems);
+		
 		return r;
 	}
 
