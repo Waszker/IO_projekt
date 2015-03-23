@@ -78,25 +78,28 @@ public final class GenericProtocol
 	{
 		int readChar;
 		List<IMessage> messages = new ArrayList<>();
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connectionSocket.getInputStream()));
 		StringBuilder messageBuilder;
 
-		do
+		if (null != connectionSocket)
 		{
-			messageBuilder = new StringBuilder();
-			while (-1 != (readChar = in.read()))
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					connectionSocket.getInputStream()));
+			do
 			{
-				if (readChar == IMessage.ETB)
-					break;
-				messageBuilder.append((char) readChar);
-			}
+				messageBuilder = new StringBuilder();
+				while (-1 != (readChar = in.read()))
+				{
+					if (readChar == IMessage.ETB)
+						break;
+					messageBuilder.append((char) readChar);
+				}
 
-			if (messageBuilder.length() > 0)
-			{
-				messages.add(Parser.parse(messageBuilder.toString()));
-			}
-		} while (readChar != -1);
+				if (messageBuilder.length() > 0)
+				{
+					messages.add(Parser.parse(messageBuilder.toString()));
+				}
+			} while (readChar != -1);
+		}
 
 		return messages;
 	}
