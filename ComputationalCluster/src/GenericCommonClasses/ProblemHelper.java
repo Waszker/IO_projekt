@@ -44,7 +44,7 @@ public class ProblemHelper
 	 */
 	public static TaskSolver instantinateTaskSolver(Solutiones message)
 	{
-		return instantinate(message.getProblemType(), null);
+		return instantinate(message.getProblemType(), message.getCommonData());
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class ProblemHelper
 	 */
 	public static TaskSolver instantinateTaskSolver(SolvePartialProblems message)
 	{
-		return instantinate(message.getProblemType(), null);
+		return instantinate(message.getProblemType(), message.getCommonData());
 	}
 	
 	
