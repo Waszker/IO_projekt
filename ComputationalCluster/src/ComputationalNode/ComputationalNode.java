@@ -2,7 +2,10 @@ package ComputationalNode;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.xml.bind.JAXBException;
 
 import pl.edu.pw.mini.se2.TaskSolver;
 import DebugTools.Logger;
@@ -11,6 +14,7 @@ import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
 import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Register;
+import XMLMessages.Register.SolvableProblems;
 import XMLMessages.Solutiones;
 import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
@@ -43,6 +47,10 @@ public class ComputationalNode extends GenericComponent
 		Register r = new Register();
 		r.setType(ComponentType.ComputationalNode.name);
 		r.setParallelThreads((short) 1);
+		
+		SolvableProblems problems = (new SolvableProblems());
+		problems.getProblemName().addAll(Arrays.asList(ProblemHelper.types));
+		r.setSolvableProblems(problems);
 		return r;
 	}
 
@@ -71,7 +79,6 @@ public class ComputationalNode extends GenericComponent
 
 	private void handlePartialProblemMessage(SolvePartialProblems sppm)
 	{
-		// TODO
 		commonData = sppm.getCommonData();
 		problemId = sppm.getId();
 		problemType = sppm.getProblemType();
@@ -87,7 +94,7 @@ public class ComputationalNode extends GenericComponent
 		{
 			taskId = lpp.get(i).getTaskId();
 			solutions = currentProblemTaskSolver.Solve(lpp.get(i).getData(),
-					sppm.getSolvingTimeout().longValue());
+					100000);
 			sendSolutionsMessage();
 		}
 	}
@@ -108,8 +115,7 @@ public class ComputationalNode extends GenericComponent
 		s.setData(solutions);
 
 		Solutions ss = new Solutions();
-		List<Solution> ls = ss.getSolution();
-		ls.add(s);
+		ss.getSolution().add(s);
 
 		response.setSolutions(ss);
 
