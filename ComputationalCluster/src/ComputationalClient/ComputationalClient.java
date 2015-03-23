@@ -76,7 +76,7 @@ public class ComputationalClient extends GenericComponent
 			byte[] data = loadFile(dataFile);
 			SolveRequest sr = new SolveRequest();
 			sr.setProblemType("TestProblem");
-			sr.setSolvingTimeout(new BigInteger("1000"));
+			sr.setSolvingTimeout(new BigInteger("10000"));
 			sr.setData(data);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
@@ -122,13 +122,19 @@ public class ComputationalClient extends GenericComponent
 				String problemType = ((Solutiones) message).getSolutions()
 						.getSolution().get(0).getType();
 				Logger.log("Received problem type: " + problemType + "\n");
-				solutionData = ((Solutiones) message).getSolutions()
-						.getSolution().get(0).getData();
-				String stringData = new String(solutionData);
-				Logger.log("\n\nMessage content : \n***\n" + stringData
-						+ "\n***\n\n");
-				SaveSolution();
-
+				if (problemType.contentEquals("Ongoing"))
+				{
+					sendSolutionRequestMessage();
+				}
+				if (problemType.contentEquals("Final"))
+				{
+					solutionData = ((Solutiones) message).getSolutions()
+							.getSolution().get(0).getData();
+					String stringData = new String(solutionData);
+					Logger.log("\n\nMessage content : \n***\n" + stringData
+							+ "\n***\n\n");
+					SaveSolution();
+				}
 			}
 		} catch (IOException e)
 		{
@@ -145,7 +151,7 @@ public class ComputationalClient extends GenericComponent
 		{
 			saveFilePath = filePath.substring(0, pos);
 			ext = filePath.substring(pos + 1, filePath.length());
-			ext="."+ext;
+			ext = "." + ext;
 		}
 
 		saveFilePath = saveFilePath + "Solution" + ext;
