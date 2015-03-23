@@ -159,7 +159,7 @@ public final class TaskManager extends GenericComponent
 		response.setProblemType(dvm.getProblemType());
 		response.setId(dvm.getId());
 		response.setSolvingTimeout(BigInteger.valueOf(0));
-		response.setCommonData(null);
+		response.setCommonData(dvm.getData());
 			
 		PartialProblems partialProblems = new PartialProblems();
 		List<PartialProblem> list = partialProblems.getPartialProblem();
