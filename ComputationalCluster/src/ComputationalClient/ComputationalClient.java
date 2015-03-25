@@ -35,22 +35,26 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-
+	public static final String DEFAULT_TIMEOUT = "10000";
+	
 	private BigInteger problemId;
 	private BigInteger taskId;
 	protected File dataFile;
-	private Integer timeout;
 	private byte[] solutionData;
 	protected String filePath;
+	private BigInteger timeout;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	public ComputationalClient(String address, Integer port,
-			boolean isGuiEnabled, String filePath)
+			boolean isGuiEnabled, String filePath, Integer timeout)
 	{
 		super(address, port, isGuiEnabled, ComponentType.ComputationalClient);
 		this.filePath = filePath;
+		if (null != timeout)
+			this.timeout = new BigInteger(timeout.toString());
+		else this.timeout=new BigInteger(DEFAULT_TIMEOUT);
 		if (null != filePath)
 			dataFile = new File(filePath);
 	}
@@ -73,10 +77,10 @@ public class ComputationalClient extends GenericComponent
 	{
 		try
 		{
-			byte[] data = loadFile(dataFile);
+			byte[] data = loadFile(this.dataFile);
 			SolveRequest sr = new SolveRequest();
 			sr.setProblemType("TestProblem");
-			sr.setSolvingTimeout(new BigInteger("10000"));
+			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
@@ -181,6 +185,18 @@ public class ComputationalClient extends GenericComponent
 	public File getDataFile()
 	{
 		return dataFile;
+	}
+
+	
+	
+	public BigInteger getTimeout()
+	{
+		return timeout;
+	}
+
+	public void setTimeout(BigInteger timeout)
+	{
+		this.timeout = timeout;
 	}
 
 	private static byte[] loadFile(File file) throws IOException
