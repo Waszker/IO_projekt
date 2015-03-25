@@ -33,7 +33,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	private static final long serialVersionUID = -1254898218440155506L;
 	private JTextField computationStatusField;
 	protected JButton sendButton;
-	protected JFormattedTextField timeoutField;
+	protected JTextField timeoutField;
 	protected JLabel fileName;
 	protected JButton requestButton;
 
@@ -62,10 +62,10 @@ public final class ComputationalClientWindow extends GenericWindowGui
 		
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Specify timeout"),
-				timeoutField = createIntegerFormattedTextField("", true)));
+				timeoutField = createTextField(clientInstance.getTimeout().toString(), true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
-				fileName = new JLabel(""),
+				fileName = new JLabel(clientInstance.filePath),
 				sendButton = createButton("Send",
 						COMPUTATIONAL_CLIENT_SEND_BUTTON)));
 
@@ -97,9 +97,5 @@ public final class ComputationalClientWindow extends GenericWindowGui
 				(ComputationalClient) component);
 	}
 	
-	protected Integer getIntegerValueFromField(JFormattedTextField field)
-	{
-		return super.getIntegerValueFromField(field);
-	}
 
 }
