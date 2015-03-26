@@ -89,6 +89,7 @@ class ComponentMonitorThread extends Thread
 					Logger.log("Timeout for component id: " + id
 							+ " has passed!\nDropping lease\n");
 					dropComponent(id);
+					core.informAboutComponentChanges();
 				}
 			}), core.timeout + 1, TimeUnit.SECONDS)));
 		}

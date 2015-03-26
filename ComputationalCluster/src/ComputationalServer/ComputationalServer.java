@@ -28,6 +28,7 @@ public final class ComputationalServer extends GenericComponent
 
 	private boolean isBackup;
 	private int timeout;
+	private ComputationalServerCore core;
 
 	/******************/
 	/* FUNCTIONS */
@@ -78,8 +79,7 @@ public final class ComputationalServer extends GenericComponent
 				Logger.log("Computational server starts listening\non port: "
 						+ port + "\nwith timeout: " + timeout + " seconds.\n");
 
-				ComputationalServerCore core = new ComputationalServerCore(
-						mainWindow);
+				core = new ComputationalServerCore(mainWindow);
 				try
 				{
 					core.startListening(port, timeout);
@@ -88,6 +88,10 @@ public final class ComputationalServer extends GenericComponent
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+				finally
+				{
+					mainWindow.stoppedWork();
 				}
 			}
 		}).start();
@@ -119,6 +123,18 @@ public final class ComputationalServer extends GenericComponent
 	public void setTimeout(int timeout)
 	{
 		this.timeout = timeout;
+	}
+
+	/**
+	 * <p>
+	 * Returns server core.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public ComputationalServerCore getCore()
+	{
+		return core;
 	}
 
 	@Override
