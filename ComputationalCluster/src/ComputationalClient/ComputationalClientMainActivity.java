@@ -1,5 +1,6 @@
 package ComputationalClient;
 
+import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.Map;
 
@@ -22,8 +23,11 @@ public class ComputationalClientMainActivity
 					.get(GenericFlagInterpreter.FLAG_PORT);
 			String fileName = (String) flagsMap
 					.get(GenericFlagInterpreter.FLAG_FILE);
+			Integer timeout = (Integer) flagsMap
+					.get(GenericFlagInterpreter.FLAG_TIMEOUT);
+			
 			ComputationalClient client = new ComputationalClient(serverIp,
-					serverPort, isGuiEnabled, fileName);
+					serverPort, isGuiEnabled, fileName, timeout);
 
 			if (isGuiEnabled)
 			{
