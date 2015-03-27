@@ -42,13 +42,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	}
 
 	public static final String START_SERVER_BUTTON = "START_SERVER_BUTTON";
+	public static final String SERVER_WORK_MODE_BUTTON = "SERVER_WORK_MODE_BUTTON";
 
 	private static final long serialVersionUID = 1716266392047737745L;
 	private ComputationalServer server;
-	private JTextField workModeField;
 	private JFormattedTextField portField, timeoutField;
 	private JTextArea connectedModules, activeProblems;
-	private JButton startServerButton;
+	private JButton startServerButton, workModeButton;
 
 	/******************/
 	/* FUNCTIONS */
@@ -98,6 +98,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		portField.setEditable(false);
 		timeoutField.setEditable(false);
 		startServerButton.setEnabled(false);
+		workModeButton.setEnabled(false);
 	}
 
 	/**
@@ -110,6 +111,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		portField.setEditable(true);
 		timeoutField.setEditable(true);
 		startServerButton.setEnabled(true);
+		workModeButton.setEnabled(true);
 	}
 
 	// TODO: This method will change in the future for sure!
@@ -131,6 +133,20 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		activeProblems.setText(informationBuilder.toString());
 
 		this.pack();
+	}
+
+	/**
+	 * <p>
+	 * Changes mode that server will run in.
+	 * </p>
+	 * 
+	 * @param isBackup
+	 */
+	public void changeServerWorkdMode(boolean isBackup)
+	{
+		server.setisBackup(isBackup);
+		workModeButton.setText((isBackup ? ServerWorkMode.BACKUP.modeString
+				: ServerWorkMode.PRIMARY.modeString));
 	}
 
 	@Override
@@ -161,11 +177,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Work mode"),
-				workModeField = createTextField(
+				workModeButton = createButton(
 						(server.isBackup() ? ServerWorkMode.BACKUP.modeString
-								: ServerWorkMode.PRIMARY.modeString), false)));
+								: ServerWorkMode.PRIMARY.modeString),
+						SERVER_WORK_MODE_BUTTON)));
 
-		this.add(startServerButton = createButton("Start Server", START_SERVER_BUTTON));
+		this.add(startServerButton = createButton("Start Server",
+				START_SERVER_BUTTON));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));

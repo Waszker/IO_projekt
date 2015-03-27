@@ -35,7 +35,9 @@ public class ComputationalServerCore
 	/* VARIABLES */
 	/******************/
 	final static int MAX_MESSAGES = 150;
-	int port, timeout;
+	String primaryServerAddress;
+	BigInteger myId;
+	int port, timeout, primaryServerPort;
 	ServerSocket serverSocket;
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
@@ -102,6 +104,27 @@ public class ComputationalServerCore
 
 	/**
 	 * <p>
+	 * Starts server core in backup mode.
+	 * </p>
+	 * 
+	 * @param primaryServerAddress
+	 * @param primaryServerPort
+	 * @param timeout
+	 */
+	public void startAsBackupServer(String primaryServerAddress,
+			int primaryServerPort, int timeout, BigInteger id, int myLocalPort)
+	{
+		this.primaryServerAddress = primaryServerAddress;
+		this.primaryServerPort = primaryServerPort;
+		this.port = myLocalPort;
+		this.timeout = timeout;
+		this.myId = id;
+
+		// TODO: Add start as backup routine
+	}
+
+	/**
+	 * <p>
 	 * Logs information about connecting component and returns its new
 	 * identificator. In case of failure (unsupported component) -1 value is
 	 * returned.
@@ -153,7 +176,7 @@ public class ComputationalServerCore
 
 		return idForComponent;
 	}
-	
+
 	/**
 	 * <p>
 	 * Called when any changes regarding components occur.
@@ -161,7 +184,7 @@ public class ComputationalServerCore
 	 */
 	void informAboutComponentChanges()
 	{
-		if(null != mainWindow)
+		if (null != mainWindow)
 			mainWindow.refreshConnectedComponents();
 	}
 
@@ -191,12 +214,13 @@ public class ComputationalServerCore
 	public List<String> getTaskManagers()
 	{
 		List<String> taskManagersList = new ArrayList<>(taskManagers.size());
-		
-		for (Map.Entry<BigInteger, TaskManagerInfo> entry : taskManagers.entrySet())
+
+		for (Map.Entry<BigInteger, TaskManagerInfo> entry : taskManagers
+				.entrySet())
 		{
 			taskManagersList.add(entry.getValue().toString());
 		}
-		
+
 		return taskManagersList;
 	}
 
@@ -209,13 +233,15 @@ public class ComputationalServerCore
 	 */
 	public List<String> getComputationalNodes()
 	{
-		List<String> computationalNodesList = new ArrayList<>(computationalNodes.size());
-		
-		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes.entrySet())
+		List<String> computationalNodesList = new ArrayList<>(
+				computationalNodes.size());
+
+		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes
+				.entrySet())
 		{
 			computationalNodesList.add(entry.getValue().toString());
 		}
-		
+
 		return computationalNodesList;
 	}
 
@@ -229,12 +255,13 @@ public class ComputationalServerCore
 	public List<String> getProblemsToSolve()
 	{
 		List<String> problemsList = new ArrayList<>(computationalNodes.size());
-		
-		for (Map.Entry<BigInteger, ProblemInfo> entry : problemsToSolve.entrySet())
+
+		for (Map.Entry<BigInteger, ProblemInfo> entry : problemsToSolve
+				.entrySet())
 		{
 			problemsList.add(entry.getValue().toString());
 		}
-		
+
 		return problemsList;
 	}
 

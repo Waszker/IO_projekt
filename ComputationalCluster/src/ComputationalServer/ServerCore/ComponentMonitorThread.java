@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import XMLMessages.Register;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 import DebugTools.Logger;
@@ -99,11 +100,11 @@ class ComponentMonitorThread extends Thread
 
 	private void dropComponent(BigInteger id)
 	{
-//		if (core.backupServer.id == id)
-//		{
-//			// TODO: React to backup server failure
-//			core.backupServer = null;
-//		}
+		// if (core.backupServer.id == id)
+		// {
+		// // TODO: React to backup server failure
+		// core.backupServer = null;
+		// }
 		if (core.taskManagers.containsKey(id))
 		{
 			reactToTaskManagerFailure(id);
@@ -113,6 +114,7 @@ class ComponentMonitorThread extends Thread
 			reactToComputationalNodeFailure(id);
 		}
 		invalidId.add(id);
+		informBackupServerAboutComponentFailure(id);
 	}
 
 	private void reactToTaskManagerFailure(BigInteger id)
@@ -134,17 +136,24 @@ class ComponentMonitorThread extends Thread
 		// ComputationalNode failure involves restoring partial problems
 		ComputationalNodeInfo info = core.computationalNodes.get(id);
 
-		for (Map.Entry<BigInteger, List<PartialProblem>> entry : info.assignedPartialProblems.entrySet())
+		for (Map.Entry<BigInteger, List<PartialProblem>> entry : info.assignedPartialProblems
+				.entrySet())
 		{
 			ProblemInfo problem = core.problemsToSolve.get(entry.getKey());
 			List<PartialProblem> partialProblems = entry.getValue();
-			
-			for(PartialProblem p : partialProblems)
+
+			for (PartialProblem p : partialProblems)
 			{
 				problem.partialProblems.add(p);
 			}
 		}
-		
+
 		core.computationalNodes.remove(id);
+	}
+
+	private void informBackupServerAboutComponentFailure(BigInteger id)
+	{
+		// TODO: Create queue of messages to be sent to BS
+		//Register message = new Register()
 	}
 }

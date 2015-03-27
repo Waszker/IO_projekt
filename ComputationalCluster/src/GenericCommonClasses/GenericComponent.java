@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import DebugTools.Logger;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
@@ -121,15 +122,21 @@ public abstract class GenericComponent
 	 * </p>
 	 * 
 	 * @param message
+	 * @return port on which socket was opened
 	 * @throws IOException
 	 */
-	protected void sendMessages(IMessage... messages) throws IOException
+	protected int sendMessages(IMessage... messages) throws IOException
 	{
+		int openedPort = -1;
 		if (null != messages)
 		{
 			connectionSocket = getConnectionSocket();
+			connectionSocket.setReuseAddress(true);
+			openedPort = connectionSocket.getLocalPort();
 			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
+
+		return openedPort;
 	}
 
 	/**
@@ -292,7 +299,7 @@ public abstract class GenericComponent
 			JOptionPane.showMessageDialog(null, message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
-		System.err.println(message);
+		Logger.log(message + "\n");
 	}
 
 	/**
