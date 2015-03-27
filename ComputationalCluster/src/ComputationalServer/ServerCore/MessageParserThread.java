@@ -136,5 +136,6 @@ class MessageParserThread extends Thread
 				GenericProtocol.sendMessages(socket, errorMessage);
 				break;
 		}
+		core.informAboutComponentChanges();
 	}
 }

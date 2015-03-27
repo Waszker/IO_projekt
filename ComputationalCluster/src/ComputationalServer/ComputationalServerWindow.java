@@ -74,7 +74,10 @@ public final class ComputationalServerWindow extends GenericWindowGui
 				activeProblems = new JTextArea(
 						"Currently no active problems to solve...")));
 		// TODO: connectedModules and activeProblems should fit within window
+		connectedModules.setLineWrap(true);
+		activeProblems.setLineWrap(true);
 
+		this.setResizable(true);
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
@@ -92,13 +95,39 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		server.startWork(this);
 		portField.setEditable(false);
 		timeoutField.setEditable(false);
+		connectButton.setEnabled(false);
+	}
+
+	/**
+	 * <p>
+	 * Called in case of any trouble starting server.
+	 * </p>
+	 */
+	public void stoppedWork()
+	{
+		portField.setEditable(true);
+		timeoutField.setEditable(true);
+		connectButton.setEnabled(true);
 	}
 
 	// TODO: This method will change in the future for sure!
 	// This should be done using hashmap and foreach loop
-	public void addConnectedUser(String ipAddress)
+	public void refreshConnectedComponents()
 	{
-		connectedModules.setText(connectedModules.getText() + "\n" + ipAddress);
+		StringBuilder informationBuilder = new StringBuilder();
+
+		for (String taskManager : server.getCore().getTaskManagers())
+			informationBuilder.append(taskManager + "\n");
+		for (String computationalNode : server.getCore()
+				.getComputationalNodes())
+			informationBuilder.append(computationalNode + "\n");
+		connectedModules.setText(informationBuilder.toString());
+
+		informationBuilder = new StringBuilder();
+		for (String problem : server.getCore().getProblemsToSolve())
+			informationBuilder.append(problem + "\n");
+		activeProblems.setText(informationBuilder.toString());
+
 		this.pack();
 	}
 

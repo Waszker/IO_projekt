@@ -3,6 +3,9 @@ package ComputationalServer.ServerCore;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,12 +45,12 @@ public class ComputationalServerCore
 	ConcurrentMap<BigInteger, ProblemInfo> problemsToSolve;
 	BackupServerInformation backupServer;
 
-	ComputationalServerWindow mainWindow;
 	ComponentMonitorThread componentMonitorThread;
 
 	private BigInteger freeComponentId, freeProblemId;
 	private ConnectionEstabilisherThread connectionEstabilisherThread;
 	private MessageParserThread messageParserThread;
+	private ComputationalServerWindow mainWindow;
 
 	/******************/
 	/* FUNCTIONS */
@@ -150,6 +153,16 @@ public class ComputationalServerCore
 
 		return idForComponent;
 	}
+	
+	/**
+	 * <p>
+	 * Called when any changes regarding components occur.
+	 * </p>
+	 */
+	void informAboutComponentChanges()
+	{
+		mainWindow.refreshConnectedComponents();
+	}
 
 	synchronized BigInteger getCurrentFreeProblemId()
 	{
@@ -165,6 +178,63 @@ public class ComputationalServerCore
 		BigInteger result = new BigInteger(freeComponentId.toString());
 		freeComponentId = freeComponentId.add(one);
 		return result;
+	}
+
+	/**
+	 * <p>
+	 * Returns list of connected task managers.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public List<String> getTaskManagers()
+	{
+		List<String> taskManagersList = new ArrayList<>(taskManagers.size());
+		
+		for (Map.Entry<BigInteger, TaskManagerInfo> entry : taskManagers.entrySet())
+		{
+			taskManagersList.add(entry.getValue().toString());
+		}
+		
+		return taskManagersList;
+	}
+
+	/**
+	 * <p>
+	 * Returns list of connected computational nodes.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public List<String> getComputationalNodes()
+	{
+		List<String> computationalNodesList = new ArrayList<>(computationalNodes.size());
+		
+		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes.entrySet())
+		{
+			computationalNodesList.add(entry.getValue().toString());
+		}
+		
+		return computationalNodesList;
+	}
+
+	/**
+	 * <p>
+	 * Returns list of requested problems to solve.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public List<String> getProblemsToSolve()
+	{
+		List<String> problemsList = new ArrayList<>(computationalNodes.size());
+		
+		for (Map.Entry<BigInteger, ProblemInfo> entry : problemsToSolve.entrySet())
+		{
+			problemsList.add(entry.getValue().toString());
+		}
+		
+		return problemsList;
 	}
 
 	private void addCloseSocketHook(final ServerSocket ssocket)
