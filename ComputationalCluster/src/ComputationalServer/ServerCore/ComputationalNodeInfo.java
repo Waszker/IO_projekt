@@ -59,4 +59,12 @@ class ComputationalNodeInfo
 					+ " solves no problems at all!\n");
 		}
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ComputationalNodeInfo [id=" + id + ", info=" + info
+				+ ", supportedProblems=" + supportedProblems
+				+ ", assignedPartialProblems=" + assignedPartialProblems.size() + "]";
+	}
 }

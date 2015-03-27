@@ -119,6 +119,15 @@ public class MessageGeneratorThread
 		return message;
 	}
 
+	/**
+	 * <p>
+	 * Returns message informing about problems to solve.
+	 * </p>
+	 * 
+	 * @param problem
+	 * @param partialProblem
+	 * @return
+	 */
 	SolvePartialProblems getPartialProblem(ProblemInfo problem,
 			PartialProblem partialProblem)
 	{

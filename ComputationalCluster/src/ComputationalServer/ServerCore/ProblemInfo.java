@@ -2,6 +2,7 @@ package ComputationalServer.ServerCore;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import XMLMessages.Solutiones.Solutions.Solution;
@@ -64,12 +65,25 @@ class ProblemInfo
 		this.data = message.getData().clone();
 		this.problemType = message.getProblemType();
 		this.timeout = message.getSolvingTimeout();
-		this.parts = 0;
+		this.parts = -1;
 
 		isProblemDivided = isProblemReadyToSolve = isProblemCurrentlyDelegated = false;
 		partialProblems = new ArrayList<>();
 		partialSolutions = new ArrayList<>();
 		finalSolution = null;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ProblemInfo [id=" + id + ", timeout=" + timeout + ", data="
+				+ Arrays.toString(data) + ", isProblemDivided="
+				+ isProblemDivided + ", isProblemReadyToSolve="
+				+ isProblemReadyToSolve + ", isProblemCurrentlyDelegated="
+				+ isProblemCurrentlyDelegated + ", problemType=" + problemType
+				+ ", parts=" + parts + ", partialProblems=" + partialProblems.size()
+				+ ", partialSolutions=" + partialSolutions.size() + ", finalSolution="
+				+ finalSolution + "]";
 	}
 
 }
