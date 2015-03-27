@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 
 import XMLMessages.SolveRequest;
 import XMLMessages.SolveRequestResponse;
+import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericFlagInterpreter;
 import GenericCommonClasses.GenericProtocol;
@@ -80,15 +81,12 @@ public class ComputationalClientActionListener extends
 
 	private void reactToSendButtonPress()
 	{
-		/*
-		 * Integer timeout =
-		 * window.getIntegerValueFromField(window.timeoutField); SolveRequest sr
-		 * = new SolveRequest(); sr.setProblemType("TestProblem");
-		 * sr.setSolvingTimeout(new BigInteger(timeout.toString()));
-		 */
+		//Logger.log("timeout: " + window.getIntegerValueFromField(window.timeoutField) + "\n");
+		//Integer timeout = window.getIntegerValueFromField(window.timeoutField);
+		client.setTimeout(new BigInteger(window.timeoutField.getText()));
 		client.sendSolveRequestMessage();
-		JOptionPane.showMessageDialog(new JFrame(), "SENT", "Dialog",
-				JOptionPane.INFORMATION_MESSAGE);
+		//JOptionPane.showMessageDialog(new JFrame(), "SENT", "Dialog",
+		//		JOptionPane.INFORMATION_MESSAGE);
 		this.window.requestButton.setEnabled(true);
 	}
 
