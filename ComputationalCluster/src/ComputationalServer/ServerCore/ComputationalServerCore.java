@@ -97,7 +97,7 @@ public class ComputationalServerCore
 		serverSocket = new ServerSocket(this.port);
 		addCloseSocketHook(serverSocket);
 		connectionEstabilisherThread.start();
-		messageParserThread.start();
+		messageParserThread.run();
 	}
 
 	/**
@@ -161,7 +161,8 @@ public class ComputationalServerCore
 	 */
 	void informAboutComponentChanges()
 	{
-		mainWindow.refreshConnectedComponents();
+		if(null != mainWindow)
+			mainWindow.refreshConnectedComponents();
 	}
 
 	synchronized BigInteger getCurrentFreeProblemId()

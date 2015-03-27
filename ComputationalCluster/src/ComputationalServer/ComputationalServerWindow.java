@@ -1,5 +1,6 @@
 package ComputationalServer;
 
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -47,6 +48,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	private JTextField workModeField;
 	private JFormattedTextField portField, timeoutField;
 	private JTextArea connectedModules, activeProblems;
+	private JButton startServerButton;
 
 	/******************/
 	/* FUNCTIONS */
@@ -95,7 +97,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		server.startWork(this);
 		portField.setEditable(false);
 		timeoutField.setEditable(false);
-		connectButton.setEnabled(false);
+		startServerButton.setEnabled(false);
 	}
 
 	/**
@@ -107,7 +109,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	{
 		portField.setEditable(true);
 		timeoutField.setEditable(true);
-		connectButton.setEnabled(true);
+		startServerButton.setEnabled(true);
 	}
 
 	// TODO: This method will change in the future for sure!
@@ -163,7 +165,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 						(server.isBackup() ? ServerWorkMode.BACKUP.modeString
 								: ServerWorkMode.PRIMARY.modeString), false)));
 
-		this.add(createButton("Start Server", START_SERVER_BUTTON));
+		this.add(startServerButton = createButton("Start Server", START_SERVER_BUTTON));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));
