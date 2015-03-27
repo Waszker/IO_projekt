@@ -1,7 +1,6 @@
 package ComputationalClient;
 
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -31,7 +30,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public static final String COMPUTATIONAL_CLIENT_REQUEST_BUTTON = "COMPUTATIONAL_CLIENT_REQUEST_BUTTON";
 
 	private static final long serialVersionUID = -1254898218440155506L;
-	private JTextField computationStatusField;
+	protected JTextField computationStatusField;
 	protected JButton sendButton;
 	protected JTextField timeoutField;
 	protected JLabel fileName;
@@ -53,32 +52,36 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	public ComputationalClientWindow(ComputationalClient clientInstance)
 	{
 		super("Computational Client", clientInstance);
-		//hideUnusedFields();
+		hideUnusedFields();
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),
 				createButton("Choose file",
 						COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON)));
-		
-		this.add(createTwoHorizontalComponentsPanel(new JLabel(
-				"Specify timeout"),
-				timeoutField = createTextField(clientInstance.getTimeout().toString(), true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
-				fileName = new JLabel(clientInstance.filePath),
+				new JLabel("Specify timeout"),
+				timeoutField = createTextField(clientInstance.getTimeout()
+						.toString(), true)));
+
+		this.add(createTwoHorizontalComponentsPanel(
+				fileName = new JLabel(clientInstance.dataFile == null ? ""
+						: clientInstance.dataFile.getName()),
 				sendButton = createButton("Send",
 						COMPUTATIONAL_CLIENT_SEND_BUTTON)));
 
-		this.add(createTwoHorizontalComponentsPanel(new JLabel(
-				"Computation status"),
-				computationStatusField = createTextField("unknown", false)));
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("Computation status"),
+				computationStatusField = createTextField("no computation",
+						false)));
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Solution request"),
 				requestButton = createButton("Request",
 						COMPUTATIONAL_CLIENT_REQUEST_BUTTON)));
-		
-		sendButton.setEnabled(false);
+
+		if (clientInstance.filePath == null)
+			sendButton.setEnabled(false);
 		requestButton.setEnabled(false);
 		this.pack();
 		this.setLocationRelativeTo(null);
@@ -87,7 +90,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	private void hideUnusedFields()
 	{
 		this.connectionStatusField.getParent().setVisible(false);
-		//this.connectButton.setVisible(false);
+		this.connectButton.setVisible(false);
 	}
 
 	@Override
@@ -96,6 +99,5 @@ public final class ComputationalClientWindow extends GenericWindowGui
 		return new ComputationalClientActionListener(this,
 				(ComputationalClient) component);
 	}
-	
 
 }

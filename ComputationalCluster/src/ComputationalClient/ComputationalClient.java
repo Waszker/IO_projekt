@@ -9,12 +9,9 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.omg.CORBA_2_3.portable.OutputStream;
-
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.ProblemHelper;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.Register;
 import XMLMessages.SolutionRequest;
@@ -36,9 +33,8 @@ public class ComputationalClient extends GenericComponent
 	/* VARIABLES */
 	/******************/
 	public static final String DEFAULT_TIMEOUT = "10000";
-	
+
 	private BigInteger problemId;
-	private BigInteger taskId;
 	protected File dataFile;
 	private byte[] solutionData;
 	protected String filePath;
@@ -54,7 +50,8 @@ public class ComputationalClient extends GenericComponent
 		this.filePath = filePath;
 		if (null != timeout)
 			this.timeout = new BigInteger(timeout.toString());
-		else this.timeout=new BigInteger(DEFAULT_TIMEOUT);
+		else
+			this.timeout = new BigInteger(DEFAULT_TIMEOUT);
 		if (null != filePath)
 			dataFile = new File(filePath);
 	}
@@ -114,12 +111,13 @@ public class ComputationalClient extends GenericComponent
 		try
 		{
 			List<IMessage> messages = receiveMessage();
+			if (messages.size() == 0)
+				return;
 			IMessage message = messages.get(0);
 			if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
 			{
 				this.problemId = ((SolveRequestResponse) message).getId();
 				Logger.log("problem id: " + this.problemId + "\n");
-				sendSolutionRequestMessage();
 			}
 			if (message.getMessageType() == MessageType.SOLUTION)
 			{
@@ -187,8 +185,6 @@ public class ComputationalClient extends GenericComponent
 		return dataFile;
 	}
 
-	
-	
 	public BigInteger getTimeout()
 	{
 		return timeout;
