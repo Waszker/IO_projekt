@@ -1,9 +1,9 @@
 package ComputationalClient;
 
-import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import DebugTools.Logger;
 import GenericCommonClasses.GenericFlagInterpreter;
 
 public class ComputationalClientMainActivity
@@ -25,7 +25,13 @@ public class ComputationalClientMainActivity
 					.get(GenericFlagInterpreter.FLAG_FILE);
 			Integer timeout = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_TIMEOUT);
-			
+
+			if (fileName == null && isGuiEnabled==false)
+			{
+				Logger.log("You need to specify a file\n");
+				return;
+			}
+
 			ComputationalClient client = new ComputationalClient(serverIp,
 					serverPort, isGuiEnabled, fileName, timeout);
 
@@ -34,16 +40,13 @@ public class ComputationalClientMainActivity
 				ComputationalClientWindow window = new ComputationalClientWindow(
 						client);
 				window.setVisible(true);
-			}
-			else
+			} else
 			{
-				client.connectToServer();
 				client.sendSolveRequestMessage();
+				client.sendSolutionRequestMessage();
 			}
-		}
-		catch (NumberFormatException | UnknownHostException e)
+		} catch (NumberFormatException | UnknownHostException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
