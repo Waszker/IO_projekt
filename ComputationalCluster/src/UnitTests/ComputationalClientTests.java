@@ -16,51 +16,73 @@ public class ComputationalClientTests
 	@Test
 	public void ComputationalClientTest1()
 	{
-		ComputationalClient client = new ComputationalClient(null, null, false, null, null);
+		ComputationalClient client = new ComputationalClient(null, null, false,
+				null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
 		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
+		assertEquals(client.getTimeout(), new BigInteger(
+				ComputationalClient.DEFAULT_TIMEOUT));
 	}
-	
+
 	@Test
 	public void ComputationalClientTest2()
 	{
-		ComputationalClient client = new ComputationalClient("127.0.0.1", null, false, null, null);
+		ComputationalClient client = new ComputationalClient("127.0.0.1", null,
+				false, null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
 		assertEquals(client.getIpAddress(), "127.0.0.1");
-		assertEquals(client.getTimeout(), new BigInteger(ComputationalClient.DEFAULT_TIMEOUT));
+		assertEquals(client.getTimeout(), new BigInteger(
+				ComputationalClient.DEFAULT_TIMEOUT));
 	}
-	
+
 	@Test
 	public void ComputationalClientTest3()
 	{
-		ComputationalClient client = new ComputationalClient(null, 1234, false, null, null);
+		ComputationalClient client = new ComputationalClient(null, 1234, false,
+				null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), 1234);
 		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
-		assertEquals(client.getTimeout(), new BigInteger(ComputationalClient.DEFAULT_TIMEOUT));
+		assertEquals(client.getTimeout(), new BigInteger(
+				ComputationalClient.DEFAULT_TIMEOUT));
 	}
-	
+
 	@Test
 	public void ComputationalClientTest4()
 	{
-		ComputationalClient client = new ComputationalClient("127.0.0.1", 1234, false, null, null);
+		ComputationalClient client = new ComputationalClient(null, null, false,
+				"D:/a.txt", null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
-		assertEquals(client.getPort(), 1234);
-		assertEquals(client.getIpAddress(), "127.0.0.1");
-		assertEquals(client.getTimeout(), new BigInteger(ComputationalClient.DEFAULT_TIMEOUT));
+		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
+		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
+		assertEquals(client.getDataFile(), new File("D:/a.txt"));
+		assertEquals(client.getTimeout(), new BigInteger(
+				ComputationalClient.DEFAULT_TIMEOUT));
 	}
-	
+
 	@Test
 	public void ComputationalClientTest5()
 	{
-		ComputationalClient client = new ComputationalClient("127.0.0.1", 1234, false, "D:/a.txt", null);
+		ComputationalClient client = new ComputationalClient(null, null, false,
+				null, 123456);
+		assertEquals(client.getType(), ComponentType.ComputationalClient);
+		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
+		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
+		assertEquals(client.getTimeout(), new BigInteger("123456"));
+	}
+
+	@Test
+	public void ComputationalClientTest6()
+	{
+		ComputationalClient client = new ComputationalClient("127.0.0.1", 1234,
+				false, "D:/a.txt", 5555);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), 1234);
 		assertEquals(client.getIpAddress(), "127.0.0.1");
 		assertEquals(client.getDataFile(), new File("D:/a.txt"));
-		assertEquals(client.getTimeout(), new BigInteger(ComputationalClient.DEFAULT_TIMEOUT));
+		assertEquals(client.getTimeout(), new BigInteger("5555"));
 	}
-	
+
 }
