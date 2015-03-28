@@ -207,6 +207,8 @@ public final class ComputationalServer extends GenericComponent
 			catch (IOException | IndexOutOfBoundsException e)
 			{
 				Logger.log("Error connecting to server\n");
+				throw new UnsupportedOperationException(
+						"Can't connect to primary server");
 			}
 		}
 	}

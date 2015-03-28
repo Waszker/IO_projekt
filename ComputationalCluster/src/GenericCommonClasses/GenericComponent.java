@@ -170,8 +170,15 @@ public abstract class GenericComponent
 	{
 		id = message.getId();
 		timeout = message.getTimeout();
-		backupServerIp = new String(message.getBackupCommunicationServers().getBackupCommunicationServer().getAddress());
-		backupServerPort = message.getBackupCommunicationServers().getBackupCommunicationServer().getPort();
+		if (null != message.getBackupCommunicationServers()
+				&& null != message.getBackupCommunicationServers()
+						.getBackupCommunicationServer())
+		{
+			backupServerIp = new String(message.getBackupCommunicationServers()
+					.getBackupCommunicationServer().getAddress());
+			backupServerPort = message.getBackupCommunicationServers()
+					.getBackupCommunicationServer().getPort();
+		}
 	}
 
 	protected abstract Register getComponentRegisterMessage();
@@ -271,16 +278,17 @@ public abstract class GenericComponent
 					{
 						// TODO: react to connection error
 						// (Probably Server is not accessible anymore)
-						
+
 						DebugTools.Logger.log("Switching to backup...\n");
-						
+
 						ipAddress = backupServerIp;
 						port = backupServerPort;
 						connectionSocket = getConnectionSocket();
 						try
 						{
 							connectionSocket.setReuseAddress(true);
-						} catch (SocketException e1)
+						}
+						catch (SocketException e1)
 						{
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
