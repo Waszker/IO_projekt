@@ -131,8 +131,11 @@ public abstract class GenericComponent
 		if (null != messages)
 		{
 			connectionSocket = getConnectionSocket();
-			connectionSocket.setReuseAddress(true);
-			openedPort = connectionSocket.getLocalPort();
+			if (null != connectionSocket)
+			{
+				connectionSocket.setReuseAddress(true);
+				openedPort = connectionSocket.getLocalPort();
+			}
 			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
 

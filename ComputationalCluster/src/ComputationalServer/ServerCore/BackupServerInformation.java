@@ -10,7 +10,8 @@ class BackupServerInformation
 	BigInteger id;
 	Integer port;
 	String address;
-	
+	int indexOfLastUnSynchronizedMessage;
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
@@ -19,6 +20,7 @@ class BackupServerInformation
 		super();
 		this.id = id;
 		this.port = port;
-		this.address = address;
-	}		
+		this.address = address.substring(address.indexOf('/') + 1);
+		this.indexOfLastUnSynchronizedMessage = 0;
+	}
 }
