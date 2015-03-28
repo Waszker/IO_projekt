@@ -7,6 +7,8 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Register;
+import XMLMessages.RegisterResponse;
+import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
 
 /**
  * <p>
@@ -27,7 +29,7 @@ public final class ComputationalServer extends GenericComponent
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	private boolean isBackup;
-	private int timeout;
+	private int timeout, myLocalBackupPort;
 	private ComputationalServerCore core;
 
 	/******************/
@@ -82,7 +84,16 @@ public final class ComputationalServer extends GenericComponent
 				core = new ComputationalServerCore(mainWindow);
 				try
 				{
-					core.startListening(port, timeout);
+					if (isGui)
+					{
+						connectToServer();
+						core.startAsBackupServer(ipAddress, port, timeout, id,
+								myLocalBackupPort);
+					}
+					else
+					{
+						core.startListening(port, timeout);
+					}
 				}
 				catch (IOException e)
 				{
@@ -103,6 +114,18 @@ public final class ComputationalServer extends GenericComponent
 	public boolean isBackup()
 	{
 		return isBackup;
+	}
+
+	/**
+	 * <p>
+	 * Sets if server works in primary or backup mode.
+	 * </p>
+	 * 
+	 * @param isBackup
+	 */
+	public void setisBackup(boolean isBackup)
+	{
+		this.isBackup = isBackup;
 	}
 
 	/**
@@ -135,6 +158,56 @@ public final class ComputationalServer extends GenericComponent
 	public ComputationalServerCore getCore()
 	{
 		return core;
+	}
+
+	@Override
+	public void connectToServer()
+	{
+		boolean isRegistered = false;
+
+		while (!isRegistered)
+		{
+			try
+			{
+				myLocalBackupPort = sendMessages(getComponentRegisterMessage());
+				IMessage response = receiveMessage().get(0);
+
+				if (response instanceof RegisterResponse)
+				{
+					if (null == ((RegisterResponse) response)
+							.getBackupCommunicationServers()
+							|| null == ((RegisterResponse) response)
+									.getBackupCommunicationServers()
+									.getBackupCommunicationServer())
+					{
+						// There are no other backup servers
+						timeout = (int) ((RegisterResponse) response)
+								.getTimeout();
+						id = ((RegisterResponse) response).getId();
+						isRegistered = true;
+					}
+					else
+					{
+						// We are no alone - some other backup server already
+						// exists
+						BackupCommunicationServer bServer = ((RegisterResponse) response)
+								.getBackupCommunicationServers()
+								.getBackupCommunicationServer();
+						ipAddress = bServer.getAddress();
+						port = bServer.getPort();
+					}
+				}
+				else
+				{
+					showError("Unsupported response received!");
+				}
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
