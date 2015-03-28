@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -54,6 +55,8 @@ public abstract class GenericComponent
 	protected Socket connectionSocket;
 	protected BigInteger id;
 	protected Long timeout;
+	protected String backupServerIp;
+	protected int backupServerPort;
 
 	private ComponentType type;
 
@@ -164,6 +167,8 @@ public abstract class GenericComponent
 	{
 		id = message.getId();
 		timeout = message.getTimeout();
+		backupServerIp = new String(message.getBackupCommunicationServers().getBackupCommunicationServer().getAddress());
+		backupServerPort = message.getBackupCommunicationServers().getBackupCommunicationServer().getPort();
 	}
 
 	protected abstract Register getComponentRegisterMessage();
@@ -263,6 +268,20 @@ public abstract class GenericComponent
 					{
 						// TODO: react to connection error
 						// (Probably Server is not accessible anymore)
+						
+						DebugTools.Logger.log("Switching to backup...\n");
+						
+						ipAddress = backupServerIp;
+						port = backupServerPort;
+						connectionSocket = getConnectionSocket();
+						try
+						{
+							connectionSocket.setReuseAddress(true);
+						} catch (SocketException e1)
+						{
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 				}
 			}
