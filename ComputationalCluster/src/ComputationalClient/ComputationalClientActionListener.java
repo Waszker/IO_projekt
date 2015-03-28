@@ -77,6 +77,7 @@ public class ComputationalClientActionListener extends
 	private void reactToRequestButtonPress()
 	{
 		client.sendSolutionRequestMessage();
-		window.computationStatusField.setText("Done");
+		if (client.computationIsDone)
+			window.computationStatusField.setText("Done");
 	}
 }

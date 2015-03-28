@@ -39,6 +39,7 @@ public class ComputationalClient extends GenericComponent
 	private byte[] solutionData;
 	protected String filePath;
 	private BigInteger timeout;
+	protected boolean computationIsDone;
 
 	/******************/
 	/* FUNCTIONS */
@@ -54,6 +55,7 @@ public class ComputationalClient extends GenericComponent
 			this.timeout = new BigInteger(DEFAULT_TIMEOUT);
 		if (null != filePath)
 			dataFile = new File(filePath);
+		computationIsDone = false;
 	}
 
 	@Override
@@ -94,7 +96,8 @@ public class ComputationalClient extends GenericComponent
 		sr.setId(this.problemId);
 		try
 		{
-			Thread.sleep(20000);
+			if (isGui == false)
+				Thread.sleep(20000);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
 		} catch (IOException e)
@@ -126,7 +129,8 @@ public class ComputationalClient extends GenericComponent
 				Logger.log("Received problem type: " + problemType + "\n");
 				if (problemType.contentEquals("Ongoing"))
 				{
-					sendSolutionRequestMessage();
+					if (isGui == false)
+						sendSolutionRequestMessage();
 				}
 				if (problemType.contentEquals("Final"))
 				{
@@ -135,6 +139,7 @@ public class ComputationalClient extends GenericComponent
 					String stringData = new String(solutionData);
 					Logger.log("\n\nMessage content : \n***\n" + stringData
 							+ "\n***\n\n");
+					this.computationIsDone = true;
 					SaveSolution();
 				}
 			}
