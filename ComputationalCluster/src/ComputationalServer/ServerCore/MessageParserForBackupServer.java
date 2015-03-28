@@ -137,8 +137,8 @@ class MessageParserForBackupServer
 				ProblemInfo problem = core.problemsToSolve.get(message.getId());
 				for (int i = 0; i < problem.partialProblems.size(); i++)
 				{
-					if (problem.partialProblems.get(i).getTaskId() == pproblem
-							.getTaskId())
+					if (problem.partialProblems.get(i).getTaskId().equals(pproblem
+							.getTaskId()))
 					{
 						problem.partialProblems.remove(i);
 						break;
@@ -173,7 +173,8 @@ class MessageParserForBackupServer
 			}
 		}
 		else if (problem.isProblemDivided
-				&& !problem.isProblemCurrentlyDelegated)
+				&& !problem.isProblemCurrentlyDelegated
+				&& problem.isProblemReadyToSolve)
 		{
 			// Primary server sent solution to TM
 			TaskManagerInfo taskManager = core.taskManagers.get(message

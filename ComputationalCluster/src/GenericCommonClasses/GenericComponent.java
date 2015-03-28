@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -17,9 +16,9 @@ import XMLMessages.Status;
 
 /**
  * <p>
- * GenericComponent class is a base class for every ComputationalClient,
- * TaskManager and ComputationalNode class. It holds fields common for all three
- * classes and gathers common methods usable in them.
+ * GenericComponent class is a base class for every ComputationalServer
+ * ComputationalClient, TaskManager and ComputationalNode class. It holds fields
+ * common for all four classes and gathers common methods usable in them.
  * </p>
  * 
  * @author Piotr Waszkiewicz
@@ -139,6 +138,10 @@ public abstract class GenericComponent
 				connectionSocket.setReuseAddress(true);
 				openedPort = connectionSocket.getLocalPort();
 			}
+			else
+			{
+				throw new IOException("Connection unsuccessful");
+			}
 			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
 
@@ -255,6 +258,8 @@ public abstract class GenericComponent
 			@Override
 			public void run()
 			{
+				boolean isSendingSuccess = false;
+
 				while (true)
 				{
 					try
@@ -265,35 +270,27 @@ public abstract class GenericComponent
 					catch (InterruptedException e)
 					{
 					}
-					try
+
+					do
 					{
-						Status status = new Status();
-						status.setId(id);
-
-						sendMessages(status);
-						for (IMessage message : receiveMessage())
-							reactToMessage(message);
-					}
-					catch (IOException e)
-					{
-						// TODO: react to connection error
-						// (Probably Server is not accessible anymore)
-
-						DebugTools.Logger.log("Switching to backup...\n");
-
-						ipAddress = backupServerIp;
-						port = backupServerPort;
-						connectionSocket = getConnectionSocket();
 						try
 						{
-							connectionSocket.setReuseAddress(true);
+							Status status = new Status();
+							status.setId(id);
+
+							sendMessages(status);
+							isSendingSuccess = true;
+							for (IMessage message : receiveMessage())
+								reactToMessage(message);
 						}
-						catch (SocketException e1)
+						catch (IOException e)
 						{
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							DebugTools.Logger.log("Switching to backup...\n");
+							isSendingSuccess = false;
+							ipAddress = backupServerIp;
+							port = backupServerPort;
 						}
-					}
+					} while (!isSendingSuccess);
 				}
 			}
 		}).run();
