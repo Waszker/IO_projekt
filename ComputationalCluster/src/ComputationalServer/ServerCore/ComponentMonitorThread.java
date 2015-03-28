@@ -9,10 +9,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import DebugTools.Logger;
 import XMLMessages.Register;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
-
-import DebugTools.Logger;
 
 /**
  * <p>
@@ -98,13 +97,8 @@ class ComponentMonitorThread extends Thread
 		return isValid;
 	}
 
-	private void dropComponent(BigInteger id)
+	void dropComponent(BigInteger id)
 	{
-		// if (core.backupServer.id == id)
-		// {
-		// // TODO: React to backup server failure
-		// core.backupServer = null;
-		// }
 		if (core.taskManagers.containsKey(id))
 		{
 			reactToTaskManagerFailure(id);
@@ -113,8 +107,16 @@ class ComponentMonitorThread extends Thread
 		{
 			reactToComputationalNodeFailure(id);
 		}
-		invalidId.add(id);
-		informBackupServerAboutComponentFailure(id);
+
+		if (null != core.backupServer && core.backupServer.id == id)
+		{
+			core.backupServer = null;
+		}
+		else
+		{
+			invalidId.add(id);
+			informBackupServerAboutComponentFailure(id);
+		}
 	}
 
 	private void reactToTaskManagerFailure(BigInteger id)
@@ -153,7 +155,10 @@ class ComponentMonitorThread extends Thread
 
 	private void informBackupServerAboutComponentFailure(BigInteger id)
 	{
-		// TODO: Create queue of messages to be sent to BS
-		//Register message = new Register()
+		Register message = new Register();
+		message.setDeregister(true);
+		message.setId(id);
+
+		core.listOfMessagesForBackupServer.add(message);
 	}
 }
