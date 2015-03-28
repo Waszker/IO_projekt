@@ -196,7 +196,11 @@ public class MessageGeneratorThread
 				Solutiones messageSolutiones = getSolutionRequest(core.problemsToSolve
 						.get(problem.id));
 				messageList.add(messageSolutiones);
+				
 				// Relay info with BS
+				// Solution has TaskId == TaskManager id!!!
+				// TODO: Maybe change that?
+				messageSolutiones.getSolutions().getSolution().get(0).setTaskId(taskManager.id);
 				core.listOfMessagesForBackupServer.add(messageSolutiones);
 			}
 			else if (!problem.isProblemDivided

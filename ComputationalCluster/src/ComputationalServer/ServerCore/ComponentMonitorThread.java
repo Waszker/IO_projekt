@@ -108,8 +108,9 @@ class ComponentMonitorThread extends Thread
 			reactToComputationalNodeFailure(id);
 		}
 
-		if (null != core.backupServer && core.backupServer.id == id)
+		if (null != core.backupServer && core.backupServer.id.equals(id))
 		{
+			Logger.log("It was backup server\n");
 			core.backupServer = null;
 		}
 		else

@@ -104,7 +104,9 @@ class CommunicationThread
 			registerResponse.setTimeout(core.timeout);
 			registerResponse.setBackupCommunicationServers(backupServers);
 			response = registerResponse;
-			core.componentMonitorThread.informaAboutConnectedComponent(id);
+
+			if (null == core.backupServer)
+				core.componentMonitorThread.informaAboutConnectedComponent(id);
 
 			// Add message for BS
 			if (!message.getType().contentEquals(
@@ -337,25 +339,15 @@ class CommunicationThread
 				messageGenerator.getNoOperationMessage());
 	}
 
-	private BackupCommunicationServers getBackupServer()
-	{
-		BackupCommunicationServers backupServers = new BackupCommunicationServers();
-		if (null != core.backupServer)
-		{
-			backupServers
-					.setBackupCommunicationServer(new BackupCommunicationServer());
-			backupServers.getBackupCommunicationServer().setAddress(
-					core.backupServer.address);
-			backupServers.getBackupCommunicationServer().setPort(
-					core.backupServer.port);
-		}
-		else
-			backupServers = null;
-
-		return backupServers;
-	}
-
-	private void receivePartialSolution(ProblemInfo problem, Solutiones message)
+	/**
+	 * <p>
+	 * Receives partial solution from ComputationalNode.
+	 * </p>
+	 * 
+	 * @param problem
+	 * @param message
+	 */
+	void receivePartialSolution(ProblemInfo problem, Solutiones message)
 	{
 		BigInteger problemId = message.getId();
 
@@ -390,5 +382,23 @@ class CommunicationThread
 				}
 			}
 		}
+	}
+
+	private BackupCommunicationServers getBackupServer()
+	{
+		BackupCommunicationServers backupServers = new BackupCommunicationServers();
+		if (null != core.backupServer)
+		{
+			backupServers
+					.setBackupCommunicationServer(new BackupCommunicationServer());
+			backupServers.getBackupCommunicationServer().setAddress(
+					core.backupServer.address);
+			backupServers.getBackupCommunicationServer().setPort(
+					core.backupServer.port);
+		}
+		else
+			backupServers = null;
+
+		return backupServers;
 	}
 }

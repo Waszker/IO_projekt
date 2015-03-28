@@ -3,6 +3,7 @@ package ComputationalServer.ServerCore;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -154,6 +155,36 @@ class MessageParserForBackupServer
 	{
 		// TODO: Differentiate between solution sent to TM or final solution
 		// from TM or partial solution sent to CN
-		//if(core.problemsToSolve.containsKey(message.))
+		ProblemInfo problem = core.problemsToSolve.get(message.getId());
+
+		if (problem.isProblemReadyToSolve
+				&& problem.isProblemCurrentlyDelegated)
+		{
+			// Received final solution!
+			problem.finalSolution = message.getSolutions().getSolution().get(0);
+
+			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
+					.entrySet())
+			{
+				if (entry.getValue().assignedProblems.contains(message.getId()))
+				{
+					entry.getValue().assignedProblems.remove(message.getId());
+				}
+			}
+		}
+		else if (problem.isProblemDivided
+				&& !problem.isProblemCurrentlyDelegated)
+		{
+			// Primary server sent solution to TM
+			TaskManagerInfo taskManager = core.taskManagers.get(message
+					.getSolutions().getSolution().get(0).getTaskId());
+			MessageGeneratorThread.assignProblemForTaskManager(taskManager,
+					problem);
+		}
+		else
+		{
+			// Received partial solution from ComputationalNode
+			communicationThread.receivePartialSolution(problem, message);
+		}
 	}
 }
