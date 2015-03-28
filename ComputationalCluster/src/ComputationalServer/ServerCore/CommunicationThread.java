@@ -10,7 +10,6 @@ import java.util.Map;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.ProblemHelper;
 import XMLMessages.Error;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
@@ -211,7 +210,7 @@ class CommunicationThread
 	/**
 	 * <p>
 	 * Reacting to PartialProblems message involves saving partial problems data
-	 * and sendiong NoOperation message.
+	 * and sending NoOperation message.
 	 * </p>
 	 * 
 	 * @param message
@@ -276,10 +275,6 @@ class CommunicationThread
 		// received final solution
 		{
 			problem.finalSolution = message.getSolutions().getSolution().get(0);
-			Logger.log("\n\n!!!! Message content : "
-					+ ProblemHelper.extractResult(message.getProblemType(),
-							message.getSolutions().getSolution().get(0)
-									.getData()) + "!!!!\n\n");
 
 			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
 					.entrySet())

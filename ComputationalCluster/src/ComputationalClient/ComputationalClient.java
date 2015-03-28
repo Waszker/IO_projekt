@@ -9,12 +9,9 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.omg.CORBA_2_3.portable.OutputStream;
-
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.ProblemHelper;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.Register;
 import XMLMessages.SolutionRequest;
@@ -35,22 +32,26 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final String DEFAULT_TIMEOUT = "10000";
 
 	private BigInteger problemId;
-	private BigInteger taskId;
 	protected File dataFile;
-	private Integer timeout;
 	private byte[] solutionData;
 	protected String filePath;
+	private BigInteger timeout;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	public ComputationalClient(String address, Integer port,
-			boolean isGuiEnabled, String filePath)
+			boolean isGuiEnabled, String filePath, Integer timeout)
 	{
 		super(address, port, isGuiEnabled, ComponentType.ComputationalClient);
 		this.filePath = filePath;
+		if (null != timeout)
+			this.timeout = new BigInteger(timeout.toString());
+		else
+			this.timeout = new BigInteger(DEFAULT_TIMEOUT);
 		if (null != filePath)
 			dataFile = new File(filePath);
 	}
@@ -73,10 +74,10 @@ public class ComputationalClient extends GenericComponent
 	{
 		try
 		{
-			byte[] data = loadFile(dataFile);
+			byte[] data = loadFile(this.dataFile);
 			SolveRequest sr = new SolveRequest();
 			sr.setProblemType("TestProblem");
-			sr.setSolvingTimeout(new BigInteger("1000"));
+			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
@@ -110,25 +111,32 @@ public class ComputationalClient extends GenericComponent
 		try
 		{
 			List<IMessage> messages = receiveMessage();
+			if (messages.size() == 0)
+				return;
 			IMessage message = messages.get(0);
 			if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
 			{
 				this.problemId = ((SolveRequestResponse) message).getId();
 				Logger.log("problem id: " + this.problemId + "\n");
-				sendSolutionRequestMessage();
 			}
 			if (message.getMessageType() == MessageType.SOLUTION)
 			{
 				String problemType = ((Solutiones) message).getSolutions()
 						.getSolution().get(0).getType();
 				Logger.log("Received problem type: " + problemType + "\n");
-				solutionData = ((Solutiones) message).getSolutions()
-						.getSolution().get(0).getData();
-				String stringData = new String(solutionData);
-				Logger.log("\n\nMessage content : \n***\n" + stringData
-						+ "\n***\n\n");
-				SaveSolution();
-
+				if (problemType.contentEquals("Ongoing"))
+				{
+					sendSolutionRequestMessage();
+				}
+				if (problemType.contentEquals("Final"))
+				{
+					solutionData = ((Solutiones) message).getSolutions()
+							.getSolution().get(0).getData();
+					String stringData = new String(solutionData);
+					Logger.log("\n\nMessage content : \n***\n" + stringData
+							+ "\n***\n\n");
+					SaveSolution();
+				}
 			}
 		} catch (IOException e)
 		{
@@ -145,7 +153,7 @@ public class ComputationalClient extends GenericComponent
 		{
 			saveFilePath = filePath.substring(0, pos);
 			ext = filePath.substring(pos + 1, filePath.length());
-			ext="."+ext;
+			ext = "." + ext;
 		}
 
 		saveFilePath = saveFilePath + "Solution" + ext;
@@ -175,6 +183,16 @@ public class ComputationalClient extends GenericComponent
 	public File getDataFile()
 	{
 		return dataFile;
+	}
+
+	public BigInteger getTimeout()
+	{
+		return timeout;
+	}
+
+	public void setTimeout(BigInteger timeout)
+	{
+		this.timeout = timeout;
 	}
 
 	private static byte[] loadFile(File file) throws IOException

@@ -3,6 +3,9 @@ package ComputationalServer.ServerCore;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +35,9 @@ public class ComputationalServerCore
 	/* VARIABLES */
 	/******************/
 	final static int MAX_MESSAGES = 150;
-	int port, timeout;
+	String primaryServerAddress;
+	BigInteger myId;
+	int port, timeout, primaryServerPort;
 	ServerSocket serverSocket;
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
@@ -42,12 +47,12 @@ public class ComputationalServerCore
 	ConcurrentMap<BigInteger, ProblemInfo> problemsToSolve;
 	BackupServerInformation backupServer;
 
-	ComputationalServerWindow mainWindow;
 	ComponentMonitorThread componentMonitorThread;
 
 	private BigInteger freeComponentId, freeProblemId;
 	private ConnectionEstabilisherThread connectionEstabilisherThread;
 	private MessageParserThread messageParserThread;
+	private ComputationalServerWindow mainWindow;
 
 	/******************/
 	/* FUNCTIONS */
@@ -94,7 +99,28 @@ public class ComputationalServerCore
 		serverSocket = new ServerSocket(this.port);
 		addCloseSocketHook(serverSocket);
 		connectionEstabilisherThread.start();
-		messageParserThread.start();
+		messageParserThread.run();
+	}
+
+	/**
+	 * <p>
+	 * Starts server core in backup mode.
+	 * </p>
+	 * 
+	 * @param primaryServerAddress
+	 * @param primaryServerPort
+	 * @param timeout
+	 */
+	public void startAsBackupServer(String primaryServerAddress,
+			int primaryServerPort, int timeout, BigInteger id, int myLocalPort)
+	{
+		this.primaryServerAddress = primaryServerAddress;
+		this.primaryServerPort = primaryServerPort;
+		this.port = myLocalPort;
+		this.timeout = timeout;
+		this.myId = id;
+
+		// TODO: Add start as backup routine
 	}
 
 	/**
@@ -151,6 +177,17 @@ public class ComputationalServerCore
 		return idForComponent;
 	}
 
+	/**
+	 * <p>
+	 * Called when any changes regarding components occur.
+	 * </p>
+	 */
+	void informAboutComponentChanges()
+	{
+		if (null != mainWindow)
+			mainWindow.refreshConnectedComponents();
+	}
+
 	synchronized BigInteger getCurrentFreeProblemId()
 	{
 		BigInteger one = new BigInteger("1");
@@ -165,6 +202,67 @@ public class ComputationalServerCore
 		BigInteger result = new BigInteger(freeComponentId.toString());
 		freeComponentId = freeComponentId.add(one);
 		return result;
+	}
+
+	/**
+	 * <p>
+	 * Returns list of connected task managers.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public List<String> getTaskManagers()
+	{
+		List<String> taskManagersList = new ArrayList<>(taskManagers.size());
+
+		for (Map.Entry<BigInteger, TaskManagerInfo> entry : taskManagers
+				.entrySet())
+		{
+			taskManagersList.add(entry.getValue().toString());
+		}
+
+		return taskManagersList;
+	}
+
+	/**
+	 * <p>
+	 * Returns list of connected computational nodes.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public List<String> getComputationalNodes()
+	{
+		List<String> computationalNodesList = new ArrayList<>(
+				computationalNodes.size());
+
+		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes
+				.entrySet())
+		{
+			computationalNodesList.add(entry.getValue().toString());
+		}
+
+		return computationalNodesList;
+	}
+
+	/**
+	 * <p>
+	 * Returns list of requested problems to solve.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public List<String> getProblemsToSolve()
+	{
+		List<String> problemsList = new ArrayList<>(computationalNodes.size());
+
+		for (Map.Entry<BigInteger, ProblemInfo> entry : problemsToSolve
+				.entrySet())
+		{
+			problemsList.add(entry.getValue().toString());
+		}
+
+		return problemsList;
 	}
 
 	private void addCloseSocketHook(final ServerSocket ssocket)

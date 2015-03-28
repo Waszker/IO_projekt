@@ -55,4 +55,12 @@ class TaskManagerInfo
 		}
 	}
 
+	@Override
+	public String toString()
+	{
+		return "TaskManager [id=" + id + ", info=" + info
+				+ ", assignedProblems=" + assignedProblems.size()
+				+ ", supportedProblems=" + supportedProblems + "]";
+	}
+
 }
