@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import DebugTools.Logger;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
@@ -15,9 +16,9 @@ import XMLMessages.Status;
 
 /**
  * <p>
- * GenericComponent class is a base class for every ComputationalClient,
- * TaskManager and ComputationalNode class. It holds fields common for all three
- * classes and gathers common methods usable in them.
+ * GenericComponent class is a base class for every ComputationalServer
+ * ComputationalClient, TaskManager and ComputationalNode class. It holds fields
+ * common for all four classes and gathers common methods usable in them.
  * </p>
  * 
  * @author Piotr Waszkiewicz
@@ -53,6 +54,8 @@ public abstract class GenericComponent
 	protected Socket connectionSocket;
 	protected BigInteger id;
 	protected Long timeout;
+	protected String backupServerIp;
+	protected int backupServerPort;
 
 	private ComponentType type;
 
@@ -121,15 +124,28 @@ public abstract class GenericComponent
 	 * </p>
 	 * 
 	 * @param message
+	 * @return port on which socket was opened
 	 * @throws IOException
 	 */
-	protected void sendMessages(IMessage... messages) throws IOException
+	protected int sendMessages(IMessage... messages) throws IOException
 	{
+		int openedPort = -1;
 		if (null != messages)
 		{
 			connectionSocket = getConnectionSocket();
+			if (null != connectionSocket)
+			{
+				connectionSocket.setReuseAddress(true);
+				openedPort = connectionSocket.getLocalPort();
+			}
+			else
+			{
+				throw new IOException("Connection unsuccessful");
+			}
 			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
+
+		return openedPort;
 	}
 
 	/**
@@ -157,6 +173,15 @@ public abstract class GenericComponent
 	{
 		id = message.getId();
 		timeout = message.getTimeout();
+		if (null != message.getBackupCommunicationServers()
+				&& null != message.getBackupCommunicationServers()
+						.getBackupCommunicationServer())
+		{
+			backupServerIp = new String(message.getBackupCommunicationServers()
+					.getBackupCommunicationServer().getAddress());
+			backupServerPort = message.getBackupCommunicationServers()
+					.getBackupCommunicationServer().getPort();
+		}
 	}
 
 	protected abstract Register getComponentRegisterMessage();
@@ -233,6 +258,8 @@ public abstract class GenericComponent
 			@Override
 			public void run()
 			{
+				boolean isSendingSuccess = false;
+
 				while (true)
 				{
 					try
@@ -243,20 +270,27 @@ public abstract class GenericComponent
 					catch (InterruptedException e)
 					{
 					}
-					try
-					{
-						Status status = new Status();
-						status.setId(id);
 
-						sendMessages(status);
-						for (IMessage message : receiveMessage())
-							reactToMessage(message);
-					}
-					catch (IOException e)
+					do
 					{
-						// TODO: react to connection error
-						// (Probably Server is not accessible anymore)
-					}
+						try
+						{
+							Status status = new Status();
+							status.setId(id);
+
+							sendMessages(status);
+							isSendingSuccess = true;
+							for (IMessage message : receiveMessage())
+								reactToMessage(message);
+						}
+						catch (IOException e)
+						{
+							DebugTools.Logger.log("Switching to backup...\n");
+							isSendingSuccess = false;
+							ipAddress = backupServerIp;
+							port = backupServerPort;
+						}
+					} while (!isSendingSuccess);
 				}
 			}
 		}).run();
@@ -292,7 +326,7 @@ public abstract class GenericComponent
 			JOptionPane.showMessageDialog(null, message, "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
-		System.err.println(message);
+		Logger.log(message + "\n");
 	}
 
 	/**

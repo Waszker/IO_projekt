@@ -12,6 +12,7 @@ import GenericCommonClasses.IMessage;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
+import XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer;
 import XMLMessages.Solutiones;
 import XMLMessages.Solutiones.Solutions;
 import XMLMessages.SolvePartialProblems;
@@ -55,6 +56,8 @@ public class MessageGeneratorThread
 
 		if (null != core.backupServer)
 		{
+			backupServers
+					.setBackupCommunicationServer(new BackupCommunicationServer());
 			backupServers.getBackupCommunicationServer().setAddress(
 					core.backupServer.address);
 			backupServers.getBackupCommunicationServer().setPort(
@@ -190,22 +193,32 @@ public class MessageGeneratorThread
 			{
 				Logger.log("Sent problem " + problem.id
 						+ " for final solution\n");
-				messageList.add(getSolutionRequest(core.problemsToSolve
-						.get(problem.id)));
+				Solutiones messageSolutiones = getSolutionRequest(core.problemsToSolve
+						.get(problem.id));
+				messageList.add(messageSolutiones);
+				
+				// Relay info with BS
+				// Solution has TaskId == TaskManager id!!!
+				// TODO: Maybe change that?
+				messageSolutiones.getSolutions().getSolution().get(0).setTaskId(taskManager.id);
+				core.listOfMessagesForBackupServer.add(messageSolutiones);
 			}
 			else if (!problem.isProblemDivided
 					&& core.computationalNodes.size() > 0)
 			// problem needs division
 			{
 				Logger.log("Sent problem " + problem.id + " for division\n");
-				messageList.add(getDivideProblemRequest(
-						core.problemsToSolve.get(problem.id), taskManager.id));
+				DivideProblem messageDivideProblem = getDivideProblemRequest(
+						core.problemsToSolve.get(problem.id), taskManager.id);
+				messageList.add(messageDivideProblem);
+
+				// Relay info with BS
+				core.listOfMessagesForBackupServer.add(messageDivideProblem);
 			}
 			else if (problem.isProblemDivided
 					|| core.computationalNodes.size() <= 0)
 				continue;
-			taskManager.assignedProblems.add(problem.id);
-			problem.isProblemCurrentlyDelegated = true;
+			assignProblemForTaskManager(taskManager, problem);
 
 			freeThreads--;
 			removedId.add(problem.id);
@@ -259,28 +272,19 @@ public class MessageGeneratorThread
 					&& !problem.partialProblems.isEmpty())
 			{
 				PartialProblem pproblem = problem.partialProblems.remove(0);
+				assignPartialProblemForComputationaNode(computationalNode,
+						problem, pproblem);
+
+				// Send information
+				SolvePartialProblems messagePartialProblems = getPartialProblem(
+						problem, pproblem);
+				messageList.add(messagePartialProblems);
+
+				// Relay info with BS
+				core.listOfMessagesForBackupServer.add(messagePartialProblems);
+
 				Logger.log("Sent partial problem " + problem.id
 						+ " for solution\n");
-
-				if (freeThreads == 0)
-					break;
-
-				// Add partial problem to solve
-				messageList.add(getPartialProblem(problem, pproblem));
-
-				List<PartialProblem> delegatedProblems = computationalNode.assignedPartialProblems
-						.get(problem.id);
-
-				// if there were some problems assigned earlier
-				if (null != delegatedProblems)
-					delegatedProblems.add(pproblem);
-				else
-				{
-					delegatedProblems = new ArrayList<>();
-					delegatedProblems.add(pproblem);
-					computationalNode.assignedPartialProblems.put(problem.id,
-							delegatedProblems);
-				}
 
 				freeThreads--;
 			}
@@ -288,5 +292,33 @@ public class MessageGeneratorThread
 
 		return messageList;
 
+	}
+
+	static void assignProblemForTaskManager(TaskManagerInfo taskManager,
+			ProblemInfo problem)
+	{
+		taskManager.assignedProblems.add(problem.id);
+		problem.isProblemCurrentlyDelegated = true;
+	}
+
+	static void assignPartialProblemForComputationaNode(
+			ComputationalNodeInfo computationalNode, ProblemInfo problem,
+			PartialProblem pproblem)
+	{
+		pproblem.setNodeID(computationalNode.id);
+
+		List<PartialProblem> delegatedProblems = computationalNode.assignedPartialProblems
+				.get(problem.id);
+
+		// if there were some problems assigned earlier
+		if (null != delegatedProblems)
+			delegatedProblems.add(pproblem);
+		else
+		{
+			delegatedProblems = new ArrayList<>();
+			delegatedProblems.add(pproblem);
+			computationalNode.assignedPartialProblems.put(problem.id,
+					delegatedProblems);
+		}
 	}
 }

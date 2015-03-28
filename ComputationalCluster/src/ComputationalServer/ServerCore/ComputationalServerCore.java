@@ -3,9 +3,12 @@ package ComputationalServer.ServerCore;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +18,10 @@ import java.util.concurrent.Semaphore;
 import ComputationalServer.ComputationalServerWindow;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericProtocol;
+import GenericCommonClasses.IMessage;
 import XMLMessages.Register;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -35,19 +41,24 @@ public class ComputationalServerCore
 	/* VARIABLES */
 	/******************/
 	final static int MAX_MESSAGES = 150;
-	int port, timeout;
+	String primaryServerAddress;
+	BigInteger myId;
+	boolean isInBackupMode;
+	int port, timeout, primaryServerPort;
 	ServerSocket serverSocket;
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
 	BlockingQueue<ClientMessage> messageQueue;
+
 	ConcurrentMap<BigInteger, TaskManagerInfo> taskManagers;
 	ConcurrentMap<BigInteger, ComputationalNodeInfo> computationalNodes;
 	ConcurrentMap<BigInteger, ProblemInfo> problemsToSolve;
 	BackupServerInformation backupServer;
+	List<IMessage> listOfMessagesForBackupServer;
 
 	ComponentMonitorThread componentMonitorThread;
 
-	private BigInteger freeComponentId, freeProblemId;
+	BigInteger freeComponentId, freeProblemId;
 	private ConnectionEstabilisherThread connectionEstabilisherThread;
 	private MessageParserThread messageParserThread;
 	private ComputationalServerWindow mainWindow;
@@ -68,8 +79,11 @@ public class ComputationalServerCore
 		this.mainWindow = mainWindow;
 		this.freeComponentId = new BigInteger("1");
 		this.freeProblemId = new BigInteger("1");
+		this.isInBackupMode = false;
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		listOfMessagesForBackupServer = Collections
+				.synchronizedList(new ArrayList<IMessage>());
 
 		taskManagers = new ConcurrentHashMap<>();
 		computationalNodes = new ConcurrentHashMap<>();
@@ -93,11 +107,34 @@ public class ComputationalServerCore
 	{
 		this.port = port;
 		this.timeout = timeout;
+		startPrimaryServerFunctions();
+	}
 
-		serverSocket = new ServerSocket(this.port);
-		addCloseSocketHook(serverSocket);
-		connectionEstabilisherThread.start();
-		messageParserThread.run();
+	/**
+	 * <p>
+	 * Starts server core in backup mode.
+	 * </p>
+	 * 
+	 * @param primaryServerAddress
+	 * @param primaryServerPort
+	 * @param timeout
+	 * @throws IOException
+	 */
+	public void startAsBackupServer(String primaryServerAddress,
+			int primaryServerPort, int timeout, BigInteger id, int myLocalPort)
+			throws IOException
+	{
+		this.isInBackupMode = true;
+		this.primaryServerAddress = primaryServerAddress;
+		this.primaryServerPort = primaryServerPort;
+		this.port = myLocalPort;
+		this.timeout = timeout;
+		this.myId = id;
+
+		Logger.log("Started as backup with my id " + myId + "\n");
+
+		startBackupServerFunctions();
+		startPrimaryServerFunctions();
 	}
 
 	/**
@@ -114,12 +151,13 @@ public class ComputationalServerCore
 	 */
 	BigInteger registerComponent(Register message, Integer port, String address)
 	{
-		BigInteger idForComponent = getCurrentFreeComponentId();
+		BigInteger idForComponent = new BigInteger("-1");
 
 		if (message.getType().contentEquals(
 				GenericComponent.ComponentType.TaskManager.name))
 		{
 			Logger.log("TM connected\n");
+			idForComponent = getCurrentFreeComponentId();
 			taskManagers.put(idForComponent, new TaskManagerInfo(
 					idForComponent, message));
 		}
@@ -127,6 +165,7 @@ public class ComputationalServerCore
 				GenericComponent.ComponentType.ComputationalNode.name))
 		{
 			Logger.log("CN connected\n");
+			idForComponent = getCurrentFreeComponentId();
 			computationalNodes.put(idForComponent, new ComputationalNodeInfo(
 					idForComponent, message));
 		}
@@ -134,26 +173,25 @@ public class ComputationalServerCore
 				GenericComponent.ComponentType.ComputationalServer.name))
 		{
 			Logger.log("CS Connected\n");
-			if (null != backupServer)
+			if (null == backupServer)
 			{
+				idForComponent = new BigInteger("9999");
 				backupServer = (new BackupServerInformation(idForComponent,
 						port, address));
 			}
 			else
 			{
 				Logger.log("Only one Backup Server permitted! Rejecting...\n");
-				idForComponent = new BigInteger("-1");
 			}
 		}
 		else
 		{
 			Logger.log("Unsupported component Connected\n");
-			idForComponent = new BigInteger("-1");
 		}
 
 		return idForComponent;
 	}
-	
+
 	/**
 	 * <p>
 	 * Called when any changes regarding components occur.
@@ -161,7 +199,7 @@ public class ComputationalServerCore
 	 */
 	void informAboutComponentChanges()
 	{
-		if(null != mainWindow)
+		if (null != mainWindow)
 			mainWindow.refreshConnectedComponents();
 	}
 
@@ -173,7 +211,7 @@ public class ComputationalServerCore
 		return result;
 	}
 
-	private synchronized BigInteger getCurrentFreeComponentId()
+	synchronized BigInteger getCurrentFreeComponentId()
 	{
 		BigInteger one = new BigInteger("1");
 		BigInteger result = new BigInteger(freeComponentId.toString());
@@ -191,12 +229,13 @@ public class ComputationalServerCore
 	public List<String> getTaskManagers()
 	{
 		List<String> taskManagersList = new ArrayList<>(taskManagers.size());
-		
-		for (Map.Entry<BigInteger, TaskManagerInfo> entry : taskManagers.entrySet())
+
+		for (Map.Entry<BigInteger, TaskManagerInfo> entry : taskManagers
+				.entrySet())
 		{
 			taskManagersList.add(entry.getValue().toString());
 		}
-		
+
 		return taskManagersList;
 	}
 
@@ -209,13 +248,15 @@ public class ComputationalServerCore
 	 */
 	public List<String> getComputationalNodes()
 	{
-		List<String> computationalNodesList = new ArrayList<>(computationalNodes.size());
-		
-		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes.entrySet())
+		List<String> computationalNodesList = new ArrayList<>(
+				computationalNodes.size());
+
+		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes
+				.entrySet())
 		{
 			computationalNodesList.add(entry.getValue().toString());
 		}
-		
+
 		return computationalNodesList;
 	}
 
@@ -229,13 +270,71 @@ public class ComputationalServerCore
 	public List<String> getProblemsToSolve()
 	{
 		List<String> problemsList = new ArrayList<>(computationalNodes.size());
-		
-		for (Map.Entry<BigInteger, ProblemInfo> entry : problemsToSolve.entrySet())
+
+		for (Map.Entry<BigInteger, ProblemInfo> entry : problemsToSolve
+				.entrySet())
 		{
 			problemsList.add(entry.getValue().toString());
 		}
-		
+
 		return problemsList;
+	}
+
+	private void startBackupServerFunctions()
+	{
+		(new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				MessageParserForBackupServer messageParser = new MessageParserForBackupServer(
+						ComputationalServerCore.this);
+				while (isInBackupMode)
+				{
+					Status statusMessage = new Status();
+					statusMessage.setId(myId);
+					try
+					{
+						Thread.sleep(timeout * 1000);
+						Socket connectionSocket = new Socket(
+								primaryServerAddress, primaryServerPort);
+						GenericProtocol.sendMessages(connectionSocket,
+								statusMessage);
+						List<IMessage> messages = GenericProtocol
+								.receiveMessage(connectionSocket);
+						listOfMessagesForBackupServer.addAll(messages);
+						messageParser.parseMessages(messages);
+					}
+					catch (InterruptedException e)
+					{
+					}
+					catch (IOException e)
+					{
+						Logger.log("Primary server is down! Falling back to primary server functionality!\n");
+						isInBackupMode = false;
+
+						for (Entry<BigInteger, TaskManagerInfo> entry : taskManagers
+								.entrySet())
+							componentMonitorThread
+									.informaAboutConnectedComponent(entry
+											.getKey());
+						for (Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes
+								.entrySet())
+							componentMonitorThread
+									.informaAboutConnectedComponent(entry
+											.getKey());
+					}
+				}
+			}
+		})).start();
+	}
+
+	private void startPrimaryServerFunctions() throws IOException
+	{
+		serverSocket = new ServerSocket(this.port);
+		addCloseSocketHook(serverSocket);
+		connectionEstabilisherThread.start();
+		messageParserThread.run();
 	}
 
 	private void addCloseSocketHook(final ServerSocket ssocket)
