@@ -197,6 +197,7 @@ class CommunicationThread
 	void reactToSolutionRequest(SolutionRequest message, Socket socket)
 			throws IOException
 	{
+		List<IMessage> messages = new ArrayList<>(2);
 		BigInteger id = message.getId();
 		ProblemInfo problem = core.problemsToSolve.get(id);
 		Solutiones result = new Solutiones();
@@ -214,8 +215,11 @@ class CommunicationThread
 			sol.setType("Ongoing");
 			result.getSolutions().getSolution().add(sol);
 		}
+		messages.add(messageGenerator.getNoOperationMessage());
+		messages.add(result);
 
-		GenericProtocol.sendMessages(socket, result);
+		GenericProtocol.sendMessages(socket,
+				messages.toArray(new IMessage[messages.size()]));
 	}
 
 	/**
@@ -232,6 +236,7 @@ class CommunicationThread
 			throws IOException
 	{
 		// Set problem data
+		List<IMessage> messages = new ArrayList<>(2);
 		BigInteger id = core.getCurrentFreeProblemId();
 		ProblemInfo problem = new ProblemInfo(id, message);
 		core.problemsToSolve.put(id, problem);
@@ -239,7 +244,10 @@ class CommunicationThread
 		// Inform CC about problem id
 		SolveRequestResponse response = new SolveRequestResponse();
 		response.setId(id);
-		GenericProtocol.sendMessages(socket, response);
+		messages.add(messageGenerator.getNoOperationMessage());
+		messages.add(response);
+		GenericProtocol.sendMessages(socket,
+				messages.toArray(new IMessage[messages.size()]));
 
 		// Relay information for BS
 		message.setId(id);
