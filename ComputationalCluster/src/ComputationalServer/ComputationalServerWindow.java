@@ -74,7 +74,6 @@ public final class ComputationalServerWindow extends GenericWindowGui
 						"Currently no connected modules..."),
 				activeProblems = new JTextArea(
 						"Currently no active problems to solve...")));
-		// TODO: connectedModules and activeProblems should fit within window
 		connectedModules.setLineWrap(true);
 		activeProblems.setLineWrap(true);
 
@@ -113,8 +112,11 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		workModeButton.setEnabled(true);
 	}
 
-	// TODO: This method will change in the future for sure!
-	// This should be done using hashmap and foreach loop
+	/**
+	 * <p>
+	 * Displays information about connected components and sent problems.
+	 * </p>
+	 */
 	public void refreshConnectedComponents()
 	{
 		StringBuilder informationBuilder = new StringBuilder();
@@ -209,7 +211,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		{
 			server.setTimeout(timeout);
 		}
-		
+
 		server.setIpAddress(serverIpField.getText());
 	}
 }
