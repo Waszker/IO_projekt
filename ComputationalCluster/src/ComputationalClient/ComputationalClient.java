@@ -91,7 +91,7 @@ public class ComputationalClient extends GenericComponent
 			e.printStackTrace();
 			ipAddress = backupServerIp;
 			port = backupServerPort;
-			Logger.log("IP: " + backupServerIp + " PORT: " + backupServerPort
+			Logger.log("SEND SOLVE REQUEST --> IP: " + backupServerIp + " PORT: " + backupServerPort
 					+ "\n");
 			sendSolveRequestMessage();
 
@@ -113,7 +113,7 @@ public class ComputationalClient extends GenericComponent
 			e.printStackTrace();
 			ipAddress = backupServerIp;
 			port = backupServerPort;
-			Logger.log("IP: " + backupServerIp + " PORT: " + backupServerPort
+			Logger.log("SEND SOLUTION REQUEST --> IP: " + backupServerIp + " PORT: " + backupServerPort
 					+ "\n");
 			sendSolutionRequestMessage();
 		} catch (InterruptedException e)
@@ -138,13 +138,14 @@ public class ComputationalClient extends GenericComponent
 				{
 					BackupCommunicationServers backups = ((NoOperation) message)
 							.getBackupCommunicationServers();
-					if (backups != null)
+					if (backups != null
+							&& backups.getBackupCommunicationServer() != null)
 					{
 						backupServerIp = backups.getBackupCommunicationServer()
 								.getAddress();
 						backupServerPort = backups
 								.getBackupCommunicationServer().getPort();
-						Logger.log("IP: " + backupServerIp + " PORT: "
+						Logger.log("NO_OPERATION -->  IP: " + backupServerIp + " PORT: "
 								+ backupServerPort + "\n");
 					}
 				}
