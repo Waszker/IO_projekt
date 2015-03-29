@@ -35,7 +35,7 @@ public class ComputationalServerActionListener extends
 
 			case ComputationalServerWindow.SERVER_WORK_MODE_BUTTON:
 				((ComputationalServerWindow) mainWindow)
-						.changeServerWorkdMode(((JButton) e.getSource())
+						.changeServerWorkMode(((JButton) e.getSource())
 								.getText().contentEquals(
 										ServerWorkMode.PRIMARY.modeString));
 				break;

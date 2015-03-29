@@ -4,7 +4,6 @@ import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
@@ -142,11 +141,12 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	 * 
 	 * @param isBackup
 	 */
-	public void changeServerWorkdMode(boolean isBackup)
+	public void changeServerWorkMode(boolean isBackup)
 	{
 		server.setisBackup(isBackup);
 		workModeButton.setText((isBackup ? ServerWorkMode.BACKUP.modeString
 				: ServerWorkMode.PRIMARY.modeString));
+		this.serverIpField.getParent().setVisible(isBackup);
 	}
 
 	@Override
@@ -209,6 +209,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		{
 			server.setTimeout(timeout);
 		}
-
+		
+		server.setIpAddress(serverIpField.getText());
 	}
 }
