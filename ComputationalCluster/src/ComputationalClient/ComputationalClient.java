@@ -13,6 +13,8 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.NoOperation;
+import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
@@ -39,6 +41,7 @@ public class ComputationalClient extends GenericComponent
 	private byte[] solutionData;
 	protected String filePath;
 	private BigInteger timeout;
+	protected boolean computationIsDone;
 
 	/******************/
 	/* FUNCTIONS */
@@ -54,6 +57,7 @@ public class ComputationalClient extends GenericComponent
 			this.timeout = new BigInteger(DEFAULT_TIMEOUT);
 		if (null != filePath)
 			dataFile = new File(filePath);
+		computationIsDone = false;
 	}
 
 	@Override
@@ -85,6 +89,12 @@ public class ComputationalClient extends GenericComponent
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+			ipAddress = backupServerIp;
+			port = backupServerPort;
+			Logger.log("IP: " + backupServerIp + " PORT: " + backupServerPort
+					+ "\n");
+			sendSolveRequestMessage();
+
 		}
 	}
 
@@ -94,15 +104,22 @@ public class ComputationalClient extends GenericComponent
 		sr.setId(this.problemId);
 		try
 		{
-			Thread.sleep(20000);
+			if (isGui == false)
+				Thread.sleep(20000);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+			ipAddress = backupServerIp;
+			port = backupServerPort;
+			Logger.log("IP: " + backupServerIp + " PORT: " + backupServerPort
+					+ "\n");
+			sendSolutionRequestMessage();
 		} catch (InterruptedException e)
 		{
 			e.printStackTrace();
+
 		}
 	}
 
@@ -113,29 +130,49 @@ public class ComputationalClient extends GenericComponent
 			List<IMessage> messages = receiveMessage();
 			if (messages.size() == 0)
 				return;
-			IMessage message = messages.get(0);
-			if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
+
+			for (int i = 0; i < messages.size(); i++)
 			{
-				this.problemId = ((SolveRequestResponse) message).getId();
-				Logger.log("problem id: " + this.problemId + "\n");
-			}
-			if (message.getMessageType() == MessageType.SOLUTION)
-			{
-				String problemType = ((Solutiones) message).getSolutions()
-						.getSolution().get(0).getType();
-				Logger.log("Received problem type: " + problemType + "\n");
-				if (problemType.contentEquals("Ongoing"))
+				IMessage message = messages.get(i);
+				if (message.getMessageType() == MessageType.NO_OPERATION)
 				{
-					sendSolutionRequestMessage();
+					BackupCommunicationServers backups = ((NoOperation) message)
+							.getBackupCommunicationServers();
+					if (backups != null)
+					{
+						backupServerIp = backups.getBackupCommunicationServer()
+								.getAddress();
+						backupServerPort = backups
+								.getBackupCommunicationServer().getPort();
+						Logger.log("IP: " + backupServerIp + " PORT: "
+								+ backupServerPort + "\n");
+					}
 				}
-				if (problemType.contentEquals("Final"))
+				if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
 				{
-					solutionData = ((Solutiones) message).getSolutions()
-							.getSolution().get(0).getData();
-					String stringData = new String(solutionData);
-					Logger.log("\n\nMessage content : \n***\n" + stringData
-							+ "\n***\n\n");
-					SaveSolution();
+					this.problemId = ((SolveRequestResponse) message).getId();
+					Logger.log("problem id: " + this.problemId + "\n");
+				}
+				if (message.getMessageType() == MessageType.SOLUTION)
+				{
+					String problemType = ((Solutiones) message).getSolutions()
+							.getSolution().get(0).getType();
+					Logger.log("Received problem type: " + problemType + "\n");
+					if (problemType.contentEquals("Ongoing"))
+					{
+						if (isGui == false)
+							sendSolutionRequestMessage();
+					}
+					if (problemType.contentEquals("Final"))
+					{
+						solutionData = ((Solutiones) message).getSolutions()
+								.getSolution().get(0).getData();
+						String stringData = new String(solutionData);
+						Logger.log("\n\nMessage content : \n***\n" + stringData
+								+ "\n***\n\n");
+						this.computationIsDone = true;
+						SaveSolution();
+					}
 				}
 			}
 		} catch (IOException e)
