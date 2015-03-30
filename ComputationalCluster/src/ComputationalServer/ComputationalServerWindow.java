@@ -97,6 +97,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		serverPort.setEditable(false);
 		timeoutField.setEditable(false);
 		startServerButton.setEnabled(false);
+		serverIpField.setEditable(false);
 		workModeButton.setEnabled(false);
 	}
 
@@ -111,6 +112,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		serverPort.setEditable(true);
 		timeoutField.setEditable(true);
 		startServerButton.setEnabled(true);
+		serverIpField.setEditable(false);
 		workModeButton.setEnabled(true);
 	}
 

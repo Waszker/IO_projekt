@@ -3,6 +3,7 @@ package GenericCommonClasses;
 import java.nio.charset.Charset;
 
 import pl.edu.pw.mini.se2.TaskSolver;
+import pl.edu.pw.mini.se2.okulewicz.IntegralTaskSolver;
 import Problems.TestProblem;
 import XMLMessages.DivideProblem;
 import XMLMessages.Solutiones;
@@ -70,9 +71,9 @@ public class ProblemHelper
 				ret = new TestProblem(data);
 				break;
 				
-//			case "IntegralProblem":
-//				ret = new IntegralTaskSolver(data);
-//				break;
+			case "IntegralProblem":
+				ret = new IntegralTaskSolver(data);
+				break;
 		}
 		
 		return ret;
