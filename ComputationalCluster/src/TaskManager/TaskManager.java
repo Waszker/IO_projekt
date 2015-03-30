@@ -80,7 +80,7 @@ public final class TaskManager extends GenericComponent
 				
 				BackupCommunicationServer bcs = ((NoOperation)message).getBackupCommunicationServers().getBackupCommunicationServer();
 				
-				if ( bcs != null )
+				if ( bcs != null ) 
 				{
 					backupServerIp = bcs.getAddress();
 					backupServerPort = bcs.getPort();
