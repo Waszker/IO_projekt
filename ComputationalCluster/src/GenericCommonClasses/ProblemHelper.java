@@ -3,7 +3,6 @@ package GenericCommonClasses;
 import java.nio.charset.Charset;
 
 import pl.edu.pw.mini.se2.TaskSolver;
-//import pl.edu.pw.mini.se2.okulewicz.IntegralTaskSolver;
 import Problems.TestProblem;
 import XMLMessages.DivideProblem;
 import XMLMessages.Solutiones;
