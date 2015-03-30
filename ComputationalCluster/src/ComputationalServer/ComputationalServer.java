@@ -1,7 +1,6 @@
 package ComputationalServer;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import ComputationalServer.ServerCore.ComputationalServerCore;
@@ -186,7 +185,7 @@ public final class ComputationalServer extends GenericComponent
 			try
 			{
 				socketAddress = new InetSocketAddress(
-						InetAddress.getLocalHost(), myLocalBackupPort);
+						"0.0.0.0", myLocalBackupPort);
 				sendMessages(getComponentRegisterMessage());
 				IMessage response = receiveMessage().get(0);
 
@@ -222,6 +221,7 @@ public final class ComputationalServer extends GenericComponent
 			}
 			catch (IOException | IndexOutOfBoundsException e)
 			{
+				e.printStackTrace();
 				Logger.log("Error connecting to server\n");
 				throw new UnsupportedOperationException(
 						"Can't connect to primary server");
