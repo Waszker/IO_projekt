@@ -9,10 +9,12 @@ import java.util.Map;
 
 import DebugTools.Logger;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.GenericComponent.ComponentType;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer;
+import XMLMessages.RegisterResponse;
 import XMLMessages.Solutiones;
 import XMLMessages.Solutiones.Solutions;
 import XMLMessages.SolvePartialProblems;
@@ -66,6 +68,27 @@ public class MessageGeneratorThread
 		noOperation.setBackupCommunicationServers(backupServers);
 
 		return noOperation;
+	}
+
+	/**
+	 * <p>
+	 * Returns RegisterResponse message for target component.
+	 * </p>
+	 * 
+	 * @param id
+	 * @param backupServers
+	 * @return
+	 */
+	RegisterResponse getRegisterResponseMessage(
+			BigInteger id,
+			XMLMessages.RegisterResponse.BackupCommunicationServers backupServers)
+	{
+		RegisterResponse registerResponse = new RegisterResponse();
+		registerResponse.setId(id);
+		registerResponse.setTimeout(core.timeout);
+		registerResponse.setBackupCommunicationServers(backupServers);
+
+		return registerResponse;
 	}
 
 	/**
@@ -196,11 +219,12 @@ public class MessageGeneratorThread
 				Solutiones messageSolutiones = getSolutionRequest(core.problemsToSolve
 						.get(problem.id));
 				messageList.add(messageSolutiones);
-				
+
 				// Relay info with BS
 				// Solution has TaskId == TaskManager id!!!
 				// TODO: Maybe change that?
-				messageSolutiones.getSolutions().getSolution().get(0).setTaskId(taskManager.id);
+				messageSolutiones.getSolutions().getSolution().get(0)
+						.setTaskId(taskManager.id);
 				core.listOfMessagesForBackupServer.add(messageSolutiones);
 			}
 			else if (!problem.isProblemDivided
