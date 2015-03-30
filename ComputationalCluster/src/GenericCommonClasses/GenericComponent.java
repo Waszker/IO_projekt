@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -56,6 +57,7 @@ public abstract class GenericComponent
 	protected Long timeout;
 	protected String backupServerIp;
 	protected int backupServerPort;
+	protected SocketAddress socketAddress;
 
 	private ComponentType type;
 
@@ -127,16 +129,14 @@ public abstract class GenericComponent
 	 * @return port on which socket was opened
 	 * @throws IOException
 	 */
-	protected int sendMessages(IMessage... messages) throws IOException
+	protected void sendMessages(IMessage... messages) throws IOException
 	{
-		int openedPort = -1;
 		if (null != messages)
 		{
 			connectionSocket = getConnectionSocket();
 			if (null != connectionSocket)
 			{
 				connectionSocket.setReuseAddress(true);
-				openedPort = connectionSocket.getLocalPort();
 			}
 			else
 			{
@@ -144,8 +144,6 @@ public abstract class GenericComponent
 			}
 			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
-
-		return openedPort;
 	}
 
 	/**
@@ -302,8 +300,11 @@ public abstract class GenericComponent
 	private Socket getConnectionSocket()
 	{
 		Socket socket = new Socket();
+		 
 		try
 		{
+			if(null != socketAddress)
+				socket.bind(socketAddress);
 			socket.connect(new InetSocketAddress(ipAddress, port),
 					DEFAULT_CONNECTION_TIMEOUT);
 		}

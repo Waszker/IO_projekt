@@ -19,6 +19,8 @@ public class ComputationalServerMainActivity
 					flagsMap.get(GenericFlagInterpreter.FLAG_IS_BACKUP) != null,
 					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_PORT),
 					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_TIMEOUT),
+					(Integer) flagsMap
+							.get(GenericFlagInterpreter.FLAG_BACKUP_PORT),
 					(String) flagsMap.get(GenericFlagInterpreter.FLAG_ADDRESS),
 					flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
 
@@ -27,17 +29,20 @@ public class ComputationalServerMainActivity
 				ComputationalServerWindow window = new ComputationalServerWindow(
 						server);
 				window.setVisible(true);
-			}
-			else
+			} else
 			{
 				// we don't have window here
 				server.startWork(null);
 			}
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e)
 		{
-			e.printStackTrace();
-			Logger.log("Incorrectly formatted flags.\nProgram exiting.");
+			//e.printStackTrace();
+			Logger.log("Incorrectly formatted flags.\n"
+					+ "Usage: java -jar ComputationalServer.jar "
+					+ "[-port [port number]] [-backup] "
+					+ "[-t [time in seconds]] "
+					+ "[-backup-port [port number for backup server]]\n");
 		}
 	}
 }
