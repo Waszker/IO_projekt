@@ -20,8 +20,7 @@ import GenericCommonClasses.GenericWindowGui;
  * 
  */
 
-public final class ComputationalClientWindow extends GenericWindowGui
-{
+public final class ComputationalClientWindow extends GenericWindowGui {
 	/******************/
 	/* VARIABLES */
 	/******************/
@@ -49,8 +48,7 @@ public final class ComputationalClientWindow extends GenericWindowGui
 	 * @param clientInstance
 	 *            required to provide normal operation flow
 	 */
-	public ComputationalClientWindow(ComputationalClient clientInstance)
-	{
+	public ComputationalClientWindow(ComputationalClient clientInstance) {
 		super("Computational Client", clientInstance);
 		hideUnusedFields();
 
@@ -87,17 +85,23 @@ public final class ComputationalClientWindow extends GenericWindowGui
 		this.setLocationRelativeTo(null);
 	}
 
-	private void hideUnusedFields()
-	{
+	private void hideUnusedFields() {
 		this.connectionStatusField.getParent().setVisible(false);
 		this.connectButton.setVisible(false);
 	}
 
 	@Override
-	public GenericWindowActionListener createActionListener()
-	{
+	public GenericWindowActionListener createActionListener() {
 		return new ComputationalClientActionListener(this,
 				(ComputationalClient) component);
+	}
+
+	public String getIpAddressString() {
+		return this.serverIpField.getText();
+	}
+
+	public Integer getPortInteger() {
+		return (Integer) (this.serverPort.getValue());
 	}
 
 }
