@@ -20,6 +20,7 @@ import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 import XMLMessages.Status;
 import XMLMessages.Status.Threads;
+
 //import XMLMessages.Status.Threads.Thread;
 
 public class ComputationalNode extends GenericComponent
@@ -49,7 +50,7 @@ public class ComputationalNode extends GenericComponent
 		Register r = new Register();
 		r.setType(ComponentType.ComputationalNode.name);
 		r.setParallelThreads((short) 1);
-		
+
 		SolvableProblems problems = (new SolvableProblems());
 		problems.getProblemName().addAll(Arrays.asList(ProblemHelper.types));
 		r.setSolvableProblems(problems);
@@ -84,7 +85,7 @@ public class ComputationalNode extends GenericComponent
 		commonData = sppm.getCommonData();
 		problemId = sppm.getId();
 		problemType = sppm.getProblemType();
-		timeout  = sppm.getSolvingTimeout();
+		timeout = sppm.getSolvingTimeout();
 
 		Logger.log("Type of message: " + problemType + "\n");
 
@@ -137,14 +138,15 @@ public class ComputationalNode extends GenericComponent
 	}
 
 	@Override
-	protected Status getStatusMessage() {
+	protected Status getStatusMessage()
+	{
 		Status ret = new Status();
 		Threads threads = new Threads();
 		Threads.Thread thread = new Threads.Thread();
 		thread.setHowLong(BigInteger.valueOf(1000));
 		thread.setState("Idle");
 		threads.getThread().add(thread);
-		
+
 		ret.setId(id);
 		ret.setThreads(threads);
 		return ret;

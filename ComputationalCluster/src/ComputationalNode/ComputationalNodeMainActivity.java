@@ -26,11 +26,11 @@ public class ComputationalNodeMainActivity
 					.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
 			String serverIp = (String) flagsMap
 					.get(GenericFlagInterpreter.FLAG_ADDRESS);
-			 //String serverIp = "192.168.143.94";
+			// String serverIp = "89.77.45.185";
 
 			Integer serverPort = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_PORT);
-			 //Integer serverPort = 50000;
+			// Integer serverPort = 50000;
 
 			ComputationalNode computationalNode = new ComputationalNode(
 					serverIp, serverPort, isGuiEnabled);
@@ -39,27 +39,27 @@ public class ComputationalNodeMainActivity
 				ComputationalNodeWindow window = new ComputationalNodeWindow(
 						computationalNode);
 				window.setVisible(true);
-			}
-			else if (serverIp == null || serverPort == null)
+			} else if (serverIp == null || serverPort == null)
 			{
 				usage();
-			}
-			else
+			} else
 			{
 				computationalNode.connectToServer();
 			}
-		} catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e)
+		} catch (NumberFormatException | UnknownHostException
+				| IndexOutOfBoundsException e)
 		{
 			// TODO Auto-generated catch block
 			usage();
 			e.printStackTrace();
 		}
 	}
-	
+
 	static void usage()
 	{
 		System.err.println("USAGE:");
-		System.err.println("$java -jar CN.jar -port <port_number> -address <ip_addresss>");
+		System.err
+				.println("$java -jar CN.jar -port <port_number> -address <ip_addresss>");
 		System.exit(-1);
 	}
 
