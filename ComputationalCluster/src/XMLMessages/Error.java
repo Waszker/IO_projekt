@@ -70,17 +70,9 @@ public class Error implements IMessage
 	 * @return possible object is {@link String }
 	 * 
 	 */
-	public ErrorMessage getErrorType()
+	public String getErrorType()
 	{
-		ErrorMessage returnValue;
-		if (errorType.contentEquals("UnknownSender"))
-			returnValue = ErrorMessage.UnknownSender;
-		else if (errorType.contentEquals("InvalidOperation"))
-			returnValue = ErrorMessage.InvalidOperation;
-		else
-			returnValue = ErrorMessage.ExceptionOccured;
-
-		return returnValue;
+		return errorType;
 	}
 
 	/**

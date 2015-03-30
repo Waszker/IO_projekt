@@ -74,7 +74,7 @@ public class ComputationalNode extends GenericComponent
 		} else if (message.getMessageType() == MessageType.ERROR)
 		{
 			showError("Error message from server: "
-					+ ((XMLMessages.Error) message).getErrorDetails());
+					+ ((XMLMessages.Error) message).getErrorType());
 		}
 
 	}
