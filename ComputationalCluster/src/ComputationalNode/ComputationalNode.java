@@ -20,6 +20,9 @@ import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
+import XMLMessages.Status;
+import XMLMessages.Status.Threads;
+import XMLMessages.Status.Threads.Thread;
 
 public class ComputationalNode extends GenericComponent
 {
@@ -132,5 +135,19 @@ public class ComputationalNode extends GenericComponent
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	protected Status getStatusMessage() {
+		Status ret = new Status();
+		Threads threads = new Threads();
+		Thread thread = new Thread();
+		thread.setHowLong(BigInteger.valueOf(1000));
+		thread.setState("Idle");
+		threads.getThread().add(thread);
+		
+		ret.setId(id);
+		ret.setThreads(threads);
+		return ret;
 	}
 }
