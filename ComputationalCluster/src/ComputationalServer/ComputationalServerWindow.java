@@ -94,6 +94,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		setServerParametersFromFields();
 		server.startWork(this);
 		portField.setEditable(false);
+		serverPort.setEditable(false);
 		timeoutField.setEditable(false);
 		startServerButton.setEnabled(false);
 		workModeButton.setEnabled(false);
@@ -107,6 +108,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	public void stoppedWork()
 	{
 		portField.setEditable(true);
+		serverPort.setEditable(true);
 		timeoutField.setEditable(true);
 		startServerButton.setEnabled(true);
 		workModeButton.setEnabled(true);
@@ -149,6 +151,7 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		workModeButton.setText((isBackup ? ServerWorkMode.BACKUP.modeString
 				: ServerWorkMode.PRIMARY.modeString));
 		this.serverIpField.getParent().setVisible(isBackup);
+		this.serverPort.getParent().setVisible(isBackup);
 	}
 
 	@Override
@@ -197,21 +200,26 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		if ((port = getIntegerValueFromField(portField)) == null)
 		{
 			portField.setText(Integer.toString(server.getPort()));
-		}
-		else
+		} else
 		{
-			server.setPort(port);
+			if (server.isBackup())
+				server.setMyLocalBackupPort(port);
+			else
+				server.setPort(port);
 		}
 
 		if ((timeout = getIntegerValueFromField(timeoutField)) == null)
 		{
 			portField.setText(Integer.toString(server.getTimeout()));
-		}
-		else
+		} else
 		{
 			server.setTimeout(timeout);
 		}
 
-		server.setIpAddress(serverIpField.getText());
+		if (server.isBackup())
+		{
+			server.setIpAddress(serverIpField.getText());
+			server.setPort(getIntegerValueFromField(serverPort));
+		}
 	}
 }
