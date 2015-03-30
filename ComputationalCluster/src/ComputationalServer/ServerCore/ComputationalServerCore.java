@@ -310,6 +310,7 @@ public class ComputationalServerCore
 								statusMessage);
 						List<IMessage> messages = GenericProtocol
 								.receiveMessage(connectionSocket);
+						// TODO: React to BS failures!
 						listOfMessagesForBackupServer.addAll(messages);
 						messageParser.parseMessages(messages);
 					}
