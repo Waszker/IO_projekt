@@ -27,7 +27,7 @@ public class ComputationalServerTests
 	@Test
 	public void ComputationalServerTest1()
 	{
-		ComputationalServer server = new ComputationalServer(false, null, null,
+		ComputationalServer server = new ComputationalServer(false, null, null, 111,
 				null, false);
 		assertEquals(server.getType(), ComponentType.ComputationalServer);
 		assertEquals(server.getPort(), GenericComponent.DEFAULT_PORT);
@@ -38,7 +38,7 @@ public class ComputationalServerTests
 	@Test
 	public void ComputationalServerTest2()
 	{
-		ComputationalServer server = new ComputationalServer(false, 777, null,
+		ComputationalServer server = new ComputationalServer(false, 777, null, 111,
 				"127.0.0.1", false);
 		assertEquals(server.getType(), ComponentType.ComputationalServer);
 		assertEquals(server.getPort(), 777);

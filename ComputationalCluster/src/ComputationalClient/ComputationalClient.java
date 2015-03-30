@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import DebugTools.Logger;
@@ -35,7 +37,7 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-	public static final String DEFAULT_TIMEOUT = "10000";
+	public static final String DEFAULT_TIMEOUT = "-1";
 
 	private BigInteger problemId;
 	protected File dataFile;
@@ -51,13 +53,16 @@ public class ComputationalClient extends GenericComponent
 			boolean isGuiEnabled, String filePath, Integer timeout)
 	{
 		super(address, port, isGuiEnabled, ComponentType.ComputationalClient);
+		
 		this.filePath = filePath;
 		if (null != timeout)
 			this.timeout = new BigInteger(timeout.toString());
 		else
 			this.timeout = new BigInteger(DEFAULT_TIMEOUT);
+		
 		if (null != filePath)
 			dataFile = new File(filePath);
+		
 		computationIsDone = false;
 	}
 
@@ -81,7 +86,8 @@ public class ComputationalClient extends GenericComponent
 		{
 			byte[] data = loadFile(this.dataFile);
 			SolveRequest sr = new SolveRequest();
-			sr.setProblemType("TestProblem");
+			//sr.setProblemType("TestProblem");
+			sr.setProblemType("IntegralProblem");
 			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
 			this.sendMessages(sr);
@@ -92,8 +98,6 @@ public class ComputationalClient extends GenericComponent
 			e.printStackTrace();
 			ipAddress = backupServerIp;
 			port = backupServerPort;
-			Logger.log("SEND SOLVE REQUEST --> IP: " + backupServerIp + " PORT: " + backupServerPort
-					+ "\n");
 			sendSolveRequestMessage();
 
 		}
@@ -106,7 +110,7 @@ public class ComputationalClient extends GenericComponent
 		try
 		{
 			if (isGui == false)
-				Thread.sleep(20000);
+				Thread.sleep(10000);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
 		} catch (IOException e)
@@ -114,8 +118,6 @@ public class ComputationalClient extends GenericComponent
 			e.printStackTrace();
 			ipAddress = backupServerIp;
 			port = backupServerPort;
-			Logger.log("SEND SOLUTION REQUEST --> IP: " + backupServerIp + " PORT: " + backupServerPort
-					+ "\n");
 			sendSolutionRequestMessage();
 		} catch (InterruptedException e)
 		{
@@ -236,9 +238,11 @@ public class ComputationalClient extends GenericComponent
 
 	private static byte[] loadFile(File file) throws IOException
 	{
+
+		
 		InputStream is = new FileInputStream(file);
 
-		long length = file.length();
+		long length = file.length()-1;
 		if (length > Integer.MAX_VALUE)
 		{
 			// File is too large

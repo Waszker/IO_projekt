@@ -12,8 +12,8 @@ import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
+import XMLMessages.Error.ErrorMessage;
 import XMLMessages.Register;
-import XMLMessages.RegisterResponse;
 import XMLMessages.RegisterResponse.BackupCommunicationServers;
 import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
 import XMLMessages.SolutionRequest;
@@ -93,17 +93,14 @@ class CommunicationThread
 						ComponentType.ComputationalServer.name))
 		{
 			XMLMessages.Error errorMessage = new Error();
-			errorMessage.setErrorDetails("Component not registered");
+			errorMessage.setErrorType(ErrorMessage.UnknownSender);
 			response = errorMessage;
 		}
 		else
 		// Get component RegisterResponse message
 		{
-			RegisterResponse registerResponse = new RegisterResponse();
-			registerResponse.setId(id);
-			registerResponse.setTimeout(core.timeout);
-			registerResponse.setBackupCommunicationServers(backupServers);
-			response = registerResponse;
+			response = messageGenerator.getRegisterResponseMessage(id,
+					backupServers);
 
 			if (null == core.backupServer)
 				core.componentMonitorThread.informaAboutConnectedComponent(id);
@@ -142,7 +139,7 @@ class CommunicationThread
 		{
 			Logger.log("Component not registered\n");
 			XMLMessages.Error errorMessage = new Error();
-			errorMessage.setErrorDetails("Component not registered");
+			errorMessage.setErrorType(ErrorMessage.UnknownSender);
 			GenericProtocol.sendMessages(socket, errorMessage);
 		}
 		else

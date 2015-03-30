@@ -280,6 +280,14 @@ public class ComputationalServerCore
 		return problemsList;
 	}
 
+	private void startPrimaryServerFunctions() throws IOException
+	{
+		serverSocket = new ServerSocket(this.port);
+		addCloseSocketHook(serverSocket);
+		connectionEstabilisherThread.start();
+		messageParserThread.run();
+	}
+
 	private void startBackupServerFunctions()
 	{
 		(new Thread(new Runnable()
@@ -310,31 +318,25 @@ public class ComputationalServerCore
 					}
 					catch (IOException e)
 					{
-						Logger.log("Primary server is down! Falling back to primary server functionality!\n");
-						isInBackupMode = false;
-
-						for (Entry<BigInteger, TaskManagerInfo> entry : taskManagers
-								.entrySet())
-							componentMonitorThread
-									.informaAboutConnectedComponent(entry
-											.getKey());
-						for (Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes
-								.entrySet())
-							componentMonitorThread
-									.informaAboutConnectedComponent(entry
-											.getKey());
+						fallBackToPrimaryFunctionality();
 					}
 				}
 			}
 		})).start();
 	}
 
-	private void startPrimaryServerFunctions() throws IOException
+	private void fallBackToPrimaryFunctionality()
 	{
-		serverSocket = new ServerSocket(this.port);
-		addCloseSocketHook(serverSocket);
-		connectionEstabilisherThread.start();
-		messageParserThread.run();
+		Logger.log("Primary server is down! Falling back to primary server functionality!\n");
+		isInBackupMode = false;
+
+		for (Entry<BigInteger, TaskManagerInfo> entry : taskManagers.entrySet())
+			componentMonitorThread.informaAboutConnectedComponent(entry
+					.getKey());
+		for (Entry<BigInteger, ComputationalNodeInfo> entry : computationalNodes
+				.entrySet())
+			componentMonitorThread.informaAboutConnectedComponent(entry
+					.getKey());
 	}
 
 	private void addCloseSocketHook(final ServerSocket ssocket)

@@ -77,7 +77,7 @@ public final class TaskManager extends GenericComponent
 				}
 				break;
 			case ERROR:
-				showError("Error message from server: " + ((XMLMessages.Error)message).getErrorDetails());
+				showError("Error message from server: " + ((XMLMessages.Error)message).getErrorType());
 				break;
 			case DIVIDE_PROBLEM:
 				handleDivideProblemMessage((DivideProblem)message);
