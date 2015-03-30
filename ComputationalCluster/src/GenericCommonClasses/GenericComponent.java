@@ -260,7 +260,7 @@ public abstract class GenericComponent
 
 				while (true)
 				{
-					/*
+					
 					try
 					{
 						Thread.sleep(timeout * 1000); // TODO: Check if seconds
@@ -268,7 +268,7 @@ public abstract class GenericComponent
 					}
 					catch (InterruptedException e)
 					{
-					}*/
+					}
 
 					do
 					{
