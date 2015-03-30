@@ -20,6 +20,7 @@ import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
 import XMLMessages.SolveRequest;
 import XMLMessages.SolveRequestResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -260,5 +261,11 @@ public class ComputationalClient extends GenericComponent
 
 		is.close();
 		return bytes;
+	}
+
+	@Override
+	protected Status getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
