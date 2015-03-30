@@ -101,7 +101,7 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 	}
 
 	public Integer getPortInteger() {
-		return (Integer) (this.serverPort.getValue());
+		return this.getIntegerValueFromField(serverPort);
 	}
 
 }

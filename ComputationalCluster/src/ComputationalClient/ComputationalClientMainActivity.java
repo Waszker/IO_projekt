@@ -6,14 +6,11 @@ import java.util.Map;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericFlagInterpreter;
 
-public class ComputationalClientMainActivity
-{
+public class ComputationalClientMainActivity {
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		Map<String, Object> flagsMap;
-		try
-		{
+		try {
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
 			boolean isGuiEnabled = (flagsMap
 					.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
@@ -26,28 +23,25 @@ public class ComputationalClientMainActivity
 			Integer timeout = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_TIMEOUT);
 
-			if (fileName == null && isGuiEnabled==false)
-			{
-				Logger.log("You need to specify a file\n");
+			if (isGuiEnabled == false && fileName == null) {
+				Logger.log("You need to specify a file\n USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] \n");
 				return;
 			}
 
 			ComputationalClient client = new ComputationalClient(serverIp,
 					serverPort, isGuiEnabled, fileName, timeout);
 
-			if (isGuiEnabled)
-			{
+			if (isGuiEnabled) {
 				ComputationalClientWindow window = new ComputationalClientWindow(
 						client);
 				window.setVisible(true);
-			} else
-			{
+			} else {
 				client.sendSolveRequestMessage();
 				client.sendSolutionRequestMessage();
 			}
-		} catch (NumberFormatException | UnknownHostException e)
-		{
-			e.printStackTrace();
+		} catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e) {
+			Logger.log("USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] \n");
+			
 		}
 	}
 

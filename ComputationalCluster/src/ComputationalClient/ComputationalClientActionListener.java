@@ -6,6 +6,7 @@ import java.math.BigInteger;
 
 import javax.swing.JFileChooser;
 
+import DebugTools.Logger;
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
@@ -63,7 +64,6 @@ public class ComputationalClientActionListener extends
 	private void reactToSendButtonPress() {
 		client.setIpAddress(window.getIpAddressString());
 		client.setPort(window.getPortInteger());
-		
 		client.setTimeout(new BigInteger(window.timeoutField.getText()));
 		client.sendSolveRequestMessage();
 		window.computationStatusField.setText("Computing...");
