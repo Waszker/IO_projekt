@@ -15,6 +15,7 @@ import XMLMessages.Solutiones;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolveRequest;
 import XMLMessages.Status;
+import XMLMessages.Error.ErrorMessage;
 
 /**
  * <p>
@@ -132,7 +133,7 @@ class MessageParserThread extends Thread
 				Logger.log("Unsupported message " + message.getString()
 						+ "\n\n");
 				XMLMessages.Error errorMessage = new Error();
-				errorMessage.setErrorDetails("Unsupported message");
+				errorMessage.setErrorType(ErrorMessage.InvalidOperation);
 				GenericProtocol.sendMessages(socket, errorMessage);
 				break;
 		}
