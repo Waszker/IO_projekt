@@ -1,9 +1,9 @@
 package ComputationalServer;
 
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
@@ -41,12 +41,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	}
 
 	public static final String START_SERVER_BUTTON = "START_SERVER_BUTTON";
+	public static final String SERVER_WORK_MODE_BUTTON = "SERVER_WORK_MODE_BUTTON";
 
 	private static final long serialVersionUID = 1716266392047737745L;
 	private ComputationalServer server;
-	private JTextField workModeField;
 	private JFormattedTextField portField, timeoutField;
 	private JTextArea connectedModules, activeProblems;
+	private JButton startServerButton, workModeButton;
 
 	/******************/
 	/* FUNCTIONS */
@@ -73,8 +74,10 @@ public final class ComputationalServerWindow extends GenericWindowGui
 						"Currently no connected modules..."),
 				activeProblems = new JTextArea(
 						"Currently no active problems to solve...")));
-		// TODO: connectedModules and activeProblems should fit within window
+		connectedModules.setLineWrap(true);
+		activeProblems.setLineWrap(true);
 
+		this.setResizable(true);
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
@@ -92,14 +95,60 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		server.startWork(this);
 		portField.setEditable(false);
 		timeoutField.setEditable(false);
+		startServerButton.setEnabled(false);
+		workModeButton.setEnabled(false);
 	}
 
-	// TODO: This method will change in the future for sure!
-	// This should be done using hashmap and foreach loop
-	public void addConnectedUser(String ipAddress)
+	/**
+	 * <p>
+	 * Called in case of any trouble starting server.
+	 * </p>
+	 */
+	public void stoppedWork()
 	{
-		connectedModules.setText(connectedModules.getText() + "\n" + ipAddress);
+		portField.setEditable(true);
+		timeoutField.setEditable(true);
+		startServerButton.setEnabled(true);
+		workModeButton.setEnabled(true);
+	}
+
+	/**
+	 * <p>
+	 * Displays information about connected components and sent problems.
+	 * </p>
+	 */
+	public void refreshConnectedComponents()
+	{
+		StringBuilder informationBuilder = new StringBuilder();
+
+		for (String taskManager : server.getCore().getTaskManagers())
+			informationBuilder.append(taskManager + "\n");
+		for (String computationalNode : server.getCore()
+				.getComputationalNodes())
+			informationBuilder.append(computationalNode + "\n");
+		connectedModules.setText(informationBuilder.toString());
+
+		informationBuilder = new StringBuilder();
+		for (String problem : server.getCore().getProblemsToSolve())
+			informationBuilder.append(problem + "\n");
+		activeProblems.setText(informationBuilder.toString());
+
 		this.pack();
+	}
+
+	/**
+	 * <p>
+	 * Changes mode that server will run in.
+	 * </p>
+	 * 
+	 * @param isBackup
+	 */
+	public void changeServerWorkMode(boolean isBackup)
+	{
+		server.setisBackup(isBackup);
+		workModeButton.setText((isBackup ? ServerWorkMode.BACKUP.modeString
+				: ServerWorkMode.PRIMARY.modeString));
+		this.serverIpField.getParent().setVisible(isBackup);
 	}
 
 	@Override
@@ -130,11 +179,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Work mode"),
-				workModeField = createTextField(
+				workModeButton = createButton(
 						(server.isBackup() ? ServerWorkMode.BACKUP.modeString
-								: ServerWorkMode.PRIMARY.modeString), false)));
+								: ServerWorkMode.PRIMARY.modeString),
+						SERVER_WORK_MODE_BUTTON)));
 
-		this.add(createButton("Start Server", START_SERVER_BUTTON));
+		this.add(startServerButton = createButton("Start Server",
+				START_SERVER_BUTTON));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));
@@ -161,5 +212,6 @@ public final class ComputationalServerWindow extends GenericWindowGui
 			server.setTimeout(timeout);
 		}
 
+		server.setIpAddress(serverIpField.getText());
 	}
 }

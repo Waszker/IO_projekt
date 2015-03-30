@@ -2,22 +2,26 @@ package TaskManager;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 import pl.edu.pw.mini.se2.TaskSolver;
 import XMLMessages.DivideProblem;
 import XMLMessages.Register;
 import XMLMessages.Solutiones;
+import XMLMessages.Register.SolvableProblems;
 import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
+import XMLMessages.Status;
+import XMLMessages.Status.Threads;
+import XMLMessages.Status.Threads.Thread;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.ProblemHelper;
-import GenericCommonClasses.Parser.MessageType;
 
 /**
  * <p>
@@ -25,7 +29,7 @@ import GenericCommonClasses.Parser.MessageType;
  * </p>
  * 
  * @author Filip Turkot
- * @version 1.0
+ * @version 1.1
  */
 public final class TaskManager extends GenericComponent
 {
@@ -33,7 +37,6 @@ public final class TaskManager extends GenericComponent
 	/* VARIABLES */
 	/******************/
 	
-	private TaskSolver currentProblemTaskSolver = null; //if null - we hav no problem assigned
 	private boolean firstNoOp = true; //if true, print assigned id, then turn into false
 
 	/******************/
@@ -51,6 +54,12 @@ public final class TaskManager extends GenericComponent
 		Register r = new Register();
 		r.setType(ComponentType.TaskManager.name);
 		r.setParallelThreads((short)1);
+		
+
+		SolvableProblems problems = (new SolvableProblems());
+		problems.getProblemName().addAll(Arrays.asList(ProblemHelper.types));
+		r.setSolvableProblems(problems);
+		
 		return r;
 	}
 
@@ -83,56 +92,64 @@ public final class TaskManager extends GenericComponent
 	
 	private void handleDivideProblemMessage(DivideProblem dvm)
 	{
-		if ( currentProblemTaskSolver != null )
-		{
-			//TODO: Error - we have other job assigned
-			return;
-		}
+		Logger.log("Received problem to divide...\n");
 		
 		if ( dvm.getNodeID().compareTo(id) != 0 )
 		{
+			Logger.log( "Wrong id!\n");
+			
 			//TODO: Error - shouldn't receive this message (not our id)
 			return;
 		}
 		
-		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
-		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
+		TaskSolver currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(dvm);
+		if ( currentProblemTaskSolver == null )
+		{
+			unknownProblemType();
+			return;
+		}
 		
+		Logger.log("Dividing problem among " + dvm.getComputationalNodes().intValue() + " nodes...\n");
+		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
 		try
 		{
+			Logger.log( "OK. Sending response...\n");
 			sendMessages(response);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			currentProblemTaskSolver = null;
 		}
 	}
 	
 	private void handleSolutionsMessage(Solutiones sm)
 	{
+		Logger.log("Received solutions to merge...\n");
+		
+		TaskSolver currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(sm);
 		if ( currentProblemTaskSolver == null )
 		{
-			//TODO: Error - no active jobs
+			unknownProblemType();
 			return;
 		}
 		
+		Logger.log("Merging " + sm.getSolutions().getSolution().size() + " results...\n");
 		Solutiones response = generateResponse(sm, currentProblemTaskSolver);
-		
 		try
 		{
+			Logger.log("Sending response...\n");
 			sendMessages(response);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		currentProblemTaskSolver = null;
 	}
 	
-	
+	private void unknownProblemType()
+	{
+		//TODO: Error - unknown problem type
+	}
 	
 	private static SolvePartialProblems generateResponse(DivideProblem dvm, TaskSolver ts, BigInteger id)
 	{
@@ -145,7 +162,7 @@ public final class TaskManager extends GenericComponent
 		response.setProblemType(dvm.getProblemType());
 		response.setId(dvm.getId());
 		response.setSolvingTimeout(BigInteger.valueOf(0));
-		response.setCommonData(null);
+		response.setCommonData(dvm.getData());
 			
 		PartialProblems partialProblems = new PartialProblems();
 		List<PartialProblem> list = partialProblems.getPartialProblem();
@@ -167,7 +184,7 @@ public final class TaskManager extends GenericComponent
 		//retreive the solutions
 		List<Solution> list = sm.getSolutions().getSolution();
 		byte[][] solutions = new byte[list.size()][];
-		for ( int i=0; i<list.size(); i++ ) //kolejno���� po getTaskID
+		for ( int i=0; i<list.size(); i++ ) // order by TaskID
 			solutions[i] = list.get(i).getData();
 				
 		byte[] dataToSend = ts.MergeSolution(solutions);
@@ -185,5 +202,19 @@ public final class TaskManager extends GenericComponent
 		response.setId(sm.getId());
 		response.setSolutions(solutionsToSend);
 		return response;
+	}
+
+	@Override
+	protected Status getStatusMessage()
+	{
+		Status ret = new Status();
+		Threads threads = new Threads();
+		Thread thread = new Thread();
+		thread.setHowLong(BigInteger.valueOf(5000));
+		thread.setState("Idle");
+		threads.getThread().add(thread);
+		ret.setId(id);
+		ret.setThreads(threads);
+		return ret;
 	}
 }

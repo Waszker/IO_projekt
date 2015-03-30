@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import DebugTools.Logger;
 import XMLMessages.Register;
 
 /**
@@ -24,6 +25,7 @@ class TaskManagerInfo
 	BigInteger id;
 	Register info;
 	List<BigInteger> assignedProblems;
+	List<String> supportedProblems;
 
 	/******************/
 	/* FUNCTIONS */
@@ -40,6 +42,25 @@ class TaskManagerInfo
 		this.id = id;
 		info = message;
 		assignedProblems = new ArrayList<>(info.getParallelThreads());
+
+		try
+		{
+			supportedProblems = new ArrayList<>(message.getSolvableProblems()
+					.getProblemName());
+		}
+		catch (NullPointerException e)
+		{
+			Logger.log("Looks like component " + id
+					+ " solves no problems at all!\n");
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TaskManager [id=" + id + ", info=" + info
+				+ ", assignedProblems=" + assignedProblems.size()
+				+ ", supportedProblems=" + supportedProblems + "]";
 	}
 
 }

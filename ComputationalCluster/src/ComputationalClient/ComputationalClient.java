@@ -9,18 +9,18 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.omg.CORBA_2_3.portable.OutputStream;
-
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.ProblemHelper;
 import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.NoOperation;
+import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
 import XMLMessages.SolveRequest;
 import XMLMessages.SolveRequestResponse;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -35,24 +35,30 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final String DEFAULT_TIMEOUT = "10000";
 
 	private BigInteger problemId;
-	private BigInteger taskId;
 	protected File dataFile;
-	private Integer timeout;
 	private byte[] solutionData;
 	protected String filePath;
+	private BigInteger timeout;
+	protected boolean computationIsDone;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
 	public ComputationalClient(String address, Integer port,
-			boolean isGuiEnabled, String filePath)
+			boolean isGuiEnabled, String filePath, Integer timeout)
 	{
 		super(address, port, isGuiEnabled, ComponentType.ComputationalClient);
 		this.filePath = filePath;
+		if (null != timeout)
+			this.timeout = new BigInteger(timeout.toString());
+		else
+			this.timeout = new BigInteger(DEFAULT_TIMEOUT);
 		if (null != filePath)
 			dataFile = new File(filePath);
+		computationIsDone = false;
 	}
 
 	@Override
@@ -73,10 +79,10 @@ public class ComputationalClient extends GenericComponent
 	{
 		try
 		{
-			byte[] data = loadFile(dataFile);
+			byte[] data = loadFile(this.dataFile);
 			SolveRequest sr = new SolveRequest();
 			sr.setProblemType("TestProblem");
-			sr.setSolvingTimeout(new BigInteger("1000"));
+			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
@@ -84,6 +90,12 @@ public class ComputationalClient extends GenericComponent
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+			ipAddress = backupServerIp;
+			port = backupServerPort;
+			Logger.log("SEND SOLVE REQUEST --> IP: " + backupServerIp + " PORT: " + backupServerPort
+					+ "\n");
+			sendSolveRequestMessage();
+
 		}
 	}
 
@@ -93,15 +105,22 @@ public class ComputationalClient extends GenericComponent
 		sr.setId(this.problemId);
 		try
 		{
-			Thread.sleep(20000);
+			if (isGui == false)
+				Thread.sleep(20000);
 			this.sendMessages(sr);
 			ReactToReceivedMessage();
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+			ipAddress = backupServerIp;
+			port = backupServerPort;
+			Logger.log("SEND SOLUTION REQUEST --> IP: " + backupServerIp + " PORT: " + backupServerPort
+					+ "\n");
+			sendSolutionRequestMessage();
 		} catch (InterruptedException e)
 		{
 			e.printStackTrace();
+
 		}
 	}
 
@@ -110,25 +129,53 @@ public class ComputationalClient extends GenericComponent
 		try
 		{
 			List<IMessage> messages = receiveMessage();
-			IMessage message = messages.get(0);
-			if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
-			{
-				this.problemId = ((SolveRequestResponse) message).getId();
-				Logger.log("problem id: " + this.problemId + "\n");
-				sendSolutionRequestMessage();
-			}
-			if (message.getMessageType() == MessageType.SOLUTION)
-			{
-				String problemType = ((Solutiones) message).getSolutions()
-						.getSolution().get(0).getType();
-				Logger.log("Received problem type: " + problemType + "\n");
-				solutionData = ((Solutiones) message).getSolutions()
-						.getSolution().get(0).getData();
-				String stringData = new String(solutionData);
-				Logger.log("\n\nMessage content : \n***\n" + stringData
-						+ "\n***\n\n");
-				SaveSolution();
+			if (messages.size() == 0)
+				return;
 
+			for (int i = 0; i < messages.size(); i++)
+			{
+				IMessage message = messages.get(i);
+				if (message.getMessageType() == MessageType.NO_OPERATION)
+				{
+					BackupCommunicationServers backups = ((NoOperation) message)
+							.getBackupCommunicationServers();
+					if (backups != null
+							&& backups.getBackupCommunicationServer() != null)
+					{
+						backupServerIp = backups.getBackupCommunicationServer()
+								.getAddress();
+						backupServerPort = backups
+								.getBackupCommunicationServer().getPort();
+						Logger.log("NO_OPERATION -->  IP: " + backupServerIp + " PORT: "
+								+ backupServerPort + "\n");
+					}
+				}
+				if (message.getMessageType() == MessageType.SOLVE_REQUEST_RESPONSE)
+				{
+					this.problemId = ((SolveRequestResponse) message).getId();
+					Logger.log("problem id: " + this.problemId + "\n");
+				}
+				if (message.getMessageType() == MessageType.SOLUTION)
+				{
+					String problemType = ((Solutiones) message).getSolutions()
+							.getSolution().get(0).getType();
+					Logger.log("Received problem type: " + problemType + "\n");
+					if (problemType.contentEquals("Ongoing"))
+					{
+						if (isGui == false)
+							sendSolutionRequestMessage();
+					}
+					if (problemType.contentEquals("Final"))
+					{
+						solutionData = ((Solutiones) message).getSolutions()
+								.getSolution().get(0).getData();
+						String stringData = new String(solutionData);
+						Logger.log("\n\nMessage content : \n***\n" + stringData
+								+ "\n***\n\n");
+						this.computationIsDone = true;
+						SaveSolution();
+					}
+				}
 			}
 		} catch (IOException e)
 		{
@@ -145,7 +192,7 @@ public class ComputationalClient extends GenericComponent
 		{
 			saveFilePath = filePath.substring(0, pos);
 			ext = filePath.substring(pos + 1, filePath.length());
-			ext="."+ext;
+			ext = "." + ext;
 		}
 
 		saveFilePath = saveFilePath + "Solution" + ext;
@@ -177,6 +224,16 @@ public class ComputationalClient extends GenericComponent
 		return dataFile;
 	}
 
+	public BigInteger getTimeout()
+	{
+		return timeout;
+	}
+
+	public void setTimeout(BigInteger timeout)
+	{
+		this.timeout = timeout;
+	}
+
 	private static byte[] loadFile(File file) throws IOException
 	{
 		InputStream is = new FileInputStream(file);
@@ -204,5 +261,11 @@ public class ComputationalClient extends GenericComponent
 
 		is.close();
 		return bytes;
+	}
+
+	@Override
+	protected Status getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
