@@ -4,7 +4,6 @@ import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
@@ -75,7 +74,6 @@ public final class ComputationalServerWindow extends GenericWindowGui
 						"Currently no connected modules..."),
 				activeProblems = new JTextArea(
 						"Currently no active problems to solve...")));
-		// TODO: connectedModules and activeProblems should fit within window
 		connectedModules.setLineWrap(true);
 		activeProblems.setLineWrap(true);
 
@@ -114,8 +112,11 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		workModeButton.setEnabled(true);
 	}
 
-	// TODO: This method will change in the future for sure!
-	// This should be done using hashmap and foreach loop
+	/**
+	 * <p>
+	 * Displays information about connected components and sent problems.
+	 * </p>
+	 */
 	public void refreshConnectedComponents()
 	{
 		StringBuilder informationBuilder = new StringBuilder();
@@ -142,11 +143,12 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	 * 
 	 * @param isBackup
 	 */
-	public void changeServerWorkdMode(boolean isBackup)
+	public void changeServerWorkMode(boolean isBackup)
 	{
 		server.setisBackup(isBackup);
 		workModeButton.setText((isBackup ? ServerWorkMode.BACKUP.modeString
 				: ServerWorkMode.PRIMARY.modeString));
+		this.serverIpField.getParent().setVisible(isBackup);
 	}
 
 	@Override
@@ -210,5 +212,6 @@ public final class ComputationalServerWindow extends GenericWindowGui
 			server.setTimeout(timeout);
 		}
 
+		server.setIpAddress(serverIpField.getText());
 	}
 }

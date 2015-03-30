@@ -8,11 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 import DebugTools.Logger;
+import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
+import XMLMessages.RegisterResponse.BackupCommunicationServers;
+import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
 import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
 import XMLMessages.Solutiones.Solutions;
@@ -75,6 +78,7 @@ class CommunicationThread
 		Integer remotePort = socket.getPort();
 		String remoteAddress = socket.getInetAddress().toString();
 		IMessage response = null;
+		BackupCommunicationServers backupServers = getBackupServer();
 
 		// Get the id for component from server core
 		if (null != ((Register) message).getType())
@@ -84,7 +88,9 @@ class CommunicationThread
 		}
 
 		// If component is invalid
-		if (-1 == id.intValue())
+		if (-1 == id.intValue()
+				&& !message.getType().contentEquals(
+						ComponentType.ComputationalServer.name))
 		{
 			XMLMessages.Error errorMessage = new Error();
 			errorMessage.setErrorDetails("Component not registered");
@@ -96,8 +102,20 @@ class CommunicationThread
 			RegisterResponse registerResponse = new RegisterResponse();
 			registerResponse.setId(id);
 			registerResponse.setTimeout(core.timeout);
+			registerResponse.setBackupCommunicationServers(backupServers);
 			response = registerResponse;
-			core.componentMonitorThread.informaAboutConnectedComponent(id);
+
+			if (null == core.backupServer)
+				core.componentMonitorThread.informaAboutConnectedComponent(id);
+
+			// Add message for BS
+			if (!message.getType().contentEquals(
+					ComponentType.ComputationalServer.name))
+			{
+				message.setDeregister(false);
+				message.setId(id);
+				core.listOfMessagesForBackupServer.add(message);
+			}
 		}
 
 		GenericProtocol.sendMessages(socket, response);
@@ -120,7 +138,7 @@ class CommunicationThread
 
 		// Check if component is still valid in system
 		if (false == core.componentMonitorThread
-				.informaAboutConnectedComponent(id))
+				.informaAboutConnectedComponent(id) && !core.isInBackupMode)
 		{
 			Logger.log("Component not registered\n");
 			XMLMessages.Error errorMessage = new Error();
@@ -144,6 +162,22 @@ class CommunicationThread
 						.makeComputationalNodeWorkHard(socket,
 								core.computationalNodes.get(id)));
 			}
+			else if (null != core.backupServer
+					&& core.backupServer.id.equals(message.getId()))
+			{
+				messagesList.clear();
+				if (core.backupServer.indexOfLastUnSynchronizedMessage < core.listOfMessagesForBackupServer
+						.size())
+					messagesList
+							.addAll(core.listOfMessagesForBackupServer
+									.subList(
+											core.backupServer.indexOfLastUnSynchronizedMessage,
+											core.listOfMessagesForBackupServer
+													.size()));
+				core.backupServer.indexOfLastUnSynchronizedMessage = core.listOfMessagesForBackupServer
+						.size();
+
+			}
 
 			GenericProtocol.sendMessages(socket,
 					messagesList.toArray(new IMessage[messagesList.size()]));
@@ -163,6 +197,7 @@ class CommunicationThread
 	void reactToSolutionRequest(SolutionRequest message, Socket socket)
 			throws IOException
 	{
+		List<IMessage> messages = new ArrayList<>(2);
 		BigInteger id = message.getId();
 		ProblemInfo problem = core.problemsToSolve.get(id);
 		Solutiones result = new Solutiones();
@@ -180,8 +215,11 @@ class CommunicationThread
 			sol.setType("Ongoing");
 			result.getSolutions().getSolution().add(sol);
 		}
+		messages.add(messageGenerator.getNoOperationMessage());
+		messages.add(result);
 
-		GenericProtocol.sendMessages(socket, result);
+		GenericProtocol.sendMessages(socket,
+				messages.toArray(new IMessage[messages.size()]));
 	}
 
 	/**
@@ -197,14 +235,23 @@ class CommunicationThread
 	void reactToSolveRequest(SolveRequest message, Socket socket)
 			throws IOException
 	{
-		// TODO: Add timeout for problem
+		// Set problem data
+		List<IMessage> messages = new ArrayList<>(2);
 		BigInteger id = core.getCurrentFreeProblemId();
 		ProblemInfo problem = new ProblemInfo(id, message);
 		core.problemsToSolve.put(id, problem);
 
+		// Inform CC about problem id
 		SolveRequestResponse response = new SolveRequestResponse();
 		response.setId(id);
-		GenericProtocol.sendMessages(socket, response);
+		messages.add(messageGenerator.getNoOperationMessage());
+		messages.add(response);
+		GenericProtocol.sendMessages(socket,
+				messages.toArray(new IMessage[messages.size()]));
+
+		// Relay information for BS
+		message.setId(id);
+		core.listOfMessagesForBackupServer.add(message);
 	}
 
 	/**
@@ -246,8 +293,14 @@ class CommunicationThread
 		// Set problem information
 		problem.isProblemDivided = true;
 		problem.isProblemCurrentlyDelegated = false;
-		GenericProtocol.sendMessages(socket,
-				messageGenerator.getNoOperationMessage());
+
+		if (!core.isInBackupMode)
+		{
+			GenericProtocol.sendMessages(socket,
+					messageGenerator.getNoOperationMessage());
+			// Relay information for BS
+			core.listOfMessagesForBackupServer.add(message);
+		}
 	}
 
 	/**
@@ -287,17 +340,28 @@ class CommunicationThread
 
 		}
 
+		// Relay information with BS
+		core.listOfMessagesForBackupServer.add(message);
+
 		GenericProtocol.sendMessages(socket,
 				messageGenerator.getNoOperationMessage());
 	}
 
-	private void receivePartialSolution(ProblemInfo problem, Solutiones message)
+	/**
+	 * <p>
+	 * Receives partial solution from ComputationalNode.
+	 * </p>
+	 * 
+	 * @param problem
+	 * @param message
+	 */
+	void receivePartialSolution(ProblemInfo problem, Solutiones message)
 	{
 		BigInteger problemId = message.getId();
 
 		problem.partialSolutions.addAll(message.getSolutions().getSolution());
 		problem.parts -= message.getSolutions().getSolution().size();
-		
+
 		if (problem.parts == 0)
 		{
 			problem.isProblemReadyToSolve = true;
@@ -326,5 +390,23 @@ class CommunicationThread
 				}
 			}
 		}
+	}
+
+	private BackupCommunicationServers getBackupServer()
+	{
+		BackupCommunicationServers backupServers = new BackupCommunicationServers();
+		if (null != core.backupServer)
+		{
+			backupServers
+					.setBackupCommunicationServer(new BackupCommunicationServer());
+			backupServers.getBackupCommunicationServer().setAddress(
+					core.backupServer.address);
+			backupServers.getBackupCommunicationServer().setPort(
+					core.backupServer.port);
+		}
+		else
+			backupServers = null;
+
+		return backupServers;
 	}
 }

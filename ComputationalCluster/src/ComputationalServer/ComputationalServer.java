@@ -84,7 +84,7 @@ public final class ComputationalServer extends GenericComponent
 				core = new ComputationalServerCore(mainWindow);
 				try
 				{
-					if (isGui)
+					if (isBackup)
 					{
 						connectToServer();
 						core.startAsBackupServer(ipAddress, port, timeout, id,
@@ -95,7 +95,7 @@ public final class ComputationalServer extends GenericComponent
 						core.startListening(port, timeout);
 					}
 				}
-				catch (IOException e)
+				catch (IOException | UnsupportedOperationException e)
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -161,7 +161,7 @@ public final class ComputationalServer extends GenericComponent
 	}
 
 	@Override
-	public void connectToServer()
+	public void connectToServer() throws UnsupportedOperationException
 	{
 		boolean isRegistered = false;
 
@@ -200,12 +200,15 @@ public final class ComputationalServer extends GenericComponent
 				else
 				{
 					showError("Unsupported response received!");
+					throw new UnsupportedOperationException(
+							"Can't connect to primary server");
 				}
 			}
-			catch (IOException e)
+			catch (IOException | IndexOutOfBoundsException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.log("Error connecting to server\n");
+				throw new UnsupportedOperationException(
+						"Can't connect to primary server");
 			}
 		}
 	}
