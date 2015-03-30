@@ -15,6 +15,9 @@ import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
+import XMLMessages.Status;
+import XMLMessages.Status.Threads;
+import XMLMessages.Status.Threads.Thread;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
@@ -199,5 +202,19 @@ public final class TaskManager extends GenericComponent
 		response.setId(sm.getId());
 		response.setSolutions(solutionsToSend);
 		return response;
+	}
+
+	@Override
+	protected Status getStatusMessage()
+	{
+		Status ret = new Status();
+		Threads threads = new Threads();
+		Thread thread = new Thread();
+		thread.setHowLong(BigInteger.valueOf(5000));
+		thread.setState("Idle");
+		threads.getThread().add(thread);
+		ret.setId(id);
+		ret.setThreads(threads);
+		return ret;
 	}
 }
