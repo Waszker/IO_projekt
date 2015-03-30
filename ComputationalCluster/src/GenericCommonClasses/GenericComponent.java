@@ -275,8 +275,7 @@ public abstract class GenericComponent
 					{
 						try
 						{
-							Status status = new Status();
-							status.setId(id);
+							Status status = getStatusMessage();
 
 							sendMessages(status);
 							isSendingSuccess = true;
@@ -289,12 +288,16 @@ public abstract class GenericComponent
 							isSendingSuccess = false;
 							ipAddress = backupServerIp;
 							port = backupServerPort;
+							backupServerIp = null;
 						}
 					} while (!isSendingSuccess);
 				}
 			}
 		}).run();
 	}
+	
+	//returns status message for every component
+	protected abstract Status getStatusMessage();
 
 	private Socket getConnectionSocket()
 	{
