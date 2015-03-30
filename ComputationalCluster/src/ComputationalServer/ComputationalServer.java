@@ -9,6 +9,7 @@ import GenericCommonClasses.IMessage;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
 import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
+import XMLMessages.Status;
 
 /**
  * <p>
@@ -226,5 +227,12 @@ public final class ComputationalServer extends GenericComponent
 	protected void reactToMessage(IMessage message)
 	{
 		// TODO: Implement that!
+	}
+
+	@Override
+	protected Status getStatusMessage()
+	{
+		// TODO Implement that!
+		return null;
 	}
 }
