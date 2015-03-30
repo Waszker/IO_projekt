@@ -1,6 +1,8 @@
 package ComputationalServer;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import ComputationalServer.ServerCore.ComputationalServerCore;
 import DebugTools.Logger;
@@ -49,6 +51,8 @@ public final class ComputationalServer extends GenericComponent
 	 * @param port
 	 *            on which server should listen to connection (default is
 	 *            '47777')
+	 * @param backupPort
+	 *            port on which backup should listen for connections
 	 * @param timeout
 	 *            in seconds after which server will mark connected module as
 	 *            inactive and disconnected (default is '30 seconds')
@@ -59,11 +63,13 @@ public final class ComputationalServer extends GenericComponent
 	 *            indicating if server is started in windowed mode
 	 */
 	public ComputationalServer(boolean isBackup, Integer port, Integer timeout,
-			String primaryServerIp, boolean isGui)
+			Integer backupPort, String primaryServerIp, boolean isGui)
 	{
 		super(primaryServerIp, port, isGui, ComponentType.ComputationalServer);
 		this.isBackup = isBackup;
 		this.timeout = (null == timeout ? DEFAULT_TIMEOUT : timeout);
+		this.myLocalBackupPort = (null == backupPort ? DEFAULT_PORT
+				: backupPort);
 	}
 
 	/**
@@ -90,8 +96,7 @@ public final class ComputationalServer extends GenericComponent
 						connectToServer();
 						core.startAsBackupServer(ipAddress, port, timeout, id,
 								myLocalBackupPort);
-					}
-					else
+					} else
 					{
 						core.startListening(port, timeout);
 					}
@@ -99,11 +104,11 @@ public final class ComputationalServer extends GenericComponent
 				catch (IOException | UnsupportedOperationException e)
 				{
 					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				finally
+					// e.printStackTrace();
+				} finally
 				{
-					mainWindow.stoppedWork();
+					if (null != mainWindow)
+						mainWindow.stoppedWork();
 				}
 			}
 		}).start();
@@ -149,6 +154,16 @@ public final class ComputationalServer extends GenericComponent
 		this.timeout = timeout;
 	}
 
+	public int getMyLocalBackupPort()
+	{
+		return myLocalBackupPort;
+	}
+
+	public void setMyLocalBackupPort(int myLocalBackupPort)
+	{
+		this.myLocalBackupPort = myLocalBackupPort;
+	}
+
 	/**
 	 * <p>
 	 * Returns server core.
@@ -170,7 +185,9 @@ public final class ComputationalServer extends GenericComponent
 		{
 			try
 			{
-				myLocalBackupPort = sendMessages(getComponentRegisterMessage());
+				socketAddress = new InetSocketAddress(
+						InetAddress.getLocalHost(), myLocalBackupPort);
+				sendMessages(getComponentRegisterMessage());
 				IMessage response = receiveMessage().get(0);
 
 				if (response instanceof RegisterResponse)
@@ -186,8 +203,7 @@ public final class ComputationalServer extends GenericComponent
 								.getTimeout();
 						id = ((RegisterResponse) response).getId();
 						isRegistered = true;
-					}
-					else
+					} else
 					{
 						// We are no alone - some other backup server already
 						// exists
@@ -197,8 +213,7 @@ public final class ComputationalServer extends GenericComponent
 						ipAddress = bServer.getAddress();
 						port = bServer.getPort();
 					}
-				}
-				else
+				} else
 				{
 					showError("Unsupported response received!");
 					throw new UnsupportedOperationException(
