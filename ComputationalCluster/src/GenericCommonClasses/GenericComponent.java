@@ -256,8 +256,6 @@ public abstract class GenericComponent
 			@Override
 			public void run()
 			{
-				boolean isSendingSuccess = false;
-
 				while (true)
 				{
 					
@@ -270,41 +268,52 @@ public abstract class GenericComponent
 					{
 					}
 
-					do
+					new Thread(new Runnable()
 					{
-						try
-						{
-							Status status = getStatusMessage();
 
-							sendMessages(status);
-							isSendingSuccess = true;
-							for (IMessage message : receiveMessage())
-								reactToMessage(message);
-						}
-						catch (IOException e)
+						@Override
+						public void run()
 						{
-							DebugTools.Logger.log("Switching to backup...\n");
-							isSendingSuccess = false;
-							ipAddress = backupServerIp;
-							port = backupServerPort;
-							backupServerIp = null;
+							boolean isSendingSuccess = false;
+
+							do
+							{
+								try
+								{
+									Status status = getStatusMessage();
+
+									sendMessages(status);
+									isSendingSuccess = true;
+									for (IMessage message : receiveMessage())
+										reactToMessage(message);
+								}
+								catch (IOException e)
+								{
+									DebugTools.Logger
+											.log("Switching to backup...\n");
+									isSendingSuccess = false;
+									ipAddress = backupServerIp;
+									port = backupServerPort;
+									backupServerIp = null;
+								}
+							} while (!isSendingSuccess);
 						}
-					} while (!isSendingSuccess);
+					}).start();
 				}
 			}
 		}).run();
 	}
-	
-	//returns status message for every component
+
+	// returns status message for every component
 	protected abstract Status getStatusMessage();
 
 	private Socket getConnectionSocket()
 	{
 		Socket socket = new Socket();
-		 
+
 		try
 		{
-			if(null != socketAddress)
+			if (null != socketAddress)
 				socket.bind(socketAddress);
 			socket.connect(new InetSocketAddress(ipAddress, port),
 					DEFAULT_CONNECTION_TIMEOUT);
