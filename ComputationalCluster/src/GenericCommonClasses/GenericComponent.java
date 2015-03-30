@@ -258,9 +258,10 @@ public abstract class GenericComponent
 			{
 				while (true)
 				{
+					
 					try
 					{
-						Thread.sleep(timeout * 1000); // TODO: Check if seconds
+						Thread.sleep(timeout * 700); // TODO: Check if seconds
 														// or not
 					}
 					catch (InterruptedException e)
