@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
 import pl.edu.pw.mini.se2.TaskSolver;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
@@ -18,6 +20,9 @@ import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
+import XMLMessages.Status;
+import XMLMessages.Status.Threads;
+import XMLMessages.Status.Threads.Thread;
 
 public class ComputationalNode extends GenericComponent
 {
@@ -77,7 +82,6 @@ public class ComputationalNode extends GenericComponent
 
 	private void handlePartialProblemMessage(SolvePartialProblems sppm)
 	{
-		// TODO
 		commonData = sppm.getCommonData();
 		problemId = sppm.getId();
 		problemType = sppm.getProblemType();
@@ -93,7 +97,7 @@ public class ComputationalNode extends GenericComponent
 		{
 			taskId = lpp.get(i).getTaskId();
 			solutions = currentProblemTaskSolver.Solve(lpp.get(i).getData(),
-					sppm.getSolvingTimeout().longValue());
+					100000);
 			sendSolutionsMessage();
 		}
 	}
@@ -114,8 +118,7 @@ public class ComputationalNode extends GenericComponent
 		s.setData(solutions);
 
 		Solutions ss = new Solutions();
-		List<Solution> ls = ss.getSolution();
-		ls.add(s);
+		ss.getSolution().add(s);
 
 		response.setSolutions(ss);
 
@@ -132,5 +135,19 @@ public class ComputationalNode extends GenericComponent
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	protected Status getStatusMessage() {
+		Status ret = new Status();
+		Threads threads = new Threads();
+		Thread thread = new Thread();
+		thread.setHowLong(BigInteger.valueOf(1000));
+		thread.setState("Idle");
+		threads.getThread().add(thread);
+		
+		ret.setId(id);
+		ret.setThreads(threads);
+		return ret;
 	}
 }
