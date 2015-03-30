@@ -50,7 +50,7 @@ public class TaskManagerMainActivity
 				taskManager.connectToServer();
 			}
 		}
-		catch (NumberFormatException|UnknownHostException e)
+		catch (NumberFormatException|UnknownHostException|IndexOutOfBoundsException e)
 		{
 			usage();
 		}
