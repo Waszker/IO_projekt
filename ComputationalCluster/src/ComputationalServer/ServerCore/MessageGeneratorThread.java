@@ -9,7 +9,6 @@ import java.util.Map;
 
 import DebugTools.Logger;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.GenericComponent.ComponentType;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
@@ -190,8 +189,7 @@ public class MessageGeneratorThread
 		// TODO: Refactore this method
 		List<IMessage> messageList = new ArrayList<>();
 
-		int freeThreads = taskManager.info.getParallelThreads()
-				- taskManager.assignedProblems.size();
+		int freeThreads = taskManager.getFreeThreads();
 		List<BigInteger> removedId = new ArrayList<>();
 		Logger.log("Looks like TaskManager id: " + taskManager.id + " has "
 				+ freeThreads + " free threads\n");
@@ -267,16 +265,9 @@ public class MessageGeneratorThread
 		// TODO: Refactore this method
 		// Get number of partialProblems currently working
 		List<IMessage> messageList = new ArrayList<>();
-		int partialProblemsCount = 0;
-		for (Map.Entry<BigInteger, List<PartialProblem>> entry : computationalNode.assignedPartialProblems
-				.entrySet())
-		{
-			partialProblemsCount += entry.getValue().size();
-		}
 
 		// Get free threads
-		int freeThreads = computationalNode.info.getParallelThreads()
-				- partialProblemsCount;
+		int freeThreads = computationalNode.getFreeThreads();
 		Logger.log("Looks like ComputationalNode " + computationalNode.id
 				+ " has " + freeThreads + " free threads\n");
 
@@ -318,6 +309,14 @@ public class MessageGeneratorThread
 
 	}
 
+	/**
+	 * <p>
+	 * Puts information about assigned problem in task manager info object.
+	 * </p>
+	 * 
+	 * @param taskManager
+	 * @param problem
+	 */
 	static void assignProblemForTaskManager(TaskManagerInfo taskManager,
 			ProblemInfo problem)
 	{
@@ -325,6 +324,15 @@ public class MessageGeneratorThread
 		problem.isProblemCurrentlyDelegated = true;
 	}
 
+	/**
+	 * <p>
+	 * Delegates partial problems to computational node information object.
+	 * </p>
+	 * 
+	 * @param computationalNode
+	 * @param problem
+	 * @param pproblem
+	 */
 	static void assignPartialProblemForComputationaNode(
 			ComputationalNodeInfo computationalNode, ProblemInfo problem,
 			PartialProblem pproblem)

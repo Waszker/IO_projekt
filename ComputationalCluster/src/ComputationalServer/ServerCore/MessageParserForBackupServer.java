@@ -21,7 +21,9 @@ import XMLMessages.SolveRequest;
 
 /**
  * <p>
- * Class responsible for parsing messages while being in backup state.
+ * Class responsible for parsing messages while being in backup state. This
+ * class runs its parseMessage() routine in a new thread in order to avoid
+ * blocking Status message sending.
  * </p>
  * 
  * @author Piotr Waszkiewicz
