@@ -75,37 +75,44 @@ class MessageParserForBackupServer
 
 						switch (message.getMessageType())
 						{
-							case REGISTER:
-								reactToRegisterMessage((Register) message);
-								break;
+						case REGISTER:
+							reactToRegisterMessage((Register) message);
+							break;
 
-							case SOLVE_REQUEST:
-								reactToSolveRequest((SolveRequest) message);
-								break;
+						case SOLVE_REQUEST:
+							reactToSolveRequest((SolveRequest) message);
+							break;
 
-							case DIVIDE_PROBLEM:
-								reactToDivideProblem((DivideProblem) message);
-								break;
+						case DIVIDE_PROBLEM:
+							reactToDivideProblem((DivideProblem) message);
+							break;
 
-							case PARTIAL_PROBLEM:
-								reactToPartialProblems((SolvePartialProblems) message);
-								break;
+						case PARTIAL_PROBLEM:
+							reactToPartialProblems((SolvePartialProblems) message);
+							break;
 
-							case SOLUTION:
-								reactToSolution((Solutiones) message);
-								break;
+						case SOLUTION:
+							reactToSolution((Solutiones) message);
+							break;
 
-							default:
-								Logger.log("Received message I should not have...\n");
-								break;
+						default:
+							Logger.log("Received message I should not have...\n");
+							break;
 						}
 
 						core.informAboutComponentChanges();
 					}
 					catch (JAXBException | IOException | InterruptedException e)
 					{
-						// TODO Auto-generated catch block
+						// There were some problems so just print stack trace
 						e.printStackTrace();
+					}
+					catch (NullPointerException e)
+					{
+						Logger.log("Got Null pointer exception caused by this message!\n"
+								+ "I can't run further because this could cause some serious "
+								+ "damage to data integrity!\n");
+						System.exit(1);
 					}
 				}
 			}
@@ -117,8 +124,7 @@ class MessageParserForBackupServer
 		if (message.isDeregister())
 		{
 			core.componentMonitorThread.dropComponent(message.getId());
-		}
-		else
+		} else
 		{
 			core.freeComponentId = message.getId().add(new BigInteger("1"));
 			if (message.getType().contentEquals(ComponentType.TaskManager.name))
@@ -151,8 +157,7 @@ class MessageParserForBackupServer
 		if (!core.problemsToSolve.get(message.getId()).isProblemDivided)
 		{
 			communicationThread.reactToPartialProblems(message, null);
-		}
-		else
+		} else
 		{
 			// partial problem was sent to ComputationalNode
 			for (PartialProblem pproblem : message.getPartialProblems()
@@ -195,8 +200,7 @@ class MessageParserForBackupServer
 					entry.getValue().assignedProblems.remove(message.getId());
 				}
 			}
-		}
-		else if (problem.isProblemDivided
+		} else if (problem.isProblemDivided
 				&& !problem.isProblemCurrentlyDelegated
 				&& problem.isProblemReadyToSolve)
 		{
@@ -205,8 +209,7 @@ class MessageParserForBackupServer
 					.getSolutions().getSolution().get(0).getTaskId());
 			MessageGeneratorThread.assignProblemForTaskManager(taskManager,
 					problem);
-		}
-		else
+		} else
 		{
 			// Received partial solution from ComputationalNode
 			communicationThread.receivePartialSolution(problem, message);

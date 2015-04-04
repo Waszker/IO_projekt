@@ -186,7 +186,7 @@ public class MessageGeneratorThread
 	synchronized List<IMessage> getTaskManagerQuests(Socket socket,
 			TaskManagerInfo taskManager) throws IOException
 	{
-		// TODO: Refactore this method
+		// TODO: Test this method!!!!!
 		List<IMessage> messageList = new ArrayList<>();
 
 		int freeThreads = taskManager.getFreeThreads();
@@ -199,47 +199,16 @@ public class MessageGeneratorThread
 		{
 			ProblemInfo problem = entry.getValue();
 
-			if (problem.isProblemCurrentlyDelegated)
+			if (problem.isProblemCurrentlyDelegated
+					|| (problem.isProblemDivided && !problem.isProblemReadyToSolve)
+					|| (core.computationalNodes.size() <= 0 && !problem.isProblemReadyToSolve)
+					|| !taskManager.supportedProblems.contains(problem.problemType))
 				continue;
 
-			if (freeThreads == 0
-					|| !taskManager.supportedProblems
-							.contains(problem.problemType))
-			{
+			if (freeThreads == 0)
 				break;
-			}
 
-			// For problems ready to solve
-			if (problem.isProblemDivided && problem.isProblemReadyToSolve)
-			{
-				Logger.log("Sent problem " + problem.id
-						+ " for final solution\n");
-				Solutiones messageSolutiones = getSolutionRequest(core.problemsToSolve
-						.get(problem.id));
-				messageList.add(messageSolutiones);
-
-				// Relay info with BS
-				// Solution has TaskId == TaskManager id!!!
-				// TODO: Maybe change that?
-				messageSolutiones.getSolutions().getSolution().get(0)
-						.setTaskId(taskManager.id);
-				core.listOfMessagesForBackupServer.add(messageSolutiones);
-			}
-			else if (!problem.isProblemDivided
-					&& core.computationalNodes.size() > 0)
-			// problem needs division
-			{
-				Logger.log("Sent problem " + problem.id + " for division\n");
-				DivideProblem messageDivideProblem = getDivideProblemRequest(
-						core.problemsToSolve.get(problem.id), taskManager.id);
-				messageList.add(messageDivideProblem);
-
-				// Relay info with BS
-				core.listOfMessagesForBackupServer.add(messageDivideProblem);
-			}
-			else if (problem.isProblemDivided
-					|| core.computationalNodes.size() <= 0)
-				continue;
+			sendProblemToTaskManager(problem, messageList, taskManager);
 			assignProblemForTaskManager(taskManager, problem);
 
 			freeThreads--;
@@ -351,6 +320,37 @@ public class MessageGeneratorThread
 			delegatedProblems.add(pproblem);
 			computationalNode.assignedPartialProblems.put(problem.id,
 					delegatedProblems);
+		}
+	}
+
+	private void sendProblemToTaskManager(ProblemInfo problem,
+			List<IMessage> messageList, TaskManagerInfo taskManager) throws IOException
+	{
+		// For problems ready to solve
+		if (problem.isProblemDivided && problem.isProblemReadyToSolve)
+		{
+			Logger.log("Sent problem " + problem.id + " for final solution\n");
+			Solutiones messageSolutiones = getSolutionRequest(core.problemsToSolve
+					.get(problem.id));
+			messageList.add(messageSolutiones);
+
+			// Relay info with BS
+			// Solution has TaskId == TaskManager id!!!
+			// TODO: Maybe change that?
+			messageSolutiones.getSolutions().getSolution().get(0)
+					.setTaskId(taskManager.id);
+			core.listOfMessagesForBackupServer.add(messageSolutiones);
+		} else if (!problem.isProblemDivided
+				&& core.computationalNodes.size() > 0)
+		// problem needs division
+		{
+			Logger.log("Sent problem " + problem.id + " for division\n");
+			DivideProblem messageDivideProblem = getDivideProblemRequest(
+					core.problemsToSolve.get(problem.id), taskManager.id);
+			messageList.add(messageDivideProblem);
+
+			// Relay info with BS
+			core.listOfMessagesForBackupServer.add(messageDivideProblem);
 		}
 	}
 }
