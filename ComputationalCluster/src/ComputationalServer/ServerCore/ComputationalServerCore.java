@@ -297,6 +297,7 @@ public class ComputationalServerCore
 			{
 				MessageParserForBackupServer messageParser = new MessageParserForBackupServer(
 						ComputationalServerCore.this);
+				messageParser.parseMessages();
 				while (isInBackupMode)
 				{
 					Status statusMessage = new Status();
@@ -310,8 +311,9 @@ public class ComputationalServerCore
 								statusMessage);
 						List<IMessage> messages = GenericProtocol
 								.receiveMessage(connectionSocket);
+						messageParser.backupMessageQueue.addAll(messages);
 						listOfMessagesForBackupServer.addAll(messages);
-						messageParser.parseMessages(messages);
+						messageParser.messageSemaphore.release(messages.size());
 					}
 					catch (InterruptedException e)
 					{
