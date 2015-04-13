@@ -104,7 +104,8 @@ public final class ComputationalServer extends GenericComponent
 				{
 					// TODO Auto-generated catch block
 					// e.printStackTrace();
-				} finally
+				}
+				finally
 				{
 					if (null != mainWindow)
 						mainWindow.stoppedWork();
@@ -180,12 +181,12 @@ public final class ComputationalServer extends GenericComponent
 	{
 		boolean isRegistered = false;
 
+		socketAddress = new InetSocketAddress("0.0.0.0", myLocalBackupPort);
+		
 		while (!isRegistered)
 		{
 			try
 			{
-				socketAddress = new InetSocketAddress(
-						"0.0.0.0", myLocalBackupPort);
 				sendMessages(getComponentRegisterMessage());
 				IMessage response = receiveMessage().get(0);
 
