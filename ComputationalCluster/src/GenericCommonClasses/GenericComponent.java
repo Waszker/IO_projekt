@@ -314,7 +314,10 @@ public abstract class GenericComponent
 		try
 		{
 			if (null != socketAddress)
+			{
+				socket.setReuseAddress(true);
 				socket.bind(socketAddress);
+			}
 			socket.connect(new InetSocketAddress(ipAddress, port),
 					DEFAULT_CONNECTION_TIMEOUT);
 		}
