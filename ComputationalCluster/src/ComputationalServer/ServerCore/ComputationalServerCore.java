@@ -312,6 +312,7 @@ public class ComputationalServerCore
 						List<IMessage> messages = GenericProtocol
 								.receiveMessage(connectionSocket);
 						messageParser.backupMessageQueue.addAll(messages);
+						listOfMessagesForBackupServer.addAll(messages);
 						messageParser.messageSemaphore.release(messages.size());
 					}
 					catch (InterruptedException e)
