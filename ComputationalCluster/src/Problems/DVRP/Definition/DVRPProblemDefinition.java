@@ -15,10 +15,18 @@ public class DVRPProblemDefinition
 	/******************/
 	/* VARIABLES */
 	/******************/
+	private Vehicle[] vehicles;
+	private Depot[] depots;
+	private Client[] clients;
 
 	/******************/
 	/* FUNCTIONS */
 	/******************/
+	public DVRPProblemDefinition()
+	{
+		// TODO: Fill this information here
+	}
+	
 	/**
 	 * <p>
 	 * Serializes class to byte array for easy over-the-net sending.
