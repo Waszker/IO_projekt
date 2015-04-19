@@ -2,8 +2,10 @@ package ComputationalServer.ServerCore;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import javax.xml.bind.JAXBException;
 
@@ -19,7 +21,9 @@ import XMLMessages.SolveRequest;
 
 /**
  * <p>
- * Class responsible for parsing messages while being in backup state.
+ * Class responsible for parsing messages while being in backup state. This
+ * class runs its parseMessage() routine in a new thread in order to avoid
+ * blocking Status message sending.
  * </p>
  * 
  * @author Piotr Waszkiewicz
@@ -31,6 +35,8 @@ class MessageParserForBackupServer
 	/******************/
 	/* VARIABLES */
 	/******************/
+	Semaphore messageSemaphore;
+	BlockingQueue<IMessage> backupMessageQueue;
 	ComputationalServerCore core;
 	private CommunicationThread communicationThread;
 
@@ -41,51 +47,76 @@ class MessageParserForBackupServer
 	{
 		this.core = core;
 		communicationThread = new CommunicationThread(core);
+		messageSemaphore = new Semaphore(0, true);
+		backupMessageQueue = new ArrayBlockingQueue<>(
+				ComputationalServerCore.MAX_MESSAGES, true);
 	}
 
-	void parseMessages(List<IMessage> messages)
+	/**
+	 * <p>
+	 * Starts parsing backup messages in new thread.
+	 * </p>
+	 */
+	void parseMessages()
 	{
-		for (IMessage message : messages)
+		new Thread(new Runnable()
 		{
-			try
+			@Override
+			public void run()
 			{
-				Logger.log("Received message: \n" + message.getString() + "\n");
-
-				switch (message.getMessageType())
+				while (true)
 				{
-					case REGISTER:
-						reactToRegisterMessage((Register) message);
-						break;
+					try
+					{
+						messageSemaphore.acquire();
+						IMessage message = backupMessageQueue.remove();
+						Logger.log("Received message: \n" + message.getString()
+								+ "\n");
 
-					case SOLVE_REQUEST:
-						reactToSolveRequest((SolveRequest) message);
-						break;
+						switch (message.getMessageType())
+						{
+						case REGISTER:
+							reactToRegisterMessage((Register) message);
+							break;
 
-					case DIVIDE_PROBLEM:
-						reactToDivideProblem((DivideProblem) message);
-						break;
+						case SOLVE_REQUEST:
+							reactToSolveRequest((SolveRequest) message);
+							break;
 
-					case PARTIAL_PROBLEM:
-						reactToPartialProblems((SolvePartialProblems) message);
-						break;
+						case DIVIDE_PROBLEM:
+							reactToDivideProblem((DivideProblem) message);
+							break;
 
-					case SOLUTION:
-						reactToSolution((Solutiones) message);
-						break;
+						case PARTIAL_PROBLEM:
+							reactToPartialProblems((SolvePartialProblems) message);
+							break;
 
-					default:
-						Logger.log("Received message I should not have...\n");
-						break;
+						case SOLUTION:
+							reactToSolution((Solutiones) message);
+							break;
+
+						default:
+							Logger.log("Received message I should not have...\n");
+							break;
+						}
+
+						core.informAboutComponentChanges();
+					}
+					catch (JAXBException | IOException | InterruptedException e)
+					{
+						// There were some problems so just print stack trace
+						e.printStackTrace();
+					}
+					catch (NullPointerException e)
+					{
+						Logger.log("Got Null pointer exception caused by this message!\n"
+								+ "I can't run further because this could cause some serious "
+								+ "damage to data integrity!\n");
+						System.exit(1);
+					}
 				}
 			}
-			catch (JAXBException | IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		core.informAboutComponentChanges();
+		}).start();
 	}
 
 	private void reactToRegisterMessage(Register message)
@@ -93,8 +124,7 @@ class MessageParserForBackupServer
 		if (message.isDeregister())
 		{
 			core.componentMonitorThread.dropComponent(message.getId());
-		}
-		else
+		} else
 		{
 			core.freeComponentId = message.getId().add(new BigInteger("1"));
 			if (message.getType().contentEquals(ComponentType.TaskManager.name))
@@ -127,8 +157,7 @@ class MessageParserForBackupServer
 		if (!core.problemsToSolve.get(message.getId()).isProblemDivided)
 		{
 			communicationThread.reactToPartialProblems(message, null);
-		}
-		else
+		} else
 		{
 			// partial problem was sent to ComputationalNode
 			for (PartialProblem pproblem : message.getPartialProblems()
@@ -137,8 +166,8 @@ class MessageParserForBackupServer
 				ProblemInfo problem = core.problemsToSolve.get(message.getId());
 				for (int i = 0; i < problem.partialProblems.size(); i++)
 				{
-					if (problem.partialProblems.get(i).getTaskId().equals(pproblem
-							.getTaskId()))
+					if (problem.partialProblems.get(i).getTaskId()
+							.equals(pproblem.getTaskId()))
 					{
 						problem.partialProblems.remove(i);
 						break;
@@ -171,8 +200,7 @@ class MessageParserForBackupServer
 					entry.getValue().assignedProblems.remove(message.getId());
 				}
 			}
-		}
-		else if (problem.isProblemDivided
+		} else if (problem.isProblemDivided
 				&& !problem.isProblemCurrentlyDelegated
 				&& problem.isProblemReadyToSolve)
 		{
@@ -181,8 +209,7 @@ class MessageParserForBackupServer
 					.getSolutions().getSolution().get(0).getTaskId());
 			MessageGeneratorThread.assignProblemForTaskManager(taskManager,
 					problem);
-		}
-		else
+		} else
 		{
 			// Received partial solution from ComputationalNode
 			communicationThread.receivePartialSolution(problem, message);

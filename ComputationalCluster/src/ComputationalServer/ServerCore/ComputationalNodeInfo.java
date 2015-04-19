@@ -3,6 +3,7 @@ package ComputationalServer.ServerCore;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import DebugTools.Logger;
@@ -60,11 +61,31 @@ class ComputationalNodeInfo
 		}
 	}
 
+	/**
+	 * <p>
+	 * Returns number of unoccupied threads.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	int getFreeThreads()
+	{
+		int partialProblemsCount = 0;
+		for (Map.Entry<BigInteger, List<PartialProblem>> entry : this.assignedPartialProblems
+				.entrySet())
+		{
+			partialProblemsCount += entry.getValue().size();
+		}
+
+		return this.info.getParallelThreads() - partialProblemsCount;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "ComputationalNodeInfo [id=" + id + ", info=" + info
 				+ ", supportedProblems=" + supportedProblems
-				+ ", assignedPartialProblems=" + assignedPartialProblems.size() + "]";
+				+ ", assignedPartialProblems=" + assignedPartialProblems.size()
+				+ "]";
 	}
 }

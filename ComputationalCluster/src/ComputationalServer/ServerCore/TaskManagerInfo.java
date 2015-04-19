@@ -55,6 +55,18 @@ class TaskManagerInfo
 		}
 	}
 
+	/**
+	 * <p>
+	 * Returns number of unoccupied threads.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	int getFreeThreads()
+	{
+		return this.info.getParallelThreads() - this.assignedProblems.size();
+	}
+
 	@Override
 	public String toString()
 	{

@@ -97,6 +97,7 @@ class MessageParserThread extends Thread
 	private void reactToMessage(IMessage message, Socket socket)
 			throws JAXBException, IOException
 	{
+		try {
 		switch (message.getMessageType())
 		{
 			case REGISTER:
@@ -132,11 +133,22 @@ class MessageParserThread extends Thread
 			default:
 				Logger.log("Unsupported message " + message.getString()
 						+ "\n\n");
-				XMLMessages.Error errorMessage = new Error();
-				errorMessage.setErrorType(ErrorMessage.InvalidOperation);
-				GenericProtocol.sendMessages(socket, errorMessage);
+				sendErrorMessage(socket);
 				break;
 		}
 		core.informAboutComponentChanges();
+		}
+		catch (NullPointerException e)
+		{
+			Logger.log(e.getMessage() + "\n");
+			sendErrorMessage(socket);
+		}
+	}
+	
+	private void sendErrorMessage(Socket socket) throws IOException
+	{
+		XMLMessages.Error errorMessage = new Error();
+		errorMessage.setErrorType(ErrorMessage.InvalidOperation);
+		GenericProtocol.sendMessages(socket, errorMessage);
 	}
 }
