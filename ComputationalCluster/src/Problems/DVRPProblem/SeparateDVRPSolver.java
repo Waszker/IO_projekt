@@ -39,6 +39,13 @@ class SeparateDVRPSolver
 		return false;
 	}
 	
+	// checks if we can wait for the client
+	private static boolean canWait(Client to, double currentCargo)
+	{
+		if ( currentCargo < to.size )return false;
+		return true;
+	}
+	
 	// checks if all booleans in array are 'true'
 	private static boolean allVisited(boolean[] cv)
 	{
@@ -76,17 +83,21 @@ class SeparateDVRPSolver
 			return;
 		}
 		
-		for ( int i=0; i<g.c.length; i++ )
+		for ( int i=0; i<g.c.length; i++ ) //TODO: Make one depot available.
 		{
 			if ( thisIndex == i+g.d.length )continue;
 			if ( clientVisited[i] )continue;
 			
 			double travelTime = g.e[thisIndex][g.d.length+i];
-			if ( !moveLegal(g.c[i], currentCargo, curTime+travelTime) )continue;
+			if ( !canWait(g.c[i], currentCargo) )continue;
+			
+			double nextTime = curTime+travelTime+g.c[i].unld;
+			if ( !moveLegal(g.c[i], currentCargo, curTime+travelTime) )
+				nextTime = g.c[i].time + g.c[i].unld; //we're waiting
 			
 			currentPath.add(g.c[i]);
 			clientVisited[i] = true;
-			recursive(g, g.d.length+i, currentPath, clientVisited, cap, currentCargo-g.c[i].size, curTime+travelTime+g.c[i].unld, curCost+travelTime);
+			recursive(g, g.d.length+i, currentPath, clientVisited, cap, currentCargo-g.c[i].size, nextTime, curCost+travelTime);
 			currentPath.remove(currentPath.size()-1);
 			clientVisited[i] = false;
 		}
