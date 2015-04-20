@@ -17,7 +17,7 @@ public class DVRPSolver
 		Graph[] div = null;
 		Graph g = new Graph(depots, clients, vehicleSpeed);
 		
-		//TODO: Waiting in depot for first client. 
+		//TODO: Waiting action
 		
 		double best = Double.POSITIVE_INFINITY;
 		while ( (div = g.divideGraph(numVehicles, currentPartition++)) != null ) //dla każdego podziału
