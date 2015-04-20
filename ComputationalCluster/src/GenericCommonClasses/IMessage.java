@@ -1,5 +1,7 @@
 package GenericCommonClasses;
 
+import java.util.List;
+
 import javax.xml.bind.JAXBException;
 
 import GenericCommonClasses.Parser.MessageType;
@@ -13,6 +15,7 @@ import GenericCommonClasses.Parser.MessageType;
  * 
  * @author Monika Żurkowska
  * @version 1.0
+ * @version 1.1 > added prepareResponse() method > coder: Piotr Waszkiewcz
  * 
  */
 public interface IMessage
@@ -22,7 +25,7 @@ public interface IMessage
 	/******************/
 	public static final char ETX = 3;
 	public static final char ETB = 23;
-	
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
@@ -43,4 +46,17 @@ public interface IMessage
 	 * @return type of message
 	 */
 	public MessageType getMessageType();
+
+	/**
+	 * <p>
+	 * Generates response messages and informs server about changes.
+	 * </p>
+	 * 
+	 * @param quickResponses
+	 *            - messages that can be sent immediately
+	 * @param delayedResponses
+	 *            - messages that need specific situation to be sent
+	 */
+	public void prepareResponse(IServerProtocol serverProtocol,
+			List<IMessage> quickResponses, List<IMessage> delayedResponses);
 }

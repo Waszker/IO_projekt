@@ -2,6 +2,8 @@ package ComputationalServer.ServerCore;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -9,13 +11,13 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
+import XMLMessages.Error.ErrorMessage;
 import XMLMessages.Register;
 import XMLMessages.SolutionRequest;
 import XMLMessages.Solutiones;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolveRequest;
 import XMLMessages.Status;
-import XMLMessages.Error.ErrorMessage;
 
 /**
  * <p>
@@ -97,9 +99,16 @@ class MessageParserThread extends Thread
 	private void reactToMessage(IMessage message, Socket socket)
 			throws JAXBException, IOException
 	{
-		try {
-		switch (message.getMessageType())
+		try
 		{
+			// TODO: Implement this objective way!
+			// List<IMessage> quickResponses = new ArrayList<>();
+			// List<IMessage> delayedResponses = new ArrayList<>();
+			// message.prepareResponse(communicationThread, quickResponses,
+			// delayedResponses);
+
+			switch (message.getMessageType())
+			{
 			case REGISTER:
 				communicationThread.reactToRegisterMessage((Register) message,
 						socket);
@@ -135,8 +144,8 @@ class MessageParserThread extends Thread
 						+ "\n\n");
 				sendErrorMessage(socket);
 				break;
-		}
-		core.informAboutComponentChanges();
+			}
+			core.informAboutComponentChanges();
 		}
 		catch (NullPointerException e)
 		{
@@ -144,7 +153,7 @@ class MessageParserThread extends Thread
 			sendErrorMessage(socket);
 		}
 	}
-	
+
 	private void sendErrorMessage(Socket socket) throws IOException
 	{
 		XMLMessages.Error errorMessage = new Error();

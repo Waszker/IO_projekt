@@ -9,6 +9,7 @@
 package XMLMessages;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -20,6 +21,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
@@ -301,6 +303,14 @@ public class RegisterResponse implements IMessage {
 	public MessageType getMessageType()
 	{
 		return MessageType.REGISTER_RESPONSE;
+	}
+
+	@Override
+	public void prepareResponse(IServerProtocol serverProtocol,
+			List<IMessage> quickResponses, List<IMessage> delayedResponses)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

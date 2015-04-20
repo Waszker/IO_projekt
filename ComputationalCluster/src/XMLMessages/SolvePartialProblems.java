@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
@@ -406,5 +407,13 @@ public class SolvePartialProblems implements IMessage {
 	public MessageType getMessageType()
 	{
 		return MessageType.PARTIAL_PROBLEM;
+	}
+
+	@Override
+	public void prepareResponse(IServerProtocol serverProtocol,
+			List<IMessage> quickResponses, List<IMessage> delayedResponses)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

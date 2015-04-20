@@ -11,6 +11,7 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import XMLMessages.Error;
 import XMLMessages.Error.ErrorMessage;
 import XMLMessages.Register;
@@ -36,7 +37,7 @@ import XMLMessages.Status;
  * @version 1.0
  * 
  */
-class CommunicationThread
+class CommunicationThread implements IServerProtocol
 {
 	/******************/
 	/* VARIABLES */
