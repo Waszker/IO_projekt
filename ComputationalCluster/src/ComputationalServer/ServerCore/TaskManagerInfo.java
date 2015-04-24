@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import DebugTools.Logger;
-import XMLMessages.Register;
 
 /**
  * <p>
@@ -23,7 +22,6 @@ class TaskManagerInfo
 	/* VARIABLES */
 	/******************/
 	BigInteger id;
-	Register info;
 	List<BigInteger> assignedProblems;
 	List<String> supportedProblems;
 
@@ -37,16 +35,14 @@ class TaskManagerInfo
 	 * 
 	 * @param id
 	 */
-	TaskManagerInfo(BigInteger id, Register message)
+	TaskManagerInfo(BigInteger id, List<String> solvableProblems)
 	{
 		this.id = id;
-		info = message;
-		assignedProblems = new ArrayList<>(info.getParallelThreads());
+		assignedProblems = new ArrayList<>();
 
 		try
 		{
-			supportedProblems = new ArrayList<>(message.getSolvableProblems()
-					.getProblemName());
+			supportedProblems = new ArrayList<>(solvableProblems);
 		}
 		catch (NullPointerException e)
 		{
@@ -55,24 +51,12 @@ class TaskManagerInfo
 		}
 	}
 
-	/**
-	 * <p>
-	 * Returns number of unoccupied threads.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	int getFreeThreads()
-	{
-		return this.info.getParallelThreads() - this.assignedProblems.size();
-	}
-
 	@Override
 	public String toString()
 	{
-		return "TaskManager [id=" + id + ", info=" + info
-				+ ", assignedProblems=" + assignedProblems.size()
-				+ ", supportedProblems=" + supportedProblems + "]";
+		return "TaskManager [id=" + id + ", assignedProblems="
+				+ assignedProblems.size() + ", supportedProblems="
+				+ supportedProblems + "]";
 	}
 
 }

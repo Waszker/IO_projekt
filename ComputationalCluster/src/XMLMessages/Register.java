@@ -19,9 +19,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import XMLMessages.Error.ErrorMessage;
+
+import ComputationalServer.ComputationalServer;
+import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
+import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.Parser.MessageType;
 
 /**
@@ -278,8 +284,46 @@ public class Register implements IMessage
 	public void prepareResponse(IServerProtocol serverProtocol,
 			List<IMessage> quickResponses, List<IMessage> delayedResponses)
 	{
-		// TODO Auto-generated method stub
-		
-	}
+		if(null != type)
+		{
+			GenericComponent.ComponentType componentType;
+			
+			if(type.contentEquals(GenericComponent.ComponentType.TaskManager.name))
+				componentType = ComponentType.TaskManager;
+			else if(type.contentEquals(GenericComponent.ComponentType.ComputationalNode.name))
+				componentType = ComponentType.ComputationalNode;
+			else if(type.contentEquals(GenericComponent.ComponentType.ComputationalServer.name))
+				componentType = ComponentType.ComputationalServer;
+			
+			BigInteger id = serverProtocol.registerComponent(componentType, getSolvableProblems().getProblemName(), socket.getPort(), socket.getInetAddress().toString());
+				
+				// If component is invalid
+				if (-1 == id.intValue()
+						&& componentType != ComponentType.ComputationalServer)
+				{
+					XMLMessages.Error errorMessage = new Error();
+					errorMessage.setErrorType(ErrorMessage.UnknownSender);
+					response = errorMessage;
+				} else
+				// Get component RegisterResponse message
+				{
+					response = messageGenerator.getRegisterResponseMessage(id,
+							backupServers);
 
+					if (null == core.backupServer)
+						core.componentMonitorThread.informaAboutConnectedComponent(id);
+
+					// Add message for BS
+					if (!message.getType().contentEquals(
+							ComponentType.ComputationalServer.name))
+					{
+						message.setDeregister(false);
+						message.setId(id);
+						core.listOfMessagesForBackupServer.add(message);
+					}
+				}
+
+				GenericProtocol.sendMessages(socket, response);
+		}
+	}
 }

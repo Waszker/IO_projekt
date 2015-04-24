@@ -20,7 +20,6 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
-import XMLMessages.Register;
 import XMLMessages.Status;
 
 /**
@@ -149,44 +148,43 @@ public class ComputationalServerCore
 	 * @param address
 	 * @return
 	 */
-	BigInteger registerComponent(Register message, Integer port, String address)
+	BigInteger registerComponent(GenericComponent.ComponentType componentType,
+			List<String> solvableProblems, Integer port, String address)
 	{
 		BigInteger idForComponent = new BigInteger("-1");
 
-		if (message.getType().contentEquals(
-				GenericComponent.ComponentType.TaskManager.name))
+		switch (componentType)
 		{
+		case TaskManager:
 			Logger.log("TM connected\n");
 			idForComponent = getCurrentFreeComponentId();
 			taskManagers.put(idForComponent, new TaskManagerInfo(
-					idForComponent, message));
-		}
-		else if (message.getType().contentEquals(
-				GenericComponent.ComponentType.ComputationalNode.name))
-		{
+					idForComponent, solvableProblems));
+			break;
+
+		case ComputationalNode:
 			Logger.log("CN connected\n");
 			idForComponent = getCurrentFreeComponentId();
 			computationalNodes.put(idForComponent, new ComputationalNodeInfo(
-					idForComponent, message));
-		}
-		else if (message.getType().contentEquals(
-				GenericComponent.ComponentType.ComputationalServer.name))
-		{
+					idForComponent, solvableProblems));
+			break;
+
+		case ComputationalServer:
 			Logger.log("CS Connected\n");
 			if (null == backupServer)
 			{
 				idForComponent = new BigInteger("9999");
 				backupServer = (new BackupServerInformation(idForComponent,
 						port, address));
-			}
-			else
+			} else
 			{
 				Logger.log("Only one Backup Server permitted! Rejecting...\n");
 			}
-		}
-		else
-		{
+			break;
+
+		default:
 			Logger.log("Unsupported component Connected\n");
+			break;
 		}
 
 		return idForComponent;

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent.ComponentType;
+import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
@@ -96,8 +97,7 @@ class CommunicationThread implements IServerProtocol
 			XMLMessages.Error errorMessage = new Error();
 			errorMessage.setErrorType(ErrorMessage.UnknownSender);
 			response = errorMessage;
-		}
-		else
+		} else
 		// Get component RegisterResponse message
 		{
 			response = messageGenerator.getRegisterResponseMessage(id,
@@ -117,6 +117,16 @@ class CommunicationThread implements IServerProtocol
 		}
 
 		GenericProtocol.sendMessages(socket, response);
+	}
+
+	@Override
+	public BigInteger registerComponent(
+			GenericComponent.ComponentType componentType,
+			List<String> solvableProblems, Integer remotePort,
+			String remoteAddress)
+	{
+		return core.registerComponent(componentType, solvableProblems,
+				remotePort, remoteAddress);
 	}
 
 	/**
@@ -142,8 +152,7 @@ class CommunicationThread implements IServerProtocol
 			XMLMessages.Error errorMessage = new Error();
 			errorMessage.setErrorType(ErrorMessage.UnknownSender);
 			GenericProtocol.sendMessages(socket, errorMessage);
-		}
-		else
+		} else
 		// Check if component needs some work
 		{
 			List<IMessage> messagesList = new ArrayList<>();
@@ -153,14 +162,12 @@ class CommunicationThread implements IServerProtocol
 			{
 				messagesList.addAll(messageGenerator.getTaskManagerQuests(
 						socket, core.taskManagers.get(id)));
-			}
-			else if (core.computationalNodes.containsKey(id))
+			} else if (core.computationalNodes.containsKey(id))
 			{
 				messagesList.addAll(messageGenerator
 						.makeComputationalNodeWorkHard(socket,
 								core.computationalNodes.get(id)));
-			}
-			else if (null != core.backupServer
+			} else if (null != core.backupServer
 					&& core.backupServer.id.equals(message.getId()))
 			{
 				messagesList.clear();
@@ -206,8 +213,7 @@ class CommunicationThread implements IServerProtocol
 		{
 			result.getSolutions().getSolution().add(problem.finalSolution);
 			result.getSolutions().getSolution().get(0).setType("Final");
-		}
-		else
+		} else
 		{
 			Solution sol = new Solution();
 			sol.setType("Ongoing");
@@ -321,8 +327,7 @@ class CommunicationThread implements IServerProtocol
 		if (problem.isProblemReadyToSolve == false)
 		{
 			receivePartialSolution(problem, message);
-		}
-		else
+		} else
 		// received final solution
 		{
 			problem.finalSolution = message.getSolutions().getSolution().get(0);
@@ -401,8 +406,7 @@ class CommunicationThread implements IServerProtocol
 					core.backupServer.address);
 			backupServers.getBackupCommunicationServer().setPort(
 					core.backupServer.port);
-		}
-		else
+		} else
 			backupServers = null;
 
 		return backupServers;
