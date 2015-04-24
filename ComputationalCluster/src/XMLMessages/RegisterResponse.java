@@ -5,10 +5,10 @@
 // Generated on: 2015.03.16 at 05:00:14 PM CET 
 //
 
-
 package XMLMessages;
 
 import java.math.BigInteger;
+import java.net.Socket;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -25,11 +25,13 @@ import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -67,231 +69,252 @@ import GenericCommonClasses.Parser.MessageType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "id",
-    "timeout",
-    "backupCommunicationServers"
-})
+@XmlType(name = "", propOrder = { "id", "timeout", "backupCommunicationServers" })
 @XmlRootElement(name = "RegisterResponse")
-public class RegisterResponse implements IMessage {
+public class RegisterResponse implements IMessage
+{
 
-    @XmlElement(name = "Id", required = true)
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger id;
-    @XmlElement(name = "Timeout")
-    @XmlSchemaType(name = "unsignedInt")
-    protected long timeout;
-    @XmlElement(name = "BackupCommunicationServers", required = true)
-    protected RegisterResponse.BackupCommunicationServers backupCommunicationServers;
+	@XmlElement(name = "Id", required = true)
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger id;
+	@XmlElement(name = "Timeout")
+	@XmlSchemaType(name = "unsignedInt")
+	protected long timeout;
+	@XmlElement(name = "BackupCommunicationServers", required = true)
+	protected RegisterResponse.BackupCommunicationServers backupCommunicationServers;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getId() {
-        return id;
-    }
+	/**
+	 * <p>
+	 * Creates RegisterResponse message.
+	 * </p>
+	 * 
+	 * @param id
+	 * @param timeout
+	 * @param backupCommunicationServers
+	 */
+	public RegisterResponse(BigInteger id, long timeout,
+			BackupCommunicationServers backupCommunicationServers)
+	{
+		super();
+		this.id = id;
+		this.timeout = timeout;
+		this.backupCommunicationServers = backupCommunicationServers;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setId(BigInteger value) {
-        this.id = value;
-    }
+	/**
+	 * Gets the value of the id property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getId()
+	{
+		return id;
+	}
 
-    /**
-     * Gets the value of the timeout property.
-     * 
-     */
-    public long getTimeout() {
-        return timeout;
-    }
+	/**
+	 * Sets the value of the id property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setId(BigInteger value)
+	{
+		this.id = value;
+	}
 
-    /**
-     * Sets the value of the timeout property.
-     * 
-     */
-    public void setTimeout(long value) {
-        this.timeout = value;
-    }
+	/**
+	 * Gets the value of the timeout property.
+	 * 
+	 */
+	public long getTimeout()
+	{
+		return timeout;
+	}
 
-    /**
-     * Gets the value of the backupCommunicationServers property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link RegisterResponse.BackupCommunicationServers }
-     *     
-     */
-    public RegisterResponse.BackupCommunicationServers getBackupCommunicationServers() {
-        return backupCommunicationServers;
-    }
+	/**
+	 * Sets the value of the timeout property.
+	 * 
+	 */
+	public void setTimeout(long value)
+	{
+		this.timeout = value;
+	}
 
-    /**
-     * Sets the value of the backupCommunicationServers property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link RegisterResponse.BackupCommunicationServers }
-     *     
-     */
-    public void setBackupCommunicationServers(RegisterResponse.BackupCommunicationServers value) {
-        this.backupCommunicationServers = value;
-    }
+	/**
+	 * Gets the value of the backupCommunicationServers property.
+	 * 
+	 * @return possible object is
+	 *         {@link RegisterResponse.BackupCommunicationServers }
+	 * 
+	 */
+	public RegisterResponse.BackupCommunicationServers getBackupCommunicationServers()
+	{
+		return backupCommunicationServers;
+	}
 
+	/**
+	 * Sets the value of the backupCommunicationServers property.
+	 * 
+	 * @param value
+	 *            allowed object is
+	 *            {@link RegisterResponse.BackupCommunicationServers }
+	 * 
+	 */
+	public void setBackupCommunicationServers(
+			RegisterResponse.BackupCommunicationServers value)
+	{
+		this.backupCommunicationServers = value;
+	}
 
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element name="BackupCommunicationServer" minOccurs="0">
-     *           &lt;complexType>
-     *             &lt;complexContent>
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *                 &lt;attribute name="address" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
-     *                 &lt;attribute name="port" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" />
-     *               &lt;/restriction>
-     *             &lt;/complexContent>
-     *           &lt;/complexType>
-     *         &lt;/element>
-     *       &lt;/sequence>
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "backupCommunicationServer"
-    })
-    public static class BackupCommunicationServers {
+	/**
+	 * <p>
+	 * Java class for anonymous complex type.
+	 * 
+	 * <p>
+	 * The following schema fragment specifies the expected content contained
+	 * within this class.
+	 * 
+	 * <pre>
+	 * &lt;complexType>
+	 *   &lt;complexContent>
+	 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+	 *       &lt;sequence>
+	 *         &lt;element name="BackupCommunicationServer" minOccurs="0">
+	 *           &lt;complexType>
+	 *             &lt;complexContent>
+	 *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+	 *                 &lt;attribute name="address" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
+	 *                 &lt;attribute name="port" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" />
+	 *               &lt;/restriction>
+	 *             &lt;/complexContent>
+	 *           &lt;/complexType>
+	 *         &lt;/element>
+	 *       &lt;/sequence>
+	 *     &lt;/restriction>
+	 *   &lt;/complexContent>
+	 * &lt;/complexType>
+	 * </pre>
+	 * 
+	 * 
+	 */
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "", propOrder = { "backupCommunicationServer" })
+	public static class BackupCommunicationServers
+	{
 
-        @XmlElement(name = "BackupCommunicationServer")
-        protected RegisterResponse.BackupCommunicationServers.BackupCommunicationServer backupCommunicationServer;
+		@XmlElement(name = "BackupCommunicationServer")
+		protected RegisterResponse.BackupCommunicationServers.BackupCommunicationServer backupCommunicationServer;
 
-        /**
-         * Gets the value of the backupCommunicationServer property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link RegisterResponse.BackupCommunicationServers.BackupCommunicationServer }
-         *     
-         */
-        public RegisterResponse.BackupCommunicationServers.BackupCommunicationServer getBackupCommunicationServer() {
-            return backupCommunicationServer;
-        }
+		/**
+		 * Gets the value of the backupCommunicationServer property.
+		 * 
+		 * @return possible object is
+		 *         {@link RegisterResponse.BackupCommunicationServers.BackupCommunicationServer }
+		 * 
+		 */
+		public RegisterResponse.BackupCommunicationServers.BackupCommunicationServer getBackupCommunicationServer()
+		{
+			return backupCommunicationServer;
+		}
 
-        /**
-         * Sets the value of the backupCommunicationServer property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link RegisterResponse.BackupCommunicationServers.BackupCommunicationServer }
-         *     
-         */
-        public void setBackupCommunicationServer(RegisterResponse.BackupCommunicationServers.BackupCommunicationServer value) {
-            this.backupCommunicationServer = value;
-        }
+		/**
+		 * Sets the value of the backupCommunicationServer property.
+		 * 
+		 * @param value
+		 *            allowed object is
+		 *            {@link RegisterResponse.BackupCommunicationServers.BackupCommunicationServer }
+		 * 
+		 */
+		public void setBackupCommunicationServer(
+				RegisterResponse.BackupCommunicationServers.BackupCommunicationServer value)
+		{
+			this.backupCommunicationServer = value;
+		}
 
+		/**
+		 * <p>
+		 * Java class for anonymous complex type.
+		 * 
+		 * <p>
+		 * The following schema fragment specifies the expected content
+		 * contained within this class.
+		 * 
+		 * <pre>
+		 * &lt;complexType>
+		 *   &lt;complexContent>
+		 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+		 *       &lt;attribute name="address" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
+		 *       &lt;attribute name="port" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" />
+		 *     &lt;/restriction>
+		 *   &lt;/complexContent>
+		 * &lt;/complexType>
+		 * </pre>
+		 * 
+		 * 
+		 */
+		@XmlAccessorType(XmlAccessType.FIELD)
+		@XmlType(name = "")
+		public static class BackupCommunicationServer
+		{
 
-        /**
-         * <p>Java class for anonymous complex type.
-         * 
-         * <p>The following schema fragment specifies the expected content contained within this class.
-         * 
-         * <pre>
-         * &lt;complexType>
-         *   &lt;complexContent>
-         *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-         *       &lt;attribute name="address" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
-         *       &lt;attribute name="port" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" />
-         *     &lt;/restriction>
-         *   &lt;/complexContent>
-         * &lt;/complexType>
-         * </pre>
-         * 
-         * 
-         */
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "")
-        public static class BackupCommunicationServer {
+			@XmlAttribute(name = "address")
+			@XmlSchemaType(name = "anyURI")
+			protected String address;
+			@XmlAttribute(name = "port")
+			@XmlSchemaType(name = "unsignedShort")
+			protected Integer port;
 
-            @XmlAttribute(name = "address")
-            @XmlSchemaType(name = "anyURI")
-            protected String address;
-            @XmlAttribute(name = "port")
-            @XmlSchemaType(name = "unsignedShort")
-            protected Integer port;
+			/**
+			 * Gets the value of the address property.
+			 * 
+			 * @return possible object is {@link String }
+			 * 
+			 */
+			public String getAddress()
+			{
+				return address;
+			}
 
-            /**
-             * Gets the value of the address property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
-            public String getAddress() {
-                return address;
-            }
+			/**
+			 * Sets the value of the address property.
+			 * 
+			 * @param value
+			 *            allowed object is {@link String }
+			 * 
+			 */
+			public void setAddress(String value)
+			{
+				this.address = value;
+			}
 
-            /**
-             * Sets the value of the address property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
-            public void setAddress(String value) {
-                this.address = value;
-            }
+			/**
+			 * Gets the value of the port property.
+			 * 
+			 * @return possible object is {@link Integer }
+			 * 
+			 */
+			public Integer getPort()
+			{
+				return port;
+			}
 
-            /**
-             * Gets the value of the port property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link Integer }
-             *     
-             */
-            public Integer getPort() {
-                return port;
-            }
+			/**
+			 * Sets the value of the port property.
+			 * 
+			 * @param value
+			 *            allowed object is {@link Integer }
+			 * 
+			 */
+			public void setPort(Integer value)
+			{
+				this.port = value;
+			}
 
-            /**
-             * Sets the value of the port property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link Integer }
-             *     
-             */
-            public void setPort(Integer value) {
-                this.port = value;
-            }
+		}
 
-        }
-
-    }
-
+	}
 
 	@Override
 	public String getString() throws JAXBException
@@ -306,11 +329,11 @@ public class RegisterResponse implements IMessage {
 	}
 
 	@Override
-	public void prepareResponse(IServerProtocol serverProtocol,
-			List<IMessage> quickResponses, List<IMessage> delayedResponses)
+	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
+			Socket socket)
 	{
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 }

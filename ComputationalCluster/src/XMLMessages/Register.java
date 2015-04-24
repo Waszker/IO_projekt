@@ -8,6 +8,7 @@
 package XMLMessages;
 
 import java.math.BigInteger;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import XMLMessages.Error.ErrorMessage;
-
 import ComputationalServer.ComputationalServer;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericProtocol;
@@ -281,49 +281,65 @@ public class Register implements IMessage
 	}
 
 	@Override
-	public void prepareResponse(IServerProtocol serverProtocol,
-			List<IMessage> quickResponses, List<IMessage> delayedResponses)
+	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
+			Socket socket)
 	{
-		if(null != type)
+		List<IMessage> delayedMessages = new ArrayList<>();
+
+		if (null != type)
 		{
-			GenericComponent.ComponentType componentType;
-			
-			if(type.contentEquals(GenericComponent.ComponentType.TaskManager.name))
-				componentType = ComponentType.TaskManager;
-			else if(type.contentEquals(GenericComponent.ComponentType.ComputationalNode.name))
-				componentType = ComponentType.ComputationalNode;
-			else if(type.contentEquals(GenericComponent.ComponentType.ComputationalServer.name))
-				componentType = ComponentType.ComputationalServer;
-			
-			BigInteger id = serverProtocol.registerComponent(componentType, getSolvableProblems().getProblemName(), socket.getPort(), socket.getInetAddress().toString());
-				
-				// If component is invalid
-				if (-1 == id.intValue()
-						&& componentType != ComponentType.ComputationalServer)
-				{
-					XMLMessages.Error errorMessage = new Error();
-					errorMessage.setErrorType(ErrorMessage.UnknownSender);
-					response = errorMessage;
-				} else
-				// Get component RegisterResponse message
-				{
-					response = messageGenerator.getRegisterResponseMessage(id,
-							backupServers);
+			IMessage response;
+			GenericComponent.ComponentType componentType = getComponentType(getType());
 
-					if (null == core.backupServer)
-						core.componentMonitorThread.informaAboutConnectedComponent(id);
+			BigInteger id = serverProtocol.registerComponent(componentType,
+					getSolvableProblems().getProblemName(), socket.getPort(),
+					socket.getInetAddress().toString());
 
-					// Add message for BS
-					if (!message.getType().contentEquals(
-							ComponentType.ComputationalServer.name))
-					{
-						message.setDeregister(false);
-						message.setId(id);
-						core.listOfMessagesForBackupServer.add(message);
-					}
+			// If component is invalid
+			if (-1 == id.intValue()
+					&& componentType != ComponentType.ComputationalServer)
+			{
+				XMLMessages.Error errorMessage = new Error();
+				errorMessage.setErrorType(ErrorMessage.UnknownSender);
+				response = errorMessage;
+			} else
+			// Get component RegisterResponse message
+			{
+				response = new RegisterResponse(id,
+						serverProtocol.getServerTimeout(), null);
+
+				// Inform about connected component
+				core.componentMonitorThread.informaAboutConnectedComponent(id);
+
+				// Add message for backup server
+				if (componentType != ComponentType.ComputationalServer)
+				{
+					setDeregister(false);
+					setId(id);
+					core.listOfMessagesForBackupServer.add(message);
 				}
+			}
 
-				GenericProtocol.sendMessages(socket, response);
+			GenericProtocol.sendMessages(socket, response);
+			return delayedMessages;
 		}
+	}
+
+	private GenericComponent.ComponentType getComponentType(String name)
+	{
+		GenericComponent.ComponentType componentType;
+
+		if (type.contentEquals(GenericComponent.ComponentType.TaskManager.name))
+			componentType = ComponentType.TaskManager;
+		else if (type
+				.contentEquals(GenericComponent.ComponentType.ComputationalNode.name))
+			componentType = ComponentType.ComputationalNode;
+		else if (type
+				.contentEquals(GenericComponent.ComponentType.ComputationalServer.name))
+			componentType = ComponentType.ComputationalServer;
+		else
+			componentType = ComponentType.ComputationalClient;
+
+		return componentType;
 	}
 }

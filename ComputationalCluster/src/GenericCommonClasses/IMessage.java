@@ -1,5 +1,6 @@
 package GenericCommonClasses;
 
+import java.net.Socket;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -52,11 +53,11 @@ public interface IMessage
 	 * Generates response messages and informs server about changes.
 	 * </p>
 	 * 
-	 * @param quickResponses
-	 *            - messages that can be sent immediately
-	 * @param delayedResponses
+	 * @param serverProtocol
+	 * @param socket
+	 * @return delayedResponses
 	 *            - messages that need specific situation to be sent
 	 */
-	public void prepareResponse(IServerProtocol serverProtocol,
-			List<IMessage> quickResponses, List<IMessage> delayedResponses);
+	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
+			Socket socket);
 }

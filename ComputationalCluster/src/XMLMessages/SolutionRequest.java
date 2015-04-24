@@ -9,6 +9,7 @@
 package XMLMessages;
 
 import java.math.BigInteger;
+import java.net.Socket;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -92,11 +93,10 @@ public class SolutionRequest implements IMessage {
 	}
 
 	@Override
-	public void prepareResponse(IServerProtocol serverProtocol,
-			List<IMessage> quickResponses, List<IMessage> delayedResponses)
+	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
+			Socket socket)
 	{
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
-
 }

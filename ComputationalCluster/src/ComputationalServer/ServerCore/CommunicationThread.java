@@ -395,7 +395,14 @@ class CommunicationThread implements IServerProtocol
 		}
 	}
 
-	private BackupCommunicationServers getBackupServer()
+	@Override
+	public int getServerTimeout()
+	{
+		return core.timeout;
+	}
+
+	@Override
+	public BackupCommunicationServers getBackupServer()
 	{
 		BackupCommunicationServers backupServers = new BackupCommunicationServers();
 		if (null != core.backupServer)

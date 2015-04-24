@@ -3,6 +3,8 @@ package GenericCommonClasses;
 import java.math.BigInteger;
 import java.util.List;
 
+import XMLMessages.RegisterResponse.BackupCommunicationServers;
+
 /**
  * <p>
  * Interface for server protocol.
@@ -14,6 +16,24 @@ import java.util.List;
  */
 public interface IServerProtocol
 {
+	/**
+	 * <p>
+	 * Returns timeout specified by server.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public int getServerTimeout();
+
+	/**
+	 * <p>
+	 * Returns connected backup server or null if none exists.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public BackupCommunicationServers getBackupServer();
+
 	/**
 	 * <p>
 	 * Tries to register selected component. Function returns id of newly
