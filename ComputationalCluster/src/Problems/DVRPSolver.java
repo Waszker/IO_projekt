@@ -1,5 +1,6 @@
 package Problems;
 
+import java.util.Locale;
 import java.util.Scanner;
 
 import Problems.DVRPProblem.Client;
@@ -8,7 +9,6 @@ import Problems.DVRPProblem.Graph;
 import Problems.DVRPProblem.SeparateDVRPSolver;
 import pl.edu.pw.mini.se2.TaskSolver;
 import pl.edu.pw.mini.se2.TaskSolverState;
-import sun.font.GraphicComponent;
 
 public class DVRPSolver extends TaskSolver
 {
@@ -39,6 +39,7 @@ public class DVRPSolver extends TaskSolver
 	{
 		String problemInput = new String(_problemData);
 		Scanner s = new Scanner(problemInput);
+		s.useLocale(Locale.ENGLISH);
 		
 		int nov = s.nextInt(); //number of vehicles
 		s.nextDouble();
@@ -90,8 +91,9 @@ public class DVRPSolver extends TaskSolver
 		{
 			String _s = new String(partialSolutions[i]);
 			Scanner s = new Scanner(_s);
+			s.useLocale(Locale.ENGLISH);
 			
-			if ( Character.toUpperCase(s.nextByte()) == 'S' )
+			if ( Character.toUpperCase(s.next().charAt(0)) == 'S' )
 			{
 				double cost = s.nextDouble();
 				if ( cost < lowestCost )
@@ -114,11 +116,12 @@ public class DVRPSolver extends TaskSolver
 	{
 		String _s = new String(partialProblemData);
 		Scanner s = new Scanner(_s);
+		s.useLocale(Locale.ENGLISH);
 		String ret = "";
 		ProblemData pd = extractProblemData();
 		Graph g = new Graph(pd.d,pd.clients,pd.vehicleSpeed);
 		
-		if ( Character.toUpperCase(s.nextByte()) == 'S' )
+		if ( Character.toUpperCase(s.next().charAt(0)) == 'S' )
 		{
 			final int from = s.nextInt();
 			final int to = s.nextInt();
@@ -181,8 +184,8 @@ public class DVRPSolver extends TaskSolver
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	private String beginingPath(int i, final int nodesPerVariation, final int numberOfClients)
 	{
-		final double log_mN = Math.log(numberOfClients) / Math.log(nodesPerVariation);
-		final int pathLen = (int)Math.ceil( 0 );
+		//final double log_mN = Math.log(numberOfClients) / Math.log(nodesPerVariation);
+		//final int pathLen = (int)Math.ceil( 0 );
 		return "";
 	}
 	
@@ -191,6 +194,7 @@ public class DVRPSolver extends TaskSolver
 		int numberOfClients;
 		String _s = new String(_problemData);
 		Scanner s = new Scanner(_s);
+		s.useLocale(Locale.ENGLISH);
 		
 		ProblemData ret = new ProblemData();
 		ret.numberOfVehicles = s.nextInt();
