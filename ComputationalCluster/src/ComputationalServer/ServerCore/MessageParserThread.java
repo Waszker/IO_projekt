@@ -2,8 +2,6 @@ package ComputationalServer.ServerCore;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -12,12 +10,6 @@ import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
 import XMLMessages.Error.ErrorMessage;
-import XMLMessages.Register;
-import XMLMessages.SolutionRequest;
-import XMLMessages.Solutiones;
-import XMLMessages.SolvePartialProblems;
-import XMLMessages.SolveRequest;
-import XMLMessages.Status;
 
 /**
  * <p>
@@ -101,57 +93,66 @@ class MessageParserThread extends Thread
 	{
 		try
 		{
-			// TODO: Implement this objective way!
-			// List<IMessage> quickResponses = new ArrayList<>();
-			// List<IMessage> delayedResponses = new ArrayList<>();
-			// message.prepareResponse(communicationThread, quickResponses,
-			// delayedResponses);
-
-			switch (message.getMessageType())
-			{
-			case REGISTER:
-				communicationThread.reactToRegisterMessage((Register) message,
-						socket);
-				break;
-
-			case STATUS:
-				communicationThread.reactToStatusMessage((Status) message,
-						socket);
-				break;
-
-			case SOLVE_REQUEST:
-				communicationThread.reactToSolveRequest((SolveRequest) message,
-						socket);
-				break;
-
-			case SOLUTION_REQUEST:
-				communicationThread.reactToSolutionRequest(
-						(SolutionRequest) message, socket);
-				break;
-
-			case PARTIAL_PROBLEM:
-				communicationThread.reactToPartialProblems(
-						(SolvePartialProblems) message, socket);
-				break;
-
-			case SOLUTION:
-				communicationThread.reactToSolution((Solutiones) message,
-						socket);
-				break;
-
-			default:
-				Logger.log("Unsupported message " + message.getString()
-						+ "\n\n");
-				sendErrorMessage(socket);
-				break;
-			}
+			core.delayedMessages.addAll(message.prepareResponse(
+					communicationThread, socket));
 			core.informAboutComponentChanges();
+		}
+		catch (IOException e)
+		{
 		}
 		catch (NullPointerException e)
 		{
 			Logger.log(e.getMessage() + "\n");
 			sendErrorMessage(socket);
 		}
+		
+		// try
+		// {
+		// switch (message.getMessageType())
+		// {
+		// case REGISTER:
+		// communicationThread.reactToRegisterMessage((Register) message,
+		// socket);
+		// break;
+		//
+		// case STATUS:
+		// communicationThread.reactToStatusMessage((Status) message,
+		// socket);
+		// break;
+		//
+		// case SOLVE_REQUEST:
+		// communicationThread.reactToSolveRequest((SolveRequest) message,
+		// socket);
+		// break;
+		//
+		// case SOLUTION_REQUEST:
+		// communicationThread.reactToSolutionRequest(
+		// (SolutionRequest) message, socket);
+		// break;
+		//
+		// case PARTIAL_PROBLEM:
+		// communicationThread.reactToPartialProblems(
+		// (SolvePartialProblems) message, socket);
+		// break;
+		//
+		// case SOLUTION:
+		// communicationThread.reactToSolution((Solutiones) message,
+		// socket);
+		// break;
+		//
+		// default:
+		// Logger.log("Unsupported message " + message.getString()
+		// + "\n\n");
+		// sendErrorMessage(socket);
+		// break;
+		// }
+		// core.informAboutComponentChanges();
+		// }
+		// catch (NullPointerException e)
+		// {
+		// Logger.log(e.getMessage() + "\n");
+		// sendErrorMessage(socket);
+		// }
 	}
 
 	private void sendErrorMessage(Socket socket) throws IOException

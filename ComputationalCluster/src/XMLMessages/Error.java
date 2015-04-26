@@ -7,6 +7,7 @@
 
 package XMLMessages;
 
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.List;
 
@@ -69,6 +70,30 @@ public class Error implements IMessage
 	protected String errorMessage;
 
 	/**
+	 * <p>
+	 * Creates empty Error message.
+	 * </p>
+	 */
+	public Error()
+	{
+
+	}
+
+	/**
+	 * <p>
+	 * Creates error message with specified type and content.
+	 * </p>
+	 * 
+	 * @param errorType
+	 * @param errorMessage
+	 */
+	public Error(ErrorMessage errorType, String errorMessage)
+	{
+		setErrorType(errorType);
+		setErrorMessage(errorMessage);
+	}
+
+	/**
 	 * Gets the value of the errorType property.
 	 * 
 	 * @return possible object is {@link String }
@@ -90,17 +115,17 @@ public class Error implements IMessage
 	{
 		switch (value)
 		{
-			case UnknownSender:
-				this.errorType = "UnknownSender";
-				break;
+		case UnknownSender:
+			this.errorType = "UnknownSender";
+			break;
 
-			case InvalidOperation:
-				this.errorType = "InvalidOperation";
-				break;
+		case InvalidOperation:
+			this.errorType = "InvalidOperation";
+			break;
 
-			case ExceptionOccured:
-				this.errorType = "ExceptionOccured";
-				break;
+		case ExceptionOccured:
+			this.errorType = "ExceptionOccured";
+			break;
 		}
 	}
 
@@ -144,6 +169,12 @@ public class Error implements IMessage
 			Socket socket)
 	{
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
 		return null;
 	}
 

@@ -7,6 +7,7 @@
 
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,10 +21,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import GenericCommonClasses.AbstractMessage;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.Solutiones.Solutions.Solution;
 
 /**
  * <p>
@@ -86,7 +90,7 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlType(name = "", propOrder = { "problemType", "id", "commonData",
 		"solutions" })
 @XmlRootElement(name = "Solutions")
-public class Solutiones implements IMessage
+public class Solutiones extends AbstractMessage
 {
 
 	@XmlElement(name = "ProblemType", required = true)
@@ -98,6 +102,35 @@ public class Solutiones implements IMessage
 	protected byte[] commonData;
 	@XmlElement(name = "Solutions", required = true)
 	protected Solutiones.Solutions solutions;
+
+	/**
+	 * <p>
+	 * Creates an empty message.
+	 * </p>
+	 */
+	public Solutiones()
+	{
+	}
+
+	/**
+	 * <p>
+	 * Creates fully initialized message.
+	 * </p>
+	 * 
+	 * @param problemType
+	 * @param id
+	 * @param commonData
+	 * @param solutions
+	 */
+	public Solutiones(String problemType, BigInteger id, byte[] commonData,
+			Solutions solutions)
+	{
+		super();
+		this.problemType = problemType;
+		this.id = id;
+		this.commonData = commonData;
+		this.solutions = solutions;
+	}
 
 	/**
 	 * Gets the value of the problemType property.
@@ -451,10 +484,34 @@ public class Solutiones implements IMessage
 	}
 
 	@Override
-	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
-			Socket socket)
+	public BigInteger getProblemId()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return getId();
+	}
+
+	@Override
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
+	{
+		List<Solution> solutionsToMerge = null;
+
+		for (Solution s : getSolutions().getSolution())
+			solutionsToMerge = serverProtocol.informAboutProblemSolution(
+					getId(), s);
+
+		// Received final solution?
+		if (solutionsToMerge != null)
+		{
+			Solutions solution = new Solutions();
+			solution.getSolution().addAll(solutionsToMerge);
+			delayedResponse.add(new Solutiones(getProblemType(), getId(),
+					getCommonData(), solution));
+		}
+
+		// Relay information with BS
+		serverProtocol.addBackupServerMessage(this);
+
+		GenericProtocol.sendMessages(socket,
+				serverProtocol.getNoOperationMessage());
 	}
 }

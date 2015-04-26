@@ -7,6 +7,7 @@
 
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,15 +21,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-import XMLMessages.Error.ErrorMessage;
-import ComputationalServer.ComputationalServer;
+import GenericCommonClasses.AbstractMessage;
 import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
-import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.Error.ErrorMessage;
 
 /**
  * <p>
@@ -78,7 +79,7 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlType(name = "", propOrder = { "type", "solvableProblems",
 		"parallelThreads", "deregister", "id" })
 @XmlRootElement(name = "Register")
-public class Register implements IMessage
+public class Register extends AbstractMessage
 {
 
 	@XmlElement(name = "Type", required = true)
@@ -281,14 +282,14 @@ public class Register implements IMessage
 	}
 
 	@Override
-	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
-			Socket socket)
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
 	{
-		List<IMessage> delayedMessages = new ArrayList<>();
+		IMessage response = new XMLMessages.Error(ErrorMessage.UnknownSender,
+				"");
 
 		if (null != type)
 		{
-			IMessage response;
 			GenericComponent.ComponentType componentType = getComponentType(getType());
 
 			BigInteger id = serverProtocol.registerComponent(componentType,
@@ -299,47 +300,31 @@ public class Register implements IMessage
 			if (-1 == id.intValue()
 					&& componentType != ComponentType.ComputationalServer)
 			{
-				XMLMessages.Error errorMessage = new Error();
-				errorMessage.setErrorType(ErrorMessage.UnknownSender);
-				response = errorMessage;
-			} else
+				((Error) response)
+						.setErrorMessage("Component cannot be regstered");
+			}
+			else
 			// Get component RegisterResponse message
 			{
 				response = new RegisterResponse(id,
 						serverProtocol.getServerTimeout(), null);
-
-				// Inform about connected component
-				core.componentMonitorThread.informaAboutConnectedComponent(id);
 
 				// Add message for backup server
 				if (componentType != ComponentType.ComputationalServer)
 				{
 					setDeregister(false);
 					setId(id);
-					core.listOfMessagesForBackupServer.add(message);
+					serverProtocol.addBackupServerMessage(this);
 				}
 			}
-
-			GenericProtocol.sendMessages(socket, response);
-			return delayedMessages;
 		}
+
+		GenericProtocol.sendMessages(socket, response);	
 	}
 
-	private GenericComponent.ComponentType getComponentType(String name)
+	@Override
+	public BigInteger getProblemId()
 	{
-		GenericComponent.ComponentType componentType;
-
-		if (type.contentEquals(GenericComponent.ComponentType.TaskManager.name))
-			componentType = ComponentType.TaskManager;
-		else if (type
-				.contentEquals(GenericComponent.ComponentType.ComputationalNode.name))
-			componentType = ComponentType.ComputationalNode;
-		else if (type
-				.contentEquals(GenericComponent.ComponentType.ComputationalServer.name))
-			componentType = ComponentType.ComputationalServer;
-		else
-			componentType = ComponentType.ComputationalClient;
-
-		return componentType;
+		return null;
 	}
 }

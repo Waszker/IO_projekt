@@ -51,10 +51,26 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlRootElement(name = "SolveRequestResponse")
 public class SolveRequestResponse implements IMessage
 {
-
 	@XmlElement(name = "Id", required = true)
 	@XmlSchemaType(name = "unsignedLong")
 	protected BigInteger id;
+
+	public SolveRequestResponse()
+	{
+	}
+
+	/**
+	 * <p>
+	 * Creates SolveRequestResponse with given id.
+	 * </p>
+	 * 
+	 * @param id
+	 */
+	public SolveRequestResponse(BigInteger id)
+	{
+		super();
+		this.id = id;
+	}
 
 	/**
 	 * Gets the value of the id property.
@@ -97,6 +113,12 @@ public class SolveRequestResponse implements IMessage
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return getId();
 	}
 
 }

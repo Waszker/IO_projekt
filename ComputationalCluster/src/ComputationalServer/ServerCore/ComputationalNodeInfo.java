@@ -3,10 +3,11 @@ package ComputationalServer.ServerCore;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import DebugTools.Logger;
-import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.SolvePartialProblems;
 
 /**
  * <p>
@@ -25,11 +26,7 @@ class ComputationalNodeInfo
 	/******************/
 	BigInteger id;
 	List<String> supportedProblems;
-	/**
-	 * Map with key responding to ProblemInfo and containing PartialProblems
-	 * assigned for this Node.
-	 */
-	ConcurrentHashMap<BigInteger, List<PartialProblem>> assignedPartialProblems;
+	List<IMessage> assignedMessages;
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,7 +41,7 @@ class ComputationalNodeInfo
 	ComputationalNodeInfo(BigInteger id, List<String> solvableProblems)
 	{
 		this.id = id;
-		assignedPartialProblems = new ConcurrentHashMap<>();
+		assignedMessages = new ArrayList<>();
 		try
 		{
 			supportedProblems = new ArrayList<>(solvableProblems);
@@ -60,7 +57,26 @@ class ComputationalNodeInfo
 	public String toString()
 	{
 		return "ComputationalNodeInfo [id=" + id + ", supportedProblems="
-				+ supportedProblems + ", assignedPartialProblems="
-				+ assignedPartialProblems.size() + "]";
+				+ supportedProblems + ", assignedMessages="
+				+ assignedMessages.size() + "]";
+	}
+	
+	/**
+	 * <p>
+	 * Checks if problem type is supported by this component.
+	 * </p>
+	 * 
+	 * @param message
+	 * @return
+	 */
+	boolean isProblemSupported(IMessage message)
+	{
+		boolean isSupported = false;
+		
+		if (message.getMessageType() == MessageType.PARTIAL_PROBLEM
+				&& supportedProblems.contains(((SolvePartialProblems) message)
+						.getProblemType())) isSupported = true;
+
+		return isSupported;
 	}
 }

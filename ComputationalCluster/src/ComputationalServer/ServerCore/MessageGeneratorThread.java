@@ -50,7 +50,7 @@ public class MessageGeneratorThread
 	 * @return
 	 * @throws IOException
 	 */
-	NoOperation getNoOperationMessage() throws IOException
+	NoOperation getNoOperationMessage()
 	{
 		NoOperation noOperation = new NoOperation();
 		BackupCommunicationServers backupServers = new BackupCommunicationServers();

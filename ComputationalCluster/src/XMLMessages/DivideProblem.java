@@ -7,6 +7,7 @@
 
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.List;
@@ -19,6 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import GenericCommonClasses.AbstractMessage;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
@@ -54,9 +56,8 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlType(name = "", propOrder = { "problemType", "id", "data",
 		"computationalNodes", "nodeID" })
 @XmlRootElement(name = "DivideProblem")
-public class DivideProblem implements IMessage
+public class DivideProblem extends AbstractMessage
 {
-
 	@XmlElement(name = "ProblemType", required = true)
 	protected String problemType;
 	@XmlElement(name = "Id", required = true)
@@ -70,6 +71,32 @@ public class DivideProblem implements IMessage
 	@XmlElement(name = "NodeID", required = true)
 	@XmlSchemaType(name = "unsignedLong")
 	protected BigInteger nodeID;
+
+	public DivideProblem()
+	{
+	}
+
+	/**
+	 * <p>
+	 * Creates DivideProblem message.
+	 * </p>
+	 * 
+	 * @param problemType
+	 * @param id
+	 * @param data
+	 * @param computationalNodes
+	 * @param nodeID
+	 */
+	public DivideProblem(String problemType, BigInteger id, byte[] data,
+			BigInteger computationalNodes, BigInteger nodeID)
+	{
+		super();
+		this.problemType = problemType;
+		this.id = id;
+		this.data = data;
+		this.computationalNodes = computationalNodes;
+		this.nodeID = nodeID;
+	}
 
 	/**
 	 * Gets the value of the problemType property.
@@ -197,11 +224,17 @@ public class DivideProblem implements IMessage
 	}
 
 	@Override
-	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
-			Socket socket)
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
 	{
 		// TODO Auto-generated method stub
-		return null;
+
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return getId();
 	}
 
 }

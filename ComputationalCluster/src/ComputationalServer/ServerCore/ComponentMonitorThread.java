@@ -4,14 +4,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import DebugTools.Logger;
 import XMLMessages.Register;
-import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 /**
  * <p>
@@ -126,10 +124,7 @@ class ComponentMonitorThread extends Thread
 		// (their states are still kept inside ProblemInfo object)
 		TaskManagerInfo info = core.taskManagers.get(id);
 
-		for (BigInteger problemId : info.assignedProblems)
-		{
-			core.problemsToSolve.get(problemId).isProblemCurrentlyDelegated = false;
-		}
+		core.delayedMessages.addAll(info.assignedMessages);
 
 		core.taskManagers.remove(id);
 	}
@@ -139,17 +134,7 @@ class ComponentMonitorThread extends Thread
 		// ComputationalNode failure involves restoring partial problems
 		ComputationalNodeInfo info = core.computationalNodes.get(id);
 
-		for (Map.Entry<BigInteger, List<PartialProblem>> entry : info.assignedPartialProblems
-				.entrySet())
-		{
-			ProblemInfo problem = core.problemsToSolve.get(entry.getKey());
-			List<PartialProblem> partialProblems = entry.getValue();
-
-			for (PartialProblem p : partialProblems)
-			{
-				problem.partialProblems.add(p);
-			}
-		}
+		core.delayedMessages.addAll(info.assignedMessages);
 
 		core.computationalNodes.remove(id);
 	}

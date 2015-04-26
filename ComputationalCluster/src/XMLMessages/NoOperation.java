@@ -8,6 +8,7 @@
 
 package XMLMessages;
 
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.List;
 
@@ -260,6 +261,12 @@ public class NoOperation implements IMessage {
 			Socket socket)
 	{
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
 		return null;
 	}
 }

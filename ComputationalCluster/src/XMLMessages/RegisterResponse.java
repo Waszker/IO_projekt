@@ -85,6 +85,16 @@ public class RegisterResponse implements IMessage
 
 	/**
 	 * <p>
+	 * Creates an empty RegisterResponse message.
+	 * </p>
+	 */
+	public RegisterResponse()
+	{
+
+	}
+
+	/**
+	 * <p>
 	 * Creates RegisterResponse message.
 	 * </p>
 	 * 
@@ -333,6 +343,12 @@ public class RegisterResponse implements IMessage
 			Socket socket)
 	{
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
 		return null;
 	}
 

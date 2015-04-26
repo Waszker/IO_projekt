@@ -48,6 +48,7 @@ public class ComputationalServerCore
 	Semaphore queueSemaphore; // used to indicate if there are any
 								// messages in queue
 	BlockingQueue<ClientMessage> messageQueue;
+	BlockingQueue<IMessage> delayedMessages;
 
 	ConcurrentMap<BigInteger, TaskManagerInfo> taskManagers;
 	ConcurrentMap<BigInteger, ComputationalNodeInfo> computationalNodes;
@@ -81,6 +82,7 @@ public class ComputationalServerCore
 		this.isInBackupMode = false;
 		queueSemaphore = new Semaphore(0, true);
 		messageQueue = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
+		delayedMessages = new ArrayBlockingQueue<>(MAX_MESSAGES, true);
 		listOfMessagesForBackupServer = Collections
 				.synchronizedList(new ArrayList<IMessage>());
 
@@ -138,9 +140,10 @@ public class ComputationalServerCore
 
 	/**
 	 * <p>
-	 * Logs information about connecting component and returns its new
-	 * identificator. In case of failure (unsupported component) -1 value is
-	 * returned.
+	 * Logs information about connecting component and returns its new id. In
+	 * case of failure (unsupported component) -1 value is returned. In case of
+	 * success this method "saves" information about connected component in
+	 * componentMonitorThread.
 	 * </p>
 	 * 
 	 * @param message
@@ -160,6 +163,8 @@ public class ComputationalServerCore
 			idForComponent = getCurrentFreeComponentId();
 			taskManagers.put(idForComponent, new TaskManagerInfo(
 					idForComponent, solvableProblems));
+			componentMonitorThread
+					.informaAboutConnectedComponent(idForComponent);
 			break;
 
 		case ComputationalNode:
@@ -167,6 +172,8 @@ public class ComputationalServerCore
 			idForComponent = getCurrentFreeComponentId();
 			computationalNodes.put(idForComponent, new ComputationalNodeInfo(
 					idForComponent, solvableProblems));
+			componentMonitorThread
+					.informaAboutConnectedComponent(idForComponent);
 			break;
 
 		case ComputationalServer:
@@ -176,7 +183,10 @@ public class ComputationalServerCore
 				idForComponent = new BigInteger("9999");
 				backupServer = (new BackupServerInformation(idForComponent,
 						port, address));
-			} else
+				componentMonitorThread
+						.informaAboutConnectedComponent(idForComponent);
+			}
+			else
 			{
 				Logger.log("Only one Backup Server permitted! Rejecting...\n");
 			}
@@ -197,8 +207,7 @@ public class ComputationalServerCore
 	 */
 	void informAboutComponentChanges()
 	{
-		if (null != mainWindow)
-			mainWindow.refreshConnectedComponents();
+		if (null != mainWindow) mainWindow.refreshConnectedComponents();
 	}
 
 	synchronized BigInteger getCurrentFreeProblemId()

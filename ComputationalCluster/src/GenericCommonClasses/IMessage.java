@@ -1,5 +1,7 @@
 package GenericCommonClasses;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.util.List;
 
@@ -50,14 +52,25 @@ public interface IMessage
 
 	/**
 	 * <p>
-	 * Generates response messages and informs server about changes.
+	 * Returns id of the problem that is associated with this message.
+	 * Otherwise, returns null.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public BigInteger getProblemId();
+
+	/**
+	 * <p>
+	 * Generates response messages and sends responses. It can also return some
+	 * "delayed" responses for computational server to save.
 	 * </p>
 	 * 
 	 * @param serverProtocol
 	 * @param socket
-	 * @return delayedResponses
-	 *            - messages that need specific situation to be sent
+	 * @return delayedResponses - messages that need specific situation to be
+	 *         sent
 	 */
 	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
-			Socket socket);
+			Socket socket) throws IOException;
 }

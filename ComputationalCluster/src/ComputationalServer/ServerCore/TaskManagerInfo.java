@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import DebugTools.Logger;
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.DivideProblem;
+import XMLMessages.Solutiones;
 
 /**
  * <p>
@@ -22,7 +26,7 @@ class TaskManagerInfo
 	/* VARIABLES */
 	/******************/
 	BigInteger id;
-	List<BigInteger> assignedProblems;
+	List<IMessage> assignedMessages;
 	List<String> supportedProblems;
 
 	/******************/
@@ -38,7 +42,7 @@ class TaskManagerInfo
 	TaskManagerInfo(BigInteger id, List<String> solvableProblems)
 	{
 		this.id = id;
-		assignedProblems = new ArrayList<>();
+		assignedMessages = new ArrayList<>();
 
 		try
 		{
@@ -54,9 +58,31 @@ class TaskManagerInfo
 	@Override
 	public String toString()
 	{
-		return "TaskManager [id=" + id + ", assignedProblems="
-				+ assignedProblems.size() + ", supportedProblems="
+		return "TaskManager [id=" + id + ", assignedMessages="
+				+ assignedMessages.size() + ", supportedProblems="
 				+ supportedProblems + "]";
 	}
 
+	/**
+	 * <p>
+	 * Checks if problem type is supported by this component.
+	 * </p>
+	 * 
+	 * @param message
+	 * @return
+	 */
+	boolean isProblemSupported(IMessage message)
+	{
+		boolean isSupported = false;
+
+		if (message.getMessageType() == MessageType.DIVIDE_PROBLEM
+				&& supportedProblems.contains(((DivideProblem) message)
+						.getProblemType()))
+			isSupported = true;
+		else if (message.getMessageType() == MessageType.SOLUTION
+				&& supportedProblems.contains(((Solutiones) message)
+						.getProblemType())) isSupported = true;
+
+		return isSupported;
+	}
 }
