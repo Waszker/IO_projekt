@@ -101,49 +101,48 @@ class CommunicationThread implements IServerProtocol
 
 		switch (getComponentTypeFromId(id))
 		{
-		case TaskManager:
-			TaskManagerInfo taskManager = core.taskManagers.get(id);
+			case TaskManager:
+				TaskManagerInfo taskManager = core.taskManagers.get(id);
 
-			while ((freeThreads--) > 0 && it.hasNext())
-			{
-				IMessage m = it.next();
-				// TODO: Set taskManager's id in message
-				// TODO: Fill number of CN in DivideProblem message
-				if (taskManager.isProblemSupported(m))
+				while ((freeThreads--) > 0 && it.hasNext())
 				{
-					if (m.getMessageType() == MessageType.DIVIDE_PROBLEM
-							&& core.computationalNodes.size() > 0)
+					IMessage m = it.next();
+					if (taskManager.isProblemSupported(m))
 					{
-						DivideProblem message = (DivideProblem) m;
-						message.setNodeID(id);
-						;
-						message.setComputationalNodes(new BigInteger(String
-								.valueOf(core.computationalNodes.size())));
+						// For DIVIDE_PROBLEM we have to set some specific
+						// options
+						if (m.getMessageType() == MessageType.DIVIDE_PROBLEM
+								&& core.computationalNodes.size() > 0)
+						{
+							DivideProblem message = (DivideProblem) m;
+							message.setNodeID(id);
+							message.setComputationalNodes(new BigInteger(String
+									.valueOf(core.computationalNodes.size())));
+						}
+						messages.add(m);
 					}
-					messages.add(m);
+
 				}
+				taskManager.assignedMessages.addAll(messages);
 
-			}
-			taskManager.assignedMessages.addAll(messages);
+				break;
 
-			break;
+			case ComputationalNode:
+				ComputationalNodeInfo computationalNode = core.computationalNodes
+						.get(id);
 
-		case ComputationalNode:
-			ComputationalNodeInfo computationalNode = core.computationalNodes
-					.get(id);
+				while ((freeThreads--) > 0 && it.hasNext())
+				{
+					IMessage m = it.next();
+					if (computationalNode.isProblemSupported(m))
+						messages.add(m);
+				}
+				computationalNode.assignedMessages.addAll(messages);
 
-			while ((freeThreads--) > 0 && it.hasNext())
-			{
-				IMessage m = it.next();
-				if (computationalNode.isProblemSupported(m))
-					messages.add(m);
-			}
-			computationalNode.assignedMessages.addAll(messages);
+				break;
 
-			break;
-
-		default:
-			break;
+			default:
+				break;
 		}
 		core.delayedMessages.removeAll(messages);
 
@@ -200,7 +199,8 @@ class CommunicationThread implements IServerProtocol
 					core.backupServer.address);
 			backupServers.getBackupCommunicationServer().setPort(
 					core.backupServer.port);
-		} else
+		}
+		else
 			backupServers = null;
 
 		return backupServers;
@@ -289,15 +289,17 @@ class CommunicationThread implements IServerProtocol
 		// If it was final solution
 		if (problem.parts == 0)
 		{
+			problem.parts = -1;
 			problem.finalSolution = solution;
 			removeTaskManagerSpecificMessage(problemId);
-		} else
+		}
+		else
 		// Received partial solution
 		{
 			problem.partialSolutions.add(solution);
 			problem.parts--;
-
-			// TODO: Remove computational node assigned messages!
+			removeComputationalNodeSpecificMessage(problemId,
+					solution.getTaskId());
 		}
 
 		return (problem.parts == 0 ? problem.partialSolutions : null);
