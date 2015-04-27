@@ -65,13 +65,19 @@ public class DVRPSolver extends TaskSolver
 		
 		else // this occures practically only when there is one vehicle
 		{
-			int nodesPerVariation = (int) ((double)numOfVariations / (double) numOfNodes);
-			
+			double nodesPerVariation = ((double) numOfNodes      / (double) numOfVariations);
+			double variationsPerNode = ((double) numOfVariations / (double) numOfNodes);
 			
 			for ( int i=0; i<numOfNodes; i++ )
 			{
-				int currentVariation = i*nodesPerVariation;
-				ret[i] = ("P " + currentVariation + " " + beginingPath(i, nodesPerVariation, noc)).getBytes();
+				final int currentVariation =  (int)(i*variationsPerNode);
+				final int currentNumOfNodes = (int)((currentVariation+2)*nodesPerVariation) - (int)((currentVariation+1)*nodesPerVariation);
+				final int startIndex = i;
+				
+				
+				for ( ; i<startIndex + currentNumOfNodes; i++ )
+					ret[i] = generateSubproblemString(i - startIndex, currentNumOfNodes, noc, currentVariation).getBytes();
+				i--;
 			}
 		}
 		
@@ -182,10 +188,43 @@ public class DVRPSolver extends TaskSolver
 	}
 
 	/* PRIVATE AUXILIARY FUNCTIONS */
-	private String beginingPath(int i, final int nodesPerVariation, final int numberOfClients)
+	
+	private double numOfDifferentPaths(int numOfNodes)
 	{
-		//final double log_mN = Math.log(numberOfClients) / Math.log(nodesPerVariation);
-		//final int pathLen = (int)Math.ceil( 0 );
+		int ret = 1;
+		while ( ret < numOfNodes )
+			ret*= 2;
+		return ret;
+	}
+	
+	private int pathLen(int numOfNodes)
+	{
+		int v = 1, len = 0;
+		while ( v < numOfNodes )
+		{
+			v*= 2;
+			len++;
+		}
+		return len;
+	}
+	
+	private String generateSubproblemString(final int nodeNum, final int numberOfNodes, final int numberOfClients, final int currentVariation)
+	{
+		final double currentPathsPerNode = numOfDifferentPaths(numberOfNodes) / numberOfNodes;
+		final int pathsForThisNode = (int)((nodeNum+2)*currentPathsPerNode) - (int)((nodeNum+1)*currentPathsPerNode);
+		final int pathLenForThisNode = pathLen(numberOfNodes);
+		String ret = "P " + currentVariation + " " + pathLenForThisNode + " " + pathsForThisNode + "\n";
+		
+		for ( int i=0; i<pathsForThisNode; i++ )
+			ret += beginingPath(numberOfClients, pathLenForThisNode, i) + ( i<pathsForThisNode-1 ? "\n" : "" );
+		
+		return ret;
+	}
+	
+	
+	private String beginingPath(final int numberOfClients, final int pathLen, final int pathNum)
+	{
+		
 		return "";
 	}
 	
