@@ -8,9 +8,12 @@ import java.util.Map;
 
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericComponent.ComponentType;
+import GenericCommonClasses.Parser.MessageType;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
+import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
+import XMLMessages.SolvePartialProblems;
 import XMLMessages.RegisterResponse.BackupCommunicationServers;
 import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
 import XMLMessages.Solutiones.Solutions.Solution;
@@ -65,8 +68,8 @@ class CommunicationThread implements IServerProtocol
 			BigInteger solvingTimeout)
 	{
 		BigInteger id = core.getCurrentFreeProblemId();
-		core.problemsToSolve.put(core.getCurrentFreeProblemId(),
-				new ProblemInfo(id, data, problemType, solvingTimeout));
+		core.problemsToSolve.put(id, new ProblemInfo(id, data, problemType,
+				solvingTimeout));
 
 		return id;
 	}
@@ -86,36 +89,49 @@ class CommunicationThread implements IServerProtocol
 
 		switch (getComponentTypeFromId(id))
 		{
-			case TaskManager:
-				TaskManagerInfo taskManager = core.taskManagers.get(id);
+		case TaskManager:
+			TaskManagerInfo taskManager = core.taskManagers.get(id);
 
-				while ((freeThreads--) > 0 && it.hasNext())
+			while ((freeThreads--) > 0 && it.hasNext())
+			{
+				IMessage m = it.next();
+				// TODO: Set taskManager's id in message
+				// TODO: Fill number of CN in DivideProblem message
+				if (taskManager.isProblemSupported(m))
 				{
-					IMessage m = it.next();
-					// TODO: Fill number of CN in DivideProblem message
-					if (taskManager.isProblemSupported(m)) messages.add(m);
-
+					if (m.getMessageType() == MessageType.DIVIDE_PROBLEM
+							&& core.computationalNodes.size() > 0)
+					{
+						DivideProblem message = (DivideProblem) m;
+						message.setNodeID(id);
+						;
+						message.setComputationalNodes(new BigInteger(String
+								.valueOf(core.computationalNodes.size())));
+					}
+					messages.add(m);
 				}
-				taskManager.assignedMessages.addAll(messages);
 
-				break;
+			}
+			taskManager.assignedMessages.addAll(messages);
 
-			case ComputationalNode:
-				ComputationalNodeInfo computationalNode = core.computationalNodes
-						.get(id);
+			break;
 
-				while ((freeThreads--) > 0 && it.hasNext())
-				{
-					IMessage m = it.next();
-					if (computationalNode.isProblemSupported(m))
-						messages.add(m);
-				}
-				computationalNode.assignedMessages.addAll(messages);
+		case ComputationalNode:
+			ComputationalNodeInfo computationalNode = core.computationalNodes
+					.get(id);
 
-				break;
+			while ((freeThreads--) > 0 && it.hasNext())
+			{
+				IMessage m = it.next();
+				if (computationalNode.isProblemSupported(m))
+					messages.add(m);
+			}
+			computationalNode.assignedMessages.addAll(messages);
 
-			default:
-				break;
+			break;
+
+		default:
+			break;
 		}
 		core.delayedMessages.removeAll(messages);
 
@@ -154,53 +170,6 @@ class CommunicationThread implements IServerProtocol
 		return solution;
 	}
 
-	// /**
-	// * <p>
-	// * Receives partial solution from ComputationalNode.
-	// * </p>
-	// *
-	// * @param problem
-	// * @param message
-	// */
-	// void receivePartialSolution(ProblemInfo problem, Solutiones message)
-	// {
-	// BigInteger problemId = message.getId();
-	//
-	// problem.partialSolutions.addAll(message.getSolutions().getSolution());
-	// problem.parts -= message.getSolutions().getSolution().size();
-	//
-	// if (problem.parts == 0)
-	// {
-	// problem.isProblemReadyToSolve = true;
-	// }
-	//
-	// // Remove problems from CN
-	// for (Map.Entry<BigInteger, ComputationalNodeInfo> entry :
-	// core.computationalNodes
-	// .entrySet())
-	// {
-	// ComputationalNodeInfo computationalNode = entry.getValue();
-	// if (computationalNode.assignedPartialProblems
-	// .containsKey(problemId))
-	// {
-	// List<PartialProblem> partialProblems =
-	// computationalNode.assignedPartialProblems
-	// .get(problemId);
-	// for (int i = 0; i < partialProblems.size(); i++)
-	// {
-	// if (partialProblems
-	// .get(i)
-	// .getTaskId()
-	// .equals(message.getSolutions().getSolution().get(0)
-	// .getTaskId()))
-	// {
-	// partialProblems.remove(i);
-	// }
-	// }
-	// }
-	// }
-	// }
-
 	@Override
 	public int getServerTimeout()
 	{
@@ -219,8 +188,7 @@ class CommunicationThread implements IServerProtocol
 					core.backupServer.address);
 			backupServers.getBackupCommunicationServer().setPort(
 					core.backupServer.port);
-		}
-		else
+		} else
 			backupServers = null;
 
 		return backupServers;
@@ -278,6 +246,29 @@ class CommunicationThread implements IServerProtocol
 	}
 
 	@Override
+	public void removeComputationalNodeSpecificMessage(BigInteger problemId,
+			BigInteger taskId)
+	{
+		LOOP: for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
+				.entrySet())
+		{
+			ComputationalNodeInfo computationalNode = entry.getValue();
+
+			for (int i = 0; i < computationalNode.assignedMessages.size(); i++)
+				if (computationalNode.assignedMessages.get(i).getProblemId()
+						.equals(problemId)
+						&& ((SolvePartialProblems) computationalNode.assignedMessages
+								.get(i)).getPartialProblems()
+								.getPartialProblem().get(0).getTaskId()
+								.equals(taskId))
+				{
+					computationalNode.assignedMessages.remove(i);
+					break LOOP;
+				}
+		}
+	}
+
+	@Override
 	public List<Solution> informAboutProblemSolution(BigInteger problemId,
 			Solution solution)
 	{
@@ -287,8 +278,8 @@ class CommunicationThread implements IServerProtocol
 		if (problem.parts == 0)
 		{
 			problem.finalSolution = solution;
-		}
-		else
+			removeTaskManagerSpecificMessage(problemId);
+		} else
 		// Received partial solution
 		{
 			problem.partialSolutions.add(solution);

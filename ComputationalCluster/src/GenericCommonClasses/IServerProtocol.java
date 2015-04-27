@@ -147,6 +147,18 @@ public interface IServerProtocol
 
 	/**
 	 * <p>
+	 * Removes message from ComputationalNode that held information about
+	 * specific partial problem.
+	 * </p>
+	 * 
+	 * @param problemId
+	 * @param taskId
+	 */
+	public void removeComputationalNodeSpecificMessage(BigInteger problemId,
+			BigInteger taskId);
+
+	/**
+	 * <p>
 	 * Saves problem (partial) solution and returns list of all partial
 	 * solutions that should be merged. Otherwise (if received solution was
 	 * final or not all partial solutions are yet available) returns null.

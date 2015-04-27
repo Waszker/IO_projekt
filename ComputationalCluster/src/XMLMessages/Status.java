@@ -445,7 +445,7 @@ public class Status extends AbstractMessage
 		int freeThreads = 0;
 
 		for (Threads.Thread t : getThreads().thread)
-			if (t.state.contentEquals("idle")) freeThreads++;
+			if (t.state.contentEquals("Idle")) freeThreads++;
 
 		return freeThreads;
 	}

@@ -499,7 +499,8 @@ public class Solutiones extends AbstractMessage
 			solutionsToMerge = serverProtocol.informAboutProblemSolution(
 					getId(), s);
 
-		// Received final solution?
+		// Received all partial solutions?
+		// so prepare them for merging
 		if (solutionsToMerge != null)
 		{
 			Solutions solution = new Solutions();

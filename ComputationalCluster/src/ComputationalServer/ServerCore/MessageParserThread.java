@@ -105,54 +105,6 @@ class MessageParserThread extends Thread
 			Logger.log(e.getMessage() + "\n");
 			sendErrorMessage(socket);
 		}
-		
-		// try
-		// {
-		// switch (message.getMessageType())
-		// {
-		// case REGISTER:
-		// communicationThread.reactToRegisterMessage((Register) message,
-		// socket);
-		// break;
-		//
-		// case STATUS:
-		// communicationThread.reactToStatusMessage((Status) message,
-		// socket);
-		// break;
-		//
-		// case SOLVE_REQUEST:
-		// communicationThread.reactToSolveRequest((SolveRequest) message,
-		// socket);
-		// break;
-		//
-		// case SOLUTION_REQUEST:
-		// communicationThread.reactToSolutionRequest(
-		// (SolutionRequest) message, socket);
-		// break;
-		//
-		// case PARTIAL_PROBLEM:
-		// communicationThread.reactToPartialProblems(
-		// (SolvePartialProblems) message, socket);
-		// break;
-		//
-		// case SOLUTION:
-		// communicationThread.reactToSolution((Solutiones) message,
-		// socket);
-		// break;
-		//
-		// default:
-		// Logger.log("Unsupported message " + message.getString()
-		// + "\n\n");
-		// sendErrorMessage(socket);
-		// break;
-		// }
-		// core.informAboutComponentChanges();
-		// }
-		// catch (NullPointerException e)
-		// {
-		// Logger.log(e.getMessage() + "\n");
-		// sendErrorMessage(socket);
-		// }
 	}
 
 	private void sendErrorMessage(Socket socket) throws IOException
