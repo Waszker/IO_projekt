@@ -8,15 +8,15 @@ import java.util.Map;
 
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericComponent.ComponentType;
-import GenericCommonClasses.Parser.MessageType;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.IServerProtocol;
+import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
-import XMLMessages.SolvePartialProblems;
 import XMLMessages.RegisterResponse.BackupCommunicationServers;
 import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
 import XMLMessages.Solutiones.Solutions.Solution;
+import XMLMessages.SolvePartialProblems;
 
 /**
  * <p>
@@ -35,7 +35,6 @@ class CommunicationThread implements IServerProtocol
 	/* VARIABLES */
 	/******************/
 	ComputationalServerCore core;
-	private MessageGeneratorThread messageGenerator;
 
 	/******************/
 	/* FUNCTIONS */
@@ -50,7 +49,6 @@ class CommunicationThread implements IServerProtocol
 	public CommunicationThread(ComputationalServerCore core)
 	{
 		this.core = core;
-		messageGenerator = new MessageGeneratorThread(core);
 	}
 
 	@Override
@@ -77,7 +75,21 @@ class CommunicationThread implements IServerProtocol
 	@Override
 	public NoOperation getNoOperationMessage()
 	{
-		return messageGenerator.getNoOperationMessage();
+		NoOperation noOperation = new NoOperation();
+		XMLMessages.NoOperation.BackupCommunicationServers backupServers = new XMLMessages.NoOperation.BackupCommunicationServers();
+
+		if (null != core.backupServer)
+		{
+			backupServers
+					.setBackupCommunicationServer(new XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer());
+			backupServers.getBackupCommunicationServer().setAddress(
+					core.backupServer.address);
+			backupServers.getBackupCommunicationServer().setPort(
+					core.backupServer.port);
+		}
+		noOperation.setBackupCommunicationServers(backupServers);
+
+		return noOperation;
 	}
 
 	@Override
