@@ -130,6 +130,7 @@ public class ComputationalNode extends GenericComponent
 		Solution s = new Solution();
 		s.setTaskId(taskId);
 		s.setTimeoutOccured(false);
+		s.setType("Partial");
 
 		s.setData(solutions);
 
