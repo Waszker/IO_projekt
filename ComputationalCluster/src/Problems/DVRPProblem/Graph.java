@@ -1,6 +1,6 @@
 package Problems.DVRPProblem;
 
-class Graph
+public class Graph
 {
 	/* VARIABLES */
 	
