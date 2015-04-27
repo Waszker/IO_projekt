@@ -10,7 +10,7 @@ import java.util.List;
  * </p>
  * @author Filip
  */
-class SeparateDVRPSolver
+public class SeparateDVRPSolver
 {
 	/* VARIABLES */
 	private static double currentBest; //current best solution of oneDvrp function
@@ -39,7 +39,7 @@ class SeparateDVRPSolver
 		return false;
 	}
 	
-	// checks if we can wait for the client
+	// checks if we can wait for the client (wait and go to him without going to depot)
 	private static boolean canWait(Client to, double currentCargo)
 	{
 		if ( currentCargo < to.size )return false;
