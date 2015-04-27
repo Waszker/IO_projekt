@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 
 import pl.edu.pw.mini.se2.TaskSolver;
 import pl.edu.pw.mini.se2.okulewicz.IntegralTaskSolver;
+import Problems.DVRPSolver;
 import Problems.TestProblem;
 import XMLMessages.DivideProblem;
 import XMLMessages.Solutiones;
@@ -20,7 +21,7 @@ import XMLMessages.SolvePartialProblems;
 public class ProblemHelper
 {
 	public static String[] types = {
-		"TestProblem", "IntegralProblem"
+		"TestProblem", "IntegralProblem", Problems.DVRPSolver.PROBLEMNAME
 	};
 	
 	/**
@@ -74,6 +75,10 @@ public class ProblemHelper
 			case "IntegralProblem":
 				ret = new IntegralTaskSolver(data);
 				break;
+				
+			case Problems.DVRPSolver.PROBLEMNAME:
+				ret = new DVRPSolver(data);
+				break;
 		}
 		
 		return ret;
@@ -96,6 +101,9 @@ public class ProblemHelper
 				
 
 			case "IntegralProblem":
+				return new String(data, Charset.forName("UTF-8"));
+				
+			case Problems.DVRPSolver.PROBLEMNAME:
 				return new String(data, Charset.forName("UTF-8"));
 				
 			default:
