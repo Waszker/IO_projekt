@@ -14,7 +14,7 @@ import GenericCommonClasses.GenericComponent.ComponentType;
 public class ComputationalClientTests
 {
 	@Test
-	public void ComputationalClientTest1()
+	public void ComputationalClientWithDefaultParametersTest1()
 	{
 		ComputationalClient client = new ComputationalClient(null, null, false,
 				null, null);
@@ -26,7 +26,7 @@ public class ComputationalClientTests
 	}
 
 	@Test
-	public void ComputationalClientTest2()
+	public void ComputationalClientWithIPAddressTest2()
 	{
 		ComputationalClient client = new ComputationalClient("127.0.0.1", null,
 				false, null, null);
@@ -38,7 +38,7 @@ public class ComputationalClientTests
 	}
 
 	@Test
-	public void ComputationalClientTest3()
+	public void ComputationalClientWithPortTest3()
 	{
 		ComputationalClient client = new ComputationalClient(null, 1234, false,
 				null, null);
@@ -50,7 +50,7 @@ public class ComputationalClientTests
 	}
 
 	@Test
-	public void ComputationalClientTest4()
+	public void ComputationalClientWithFilePathTest4()
 	{
 		ComputationalClient client = new ComputationalClient(null, null, false,
 				"D:/a.txt", null);
@@ -63,7 +63,7 @@ public class ComputationalClientTests
 	}
 
 	@Test
-	public void ComputationalClientTest5()
+	public void ComputationalClientWithTimeoutTest5()
 	{
 		ComputationalClient client = new ComputationalClient(null, null, false,
 				null, 123456);
@@ -74,7 +74,7 @@ public class ComputationalClientTests
 	}
 
 	@Test
-	public void ComputationalClientTest6()
+	public void ComputationalClientWithAllParametersTest6()
 	{
 		ComputationalClient client = new ComputationalClient("127.0.0.1", 1234,
 				false, "D:/a.txt", 5555);

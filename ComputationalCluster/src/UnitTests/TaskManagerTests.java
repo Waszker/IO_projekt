@@ -25,7 +25,7 @@ import GenericCommonClasses.GenericComponent.ComponentType;
 public class TaskManagerTests
 {
 	@Test
-	public void TaskManagerTest1()
+	public void TaskManagerWithDefaultParametersTest1()
 	{
 		TaskManager manager = new TaskManager(null, null, false);
 		assertEquals(manager.getType(), ComponentType.TaskManager);
@@ -34,7 +34,7 @@ public class TaskManagerTests
 	}
 
 	@Test
-	public void TaskManagerTest2()
+	public void TaskManagerWithIPAddressTest2()
 	{
 		TaskManager manager = new TaskManager("127.0.0.1", null, false);
 		assertEquals(manager.getType(), ComponentType.TaskManager);
@@ -43,7 +43,7 @@ public class TaskManagerTests
 	}
 
 	@Test
-	public void TaskManagerTest3()
+	public void TaskManagerWithPortTest3()
 	{
 		TaskManager manager = new TaskManager(null, 1234, false);
 		assertEquals(manager.getType(), ComponentType.TaskManager);
@@ -52,7 +52,7 @@ public class TaskManagerTests
 	}
 
 	@Test
-	public void TaskManagerTest4()
+	public void TaskManagerWithAllParametersTest4()
 	{
 		TaskManager manager = new TaskManager("127.0.0.1", 1234, false);
 		assertEquals(manager.getType(), ComponentType.TaskManager);
@@ -160,7 +160,7 @@ public class TaskManagerTests
 		for ( int i=0; i<testResults.length; i++ )
 			expected += testResults[i];
 		
-		//comparsion
+		//Comparison
 		assertEquals(problemID, response.getId().intValue());
 		assert(response.getProblemType().contentEquals(problemType));
 		assertEquals(1, response.getSolutions().getSolution().size());
