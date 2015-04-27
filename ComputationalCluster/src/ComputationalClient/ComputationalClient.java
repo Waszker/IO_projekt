@@ -380,14 +380,11 @@ public class ComputationalClient extends GenericComponent
 				text=text+"\n"+vehiclesanddepotinfo[i][0]+" "+vehiclesanddepotinfo[i][1]+" "+vehiclesanddepotinfo[i][2]+" "+vehiclesanddepotinfo[i][3];
 		}
 		byte[] bytes = text.getBytes();
-		Logger.log("\n\ntext : \n***\n" + text
-				+ "\n***\n\n");
 		return bytes;
 	}
 
 	@Override
 	protected Status getStatusMessage() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
