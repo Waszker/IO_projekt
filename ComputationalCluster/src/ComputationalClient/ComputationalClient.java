@@ -1,8 +1,10 @@
 package ComputationalClient;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -10,11 +12,13 @@ import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Scanner;
 
 import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
+import Problems.DVRPSolver;
 import XMLMessages.NoOperation;
 import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
@@ -84,10 +88,11 @@ public class ComputationalClient extends GenericComponent
 	{
 		try
 		{
-			byte[] data = loadFile(this.dataFile);
+			byte[] data = loadFile2(this.dataFile);
 			SolveRequest sr = new SolveRequest();
 			//sr.setProblemType("TestProblem");
-			sr.setProblemType("IntegralProblem");
+			//sr.setProblemType("DVRP");
+			sr.setProblemType(DVRPSolver.PROBLEMNAME);
 			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
 			this.sendMessages(sr);
@@ -266,10 +271,120 @@ public class ComputationalClient extends GenericComponent
 		is.close();
 		return bytes;
 	}
+	
+	private static byte[] loadFile2(File file) throws IOException
+	{
+
+		int vehicles=-1;
+		int capacities=-1;
+		int depotnumber=-1;
+		int clients=-1;
+		double[][] vehiclesanddepotinfo=null;
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		 
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			Scanner linia = new Scanner(line);
+			switch(linia.next())
+			{
+			case "NUM_VISITS:":
+				clients=linia.nextInt();
+				break;
+			case "NUM_VEHICLES:":
+				vehicles=linia.nextInt();
+				vehiclesanddepotinfo=new double[vehicles+1][5];
+				break;
+			case "CAPACITIES:":
+				capacities=linia.nextInt();
+				break;
+			case "DEPOTS":
+				String depotsline = br.readLine();
+				Scanner liniad = new Scanner(depotsline);
+				depotnumber=liniad.nextInt();
+				break;
+			case "DEMAND_SECTION":
+				for(int i=0;i<vehicles;i++)
+				{
+					String vehicleline = br.readLine();
+					Scanner linia2 = new Scanner(vehicleline);
+					int vehiclenumber=linia2.nextInt();
+					int capacity=linia2.nextInt();
+					if(capacity<0)
+						capacity=-capacity;
+					vehiclesanddepotinfo[vehiclenumber][4]=capacity;
+				}
+				break;
+			case "LOCATION_COORD_SECTION":
+				for(int i=0;i<vehicles+1;i++)
+				{
+					String vehicleline = br.readLine();
+					Scanner linia2 = new Scanner(vehicleline);
+					int vehiclenumber=linia2.nextInt();
+					int x=linia2.nextInt();
+					int y=linia2.nextInt();
+					vehiclesanddepotinfo[vehiclenumber][0]=x;
+					vehiclesanddepotinfo[vehiclenumber][1]=y;
+				}
+				break;
+			case "DEPOT_LOCATION_SECTION":
+				break;
+			case "VISIT_LOCATION_SECTION":
+				break;
+			case "DURATION_SECTION":
+				for(int i=0;i<vehicles;i++)
+				{
+					String vehicleline = br.readLine();
+					Scanner linia2 = new Scanner(vehicleline);
+					int vehiclenumber=linia2.nextInt();
+					int unloadTime=linia2.nextInt();
+					vehiclesanddepotinfo[vehiclenumber][3]=unloadTime;
+				}
+				break;
+			case "DEPOT_TIME_WINDOW_SECTION":
+			{
+				String depottime = br.readLine();
+				Scanner linia2 = new Scanner(depottime);
+				int depotnum=linia2.nextInt();
+				int startHour=linia2.nextInt();
+				int endHour=linia2.nextInt();
+				vehiclesanddepotinfo[depotnum][2]=startHour;
+				vehiclesanddepotinfo[depotnum][3]=endHour;
+				break;
+			}
+			case "TIME_AVAIL_SECTION":
+				for(int i=0;i<vehicles;i++)
+				{
+					String vehicleline = br.readLine();
+					Scanner linia2 = new Scanner(vehicleline);
+					int vehiclenumber=linia2.nextInt();
+					int vstartHour=linia2.nextInt();
+					vehiclesanddepotinfo[vehiclenumber][2]=vstartHour;
+				}
+				break;
+			}
+		}
+	 
+		br.close();
+		/*
+		 * input string format:
+		 * 								  %d %f %f %d	 - number of vehicles, v. speed, v. capacity, number of clients
+		 * 		first entry is depot	: %f %f %f %f 	 - x,y,startHour,endHour
+		 * 		next entries are clients: %f %f %f %f %f - x,y,startHour,unloadTime,cargoSize
+		 */
+		String text=vehicles+" "+"1"+" "+capacities+" "+clients;
+		for(int i=0;i<vehicles+1;i++)
+		{
+			if(i!=depotnumber)
+				text=text+"\n"+vehiclesanddepotinfo[i][0]+" "+vehiclesanddepotinfo[i][1]+" "+vehiclesanddepotinfo[i][2]+" "+vehiclesanddepotinfo[i][3]+" "+vehiclesanddepotinfo[i][4];
+			else
+				text=text+"\n"+vehiclesanddepotinfo[i][0]+" "+vehiclesanddepotinfo[i][1]+" "+vehiclesanddepotinfo[i][2]+" "+vehiclesanddepotinfo[i][3];
+		}
+		byte[] bytes = text.getBytes();
+		return bytes;
+	}
 
 	@Override
 	protected Status getStatusMessage() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
