@@ -40,6 +40,7 @@ public final class TaskManager extends GenericComponent
 	/******************/
 	
 	private boolean firstNoOp = true; //if true, print assigned id, then turn into false
+	private boolean busy = false;
 
 	/******************/
 	/* FUNCTIONS */
@@ -121,7 +122,9 @@ public final class TaskManager extends GenericComponent
 		}
 		
 		Logger.log("Dividing problem among " + dvm.getComputationalNodes().intValue() + " nodes...\n");
+		busy = true;
 		SolvePartialProblems response = generateResponse(dvm, currentProblemTaskSolver, id);
+		busy = false;
 		try
 		{
 			Logger.log( "OK. Sending response...\n");
@@ -145,7 +148,9 @@ public final class TaskManager extends GenericComponent
 		}
 		
 		Logger.log("Merging " + sm.getSolutions().getSolution().size() + " results...\n");
+		busy = true;
 		Solutiones response = generateResponse(sm, currentProblemTaskSolver);
+		busy = false;
 		try
 		{
 			Logger.log("Sending response...\n");
@@ -222,7 +227,7 @@ public final class TaskManager extends GenericComponent
 		Threads threads = new Threads();
 		Thread thread = new Thread();
 		thread.setHowLong(BigInteger.valueOf(5000));
-		thread.setState("Idle");
+		thread.setState(busy ? "Busy" : "Idle");
 		threads.getThread().add(thread);
 		ret.setId(id);
 		ret.setThreads(threads);

@@ -6,6 +6,7 @@ import java.util.Scanner;
 import Problems.DVRPProblem.Client;
 import Problems.DVRPProblem.Depot;
 import Problems.DVRPProblem.Graph;
+import Problems.DVRPProblem.IGraphNode;
 import Problems.DVRPProblem.SeparateDVRPSolver;
 import pl.edu.pw.mini.se2.TaskSolver;
 import pl.edu.pw.mini.se2.TaskSolverState;
@@ -103,7 +104,11 @@ public class DVRPSolver extends TaskSolver
 			{
 				double cost = s.nextDouble();
 				if ( cost < lowestCost )
+				{
 					lowestCost = cost;
+					//int len = s.nextInt();
+					
+				}
 			}
 			
 			else
@@ -131,15 +136,28 @@ public class DVRPSolver extends TaskSolver
 		{
 			final int from = s.nextInt();
 			final int to = s.nextInt();
-			Double lowerCost = Double.MAX_VALUE; 
+			Double lowerCost = Double.MAX_VALUE;
+			//IGraphNode[] path = null;
 			for ( int i=from; i<to; i++ )
 			{
 				double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity);
 				if ( cost < lowerCost )
+				{
 					lowerCost = cost;
+					//path = SeparateDVRPSolver.path;
+				}
 			}
 			
 			ret = "S " + lowerCost.toString();
+			
+			/*
+			if ( path == null )ret+=" 0";
+			else
+			{
+				ret+= " " + path.length;
+				for ( int j=0; j<path.length; j++ )
+					ret+=" "+path[j].getX()+" "+path[j].getY();
+			}*/
 		}
 		
 		else
