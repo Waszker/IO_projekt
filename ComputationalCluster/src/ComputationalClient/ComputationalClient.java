@@ -309,6 +309,8 @@ public class ComputationalClient extends GenericComponent
 					Scanner linia2 = new Scanner(vehicleline);
 					int vehiclenumber=linia2.nextInt();
 					int capacity=linia2.nextInt();
+					if(capacity<0)
+						capacity=-capacity;
 					vehiclesanddepotinfo[vehiclenumber][4]=capacity;
 				}
 				break;
