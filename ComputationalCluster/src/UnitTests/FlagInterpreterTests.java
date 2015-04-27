@@ -13,7 +13,7 @@ public class FlagInterpreterTests
 {
 
 	@Test
-	public void flagInterpreterTest1()
+	public void flagInterpreterWithPortTest1()
 	{
 		try
 		{
@@ -37,7 +37,7 @@ public class FlagInterpreterTests
 	}
 
 	@Test
-	public void flagInterpreterTest2()
+	public void flagInterpreterWithPortAndGoodAddressTest2()
 	{
 		try
 		{
@@ -61,7 +61,7 @@ public class FlagInterpreterTests
 	}
 
 	@Test
-	public void flagInterpreterTest3()
+	public void flagInterpreterWithPortAndBadAddressTest3()
 	{
 		try
 		{
@@ -81,7 +81,7 @@ public class FlagInterpreterTests
 	}
 
 	@Test
-	public void flagInterpreterTest4()
+	public void flagInterpreterWithPortAddressGuiAndBackupTest4()
 	{
 		try
 		{
@@ -106,7 +106,7 @@ public class FlagInterpreterTests
 	}
 
 	@Test
-	public void flagInterpreterTest5()
+	public void flagInterpreterWithTimeoutTest5()
 	{
 		try
 		{
@@ -130,7 +130,7 @@ public class FlagInterpreterTests
 	}
 
 	@Test
-	public void flagInterpreterTest6()
+	public void flagInterpreterWithBadPortTest6()
 	{
 		try
 		{
