@@ -9,6 +9,7 @@ import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.DivideProblem;
+import XMLMessages.Solutiones;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.Solutiones.Solutions.Solution;
 
@@ -92,6 +93,12 @@ class CommunicationThread extends AbstractServerCoreProtocol
 							message.setComputationalNodes(new BigInteger(String
 									.valueOf(core.computationalNodes.size())));
 						}
+						else
+						{
+							Solutiones message = (Solutiones) m;
+							message.getSolutions().getSolution().get(0)
+									.setTaskId(id);
+						}
 						messages.add(m);
 					}
 
@@ -108,7 +115,12 @@ class CommunicationThread extends AbstractServerCoreProtocol
 				{
 					IMessage m = it.next();
 					if (computationalNode.isProblemSupported(m))
+					{
+						SolvePartialProblems message = (SolvePartialProblems) m;
+						message.getPartialProblems().getPartialProblem().get(0)
+								.setNodeID(id);
 						messages.add(m);
+					}
 				}
 				computationalNode.assignedMessages.addAll(messages);
 
@@ -172,7 +184,7 @@ class CommunicationThread extends AbstractServerCoreProtocol
 		problem.parts = numberOfParts;
 		problem.isProblemDivided = true;
 		problem.isProblemCurrentlyDelegated = false;
-		
+
 		return false;
 	}
 

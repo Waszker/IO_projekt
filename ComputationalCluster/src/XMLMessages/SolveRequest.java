@@ -184,8 +184,10 @@ public class SolveRequest extends AbstractMessage
 		// Inform CC about problem id
 		messages.add(serverProtocol.getNoOperationMessage());
 		messages.add(new SolveRequestResponse(id));
-		GenericProtocol.sendMessages(socket,
-				messages.toArray(new IMessage[messages.size()]));
+
+		if (null != socket)
+			GenericProtocol.sendMessages(socket,
+					messages.toArray(new IMessage[messages.size()]));
 
 		// Relay information for BS
 		setId(id);

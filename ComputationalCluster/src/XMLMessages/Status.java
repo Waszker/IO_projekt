@@ -420,8 +420,11 @@ public class Status extends AbstractMessage
 			case ComputationalNode:
 				serverProtocol.informAboutComponentStatusMessage(getId());
 				responses.add(serverProtocol.getNoOperationMessage());
-				responses.addAll(serverProtocol.getStatusResponseMessages(
-						getId(), getFreeThreads()));
+				List<IMessage> statusIMessages = serverProtocol
+						.getStatusResponseMessages(getId(), getFreeThreads());
+				responses.addAll(statusIMessages);
+				for (IMessage m : statusIMessages)
+					serverProtocol.addBackupServerMessage(m);
 				break;
 
 			case ComputationalServer:
@@ -436,8 +439,9 @@ public class Status extends AbstractMessage
 				break;
 		}
 
-		GenericProtocol.sendMessages(socket,
-				responses.toArray(new IMessage[responses.size()]));
+		if (null != socket)
+			GenericProtocol.sendMessages(socket,
+					responses.toArray(new IMessage[responses.size()]));
 	}
 
 	private int getFreeThreads()

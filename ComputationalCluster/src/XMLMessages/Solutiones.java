@@ -513,7 +513,8 @@ public class Solutiones extends AbstractMessage
 		// Relay information with BS
 		serverProtocol.addBackupServerMessage(this);
 
-		GenericProtocol.sendMessages(socket,
-				serverProtocol.getNoOperationMessage());
+		if (null != socket)
+			GenericProtocol.sendMessages(socket,
+					serverProtocol.getNoOperationMessage());
 	}
 }

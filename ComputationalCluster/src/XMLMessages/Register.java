@@ -297,7 +297,8 @@ public class Register extends AbstractMessage
 					componentType,
 					(null != getSolvableProblems() ? getSolvableProblems()
 							.getProblemName() : new ArrayList<String>()),
-					socket.getPort(), socket.getInetAddress().toString());
+					(null == socket ? 0 : socket.getPort()),
+					(null == socket ? "" : socket.getInetAddress().toString()));
 
 			// If component is invalid
 			if (-1 == id.intValue()
@@ -322,7 +323,7 @@ public class Register extends AbstractMessage
 			}
 		}
 
-		GenericProtocol.sendMessages(socket, response);
+		if (null != socket) GenericProtocol.sendMessages(socket, response);
 	}
 
 	@Override
