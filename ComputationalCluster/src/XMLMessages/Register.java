@@ -292,9 +292,12 @@ public class Register extends AbstractMessage
 		{
 			GenericComponent.ComponentType componentType = getComponentType(getType());
 
-			BigInteger id = serverProtocol.registerComponent(componentType,
-					getSolvableProblems().getProblemName(), socket.getPort(),
-					socket.getInetAddress().toString());
+			BigInteger id = serverProtocol.registerComponent(getId(),
+					(null != isDeregister() && isDeregister().booleanValue()),
+					componentType,
+					(null != getSolvableProblems() ? getSolvableProblems()
+							.getProblemName() : new ArrayList<String>()),
+					socket.getPort(), socket.getInetAddress().toString());
 
 			// If component is invalid
 			if (-1 == id.intValue()
@@ -319,7 +322,7 @@ public class Register extends AbstractMessage
 			}
 		}
 
-		GenericProtocol.sendMessages(socket, response);	
+		GenericProtocol.sendMessages(socket, response);
 	}
 
 	@Override

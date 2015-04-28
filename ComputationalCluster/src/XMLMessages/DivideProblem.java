@@ -227,8 +227,7 @@ public class DivideProblem extends AbstractMessage
 	protected void getMessageResponse(IServerProtocol serverProtocol,
 			Socket socket, List<IMessage> delayedResponse) throws IOException
 	{
-		// TODO Auto-generated method stub
-
+		serverProtocol.reactToDivideProblem(getNodeID(), getId());
 	}
 
 	@Override

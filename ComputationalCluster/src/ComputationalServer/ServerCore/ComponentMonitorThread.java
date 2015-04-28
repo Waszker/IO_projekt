@@ -70,7 +70,7 @@ class ComponentMonitorThread extends Thread
 		{
 			isValid = false;
 		}
-		else
+		else if(!core.isInBackupMode)
 		{
 			if (null != scheduledRemovals.get(id))
 			{

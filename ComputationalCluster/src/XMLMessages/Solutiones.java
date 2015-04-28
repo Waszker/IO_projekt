@@ -496,8 +496,9 @@ public class Solutiones extends AbstractMessage
 		List<Solution> solutionsToMerge = null;
 
 		for (Solution s : getSolutions().getSolution())
-			solutionsToMerge = serverProtocol.informAboutProblemSolution(
-					getId(), s);
+			solutionsToMerge = serverProtocol
+					.informAboutProblemSolution(getId(), getSolutions()
+							.getSolution().get(0).getTaskId(), s);
 
 		// Received all partial solutions?
 		// so prepare them for merging

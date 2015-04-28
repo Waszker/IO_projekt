@@ -435,24 +435,28 @@ public class SolvePartialProblems extends AbstractMessage
 	protected void getMessageResponse(IServerProtocol serverProtocol,
 			Socket socket, List<IMessage> delayedResponse) throws IOException
 	{
-		serverProtocol.setProblemPartsInfo(getId(), getCommonData(),
-				getPartialProblems().getPartialProblem().size());
 		serverProtocol.removeTaskManagerSpecificMessage(getId());
-
-		// Add each partial problem to delayed list
-		for (PartialProblem p : getPartialProblems().getPartialProblem())
+		if (!serverProtocol.setProblemPartsInfo(getId(), getCommonData(),
+				getPartialProblems().getPartialProblem()))
 		{
-			PartialProblems problems = new PartialProblems();
-			problems.getPartialProblem().add(p);
-			delayedResponse.add(new SolvePartialProblems(getProblemType(),
-					getId(), getCommonData(), getSolvingTimeout(), problems));
+
+			// Add each partial problem to delayed list
+			for (PartialProblem p : getPartialProblems().getPartialProblem())
+			{
+				PartialProblems problems = new PartialProblems();
+				problems.getPartialProblem().add(p);
+				delayedResponse
+						.add(new SolvePartialProblems(getProblemType(),
+								getId(), getCommonData(), getSolvingTimeout(),
+								problems));
+			}
+
+			GenericProtocol.sendMessages(socket,
+					serverProtocol.getNoOperationMessage());
+
+			// Relay information with BS
+			serverProtocol.addBackupServerMessage(this);
 		}
-
-		GenericProtocol.sendMessages(socket,
-				serverProtocol.getNoOperationMessage());
-
-		// Relay information with BS
-		serverProtocol.addBackupServerMessage(this);
 	}
 
 	@Override

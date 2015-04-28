@@ -5,6 +5,7 @@ import java.util.List;
 
 import GenericCommonClasses.GenericComponent.ComponentType;
 import XMLMessages.NoOperation;
+import XMLMessages.SolvePartialProblems;
 import XMLMessages.RegisterResponse.BackupCommunicationServers;
 import XMLMessages.Solutiones.Solutions.Solution;
 
@@ -56,7 +57,7 @@ public interface IServerProtocol
 	 * @param componentType
 	 * @return
 	 */
-	public BigInteger registerComponent(
+	public BigInteger registerComponent(BigInteger sentId, boolean deregister,
 			GenericComponent.ComponentType componentType,
 			List<String> solvableProblems, Integer port, String address);
 
@@ -120,8 +121,8 @@ public interface IServerProtocol
 	 * @param problemType
 	 * @param solvingTimeout
 	 */
-	public BigInteger registerProblem(byte[] data, String problemType,
-			BigInteger solvingTimeout);
+	public BigInteger registerProblem(BigInteger sentId, byte[] data,
+			String problemType, BigInteger solvingTimeout);
 
 	/**
 	 * <p>
@@ -131,9 +132,12 @@ public interface IServerProtocol
 	 * @param id
 	 * @param commonData
 	 * @param numberOfParts
+	 * @return if server is in backup mode
 	 */
-	public void setProblemPartsInfo(BigInteger id, byte[] commonData,
-			int numberOfParts);
+	public boolean setProblemPartsInfo(
+			BigInteger id,
+			byte[] commonData,
+			List<SolvePartialProblems.PartialProblems.PartialProblem> partialProblems);
 
 	/**
 	 * <p>
@@ -169,7 +173,7 @@ public interface IServerProtocol
 	 * @return
 	 */
 	public List<Solution> informAboutProblemSolution(BigInteger problemId,
-			Solution solution);
+			BigInteger taskManagerId, Solution solution);
 
 	/**
 	 * <p>
@@ -179,4 +183,6 @@ public interface IServerProtocol
 	 * @param componentId
 	 */
 	public void informAboutComponentStatusMessage(BigInteger componentId);
+	
+	public void reactToDivideProblem(BigInteger taskManagerId, BigInteger problemId);
 }

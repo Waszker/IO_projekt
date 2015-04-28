@@ -4,19 +4,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import GenericCommonClasses.GenericComponent;
-import GenericCommonClasses.GenericComponent.ComponentType;
 import GenericCommonClasses.IMessage;
-import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.DivideProblem;
-import XMLMessages.NoOperation;
-import XMLMessages.RegisterResponse.BackupCommunicationServers;
-import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
-import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
+import XMLMessages.Solutiones.Solutions.Solution;
 
 /**
  * <p>
@@ -29,12 +23,11 @@ import XMLMessages.SolvePartialProblems;
  * @version 1.1 complete refactoring for the more object-oriented approach
  * 
  */
-class CommunicationThread implements IServerProtocol
+class CommunicationThread extends AbstractServerCoreProtocol
 {
 	/******************/
 	/* VARIABLES */
 	/******************/
-	ComputationalServerCore core;
 
 	/******************/
 	/* FUNCTIONS */
@@ -48,48 +41,28 @@ class CommunicationThread implements IServerProtocol
 	 */
 	public CommunicationThread(ComputationalServerCore core)
 	{
-		this.core = core;
+		super(core);
 	}
 
 	@Override
-	public BigInteger registerComponent(
-			GenericComponent.ComponentType componentType,
+	public BigInteger registerComponent(BigInteger receivedId,
+			boolean deregister, GenericComponent.ComponentType componentType,
 			List<String> solvableProblems, Integer remotePort,
 			String remoteAddress)
 	{
-		return core.registerComponent(componentType, solvableProblems,
+		return core.registerComponent(null, componentType, solvableProblems,
 				remotePort, remoteAddress);
 	}
 
 	@Override
-	public BigInteger registerProblem(byte[] data, String problemType,
-			BigInteger solvingTimeout)
+	public BigInteger registerProblem(BigInteger sentId, byte[] data,
+			String problemType, BigInteger solvingTimeout)
 	{
-		BigInteger id = core.getCurrentFreeProblemId();
+		BigInteger id = core.getCurrentFreeProblemId(null);
 		core.problemsToSolve.put(id, new ProblemInfo(id, data, problemType,
 				solvingTimeout));
 
 		return id;
-	}
-
-	@Override
-	public NoOperation getNoOperationMessage()
-	{
-		NoOperation noOperation = new NoOperation();
-		XMLMessages.NoOperation.BackupCommunicationServers backupServers = new XMLMessages.NoOperation.BackupCommunicationServers();
-
-		if (null != core.backupServer)
-		{
-			backupServers
-					.setBackupCommunicationServer(new XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer());
-			backupServers.getBackupCommunicationServer().setAddress(
-					core.backupServer.address);
-			backupServers.getBackupCommunicationServer().setPort(
-					core.backupServer.port);
-		}
-		noOperation.setBackupCommunicationServers(backupServers);
-
-		return noOperation;
 	}
 
 	@Override
@@ -182,107 +155,30 @@ class CommunicationThread implements IServerProtocol
 	}
 
 	@Override
-	public int getServerTimeout()
-	{
-		return core.timeout;
-	}
-
-	@Override
-	public BackupCommunicationServers getBackupServer()
-	{
-		BackupCommunicationServers backupServers = new BackupCommunicationServers();
-		if (null != core.backupServer)
-		{
-			backupServers
-					.setBackupCommunicationServer(new BackupCommunicationServer());
-			backupServers.getBackupCommunicationServer().setAddress(
-					core.backupServer.address);
-			backupServers.getBackupCommunicationServer().setPort(
-					core.backupServer.port);
-		}
-		else
-			backupServers = null;
-
-		return backupServers;
-	}
-
-	@Override
 	public void addBackupServerMessage(IMessage message)
 	{
 		core.listOfMessagesForBackupServer.add(message);
 	}
 
 	@Override
-	public ComponentType getComponentTypeFromId(BigInteger id)
-	{
-		ComponentType type = ComponentType.ComputationalClient;
-
-		if (core.taskManagers.containsKey(id))
-			type = ComponentType.TaskManager;
-		if (core.computationalNodes.containsKey(id))
-			type = ComponentType.ComputationalNode;
-		if (null != core.backupServer && core.backupServer.id.equals(id))
-			type = ComponentType.ComputationalServer;
-
-		return type;
-	}
-
-	@Override
-	public void setProblemPartsInfo(BigInteger id, byte[] commonData,
-			int numberOfParts)
+	public boolean setProblemPartsInfo(
+			BigInteger id,
+			byte[] commonData,
+			List<SolvePartialProblems.PartialProblems.PartialProblem> partialProblems)
 	{
 		ProblemInfo problem = core.problemsToSolve.get(id);
+		int numberOfParts = partialProblems.size();
 		problem.data = commonData.clone();
 		problem.parts = numberOfParts;
 		problem.isProblemDivided = true;
 		problem.isProblemCurrentlyDelegated = false;
-	}
-
-	@Override
-	public void removeTaskManagerSpecificMessage(BigInteger problemId)
-	{
-		LOOP: for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
-				.entrySet())
-		{
-			TaskManagerInfo taskManager = entry.getValue();
-
-			for (int i = 0; i < taskManager.assignedMessages.size(); i++)
-				if (taskManager.assignedMessages.get(i).getProblemId()
-						.equals(problemId))
-				{
-					taskManager.assignedMessages.remove(i);
-					break LOOP;
-				}
-		}
-
-	}
-
-	@Override
-	public void removeComputationalNodeSpecificMessage(BigInteger problemId,
-			BigInteger taskId)
-	{
-		LOOP: for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
-				.entrySet())
-		{
-			ComputationalNodeInfo computationalNode = entry.getValue();
-
-			for (int i = 0; i < computationalNode.assignedMessages.size(); i++)
-				if (computationalNode.assignedMessages.get(i).getProblemId()
-						.equals(problemId)
-						&& ((SolvePartialProblems) computationalNode.assignedMessages
-								.get(i)).getPartialProblems()
-								.getPartialProblem().get(0).getTaskId()
-								.equals(taskId))
-				{
-					computationalNode.assignedMessages.remove(i);
-					break LOOP;
-				}
-		}
+		
+		return false;
 	}
 
 	@Override
 	public List<Solution> informAboutProblemSolution(BigInteger problemId,
-			Solution solution)
+			BigInteger taskManagerId, Solution solution)
 	{
 		ProblemInfo problem = core.problemsToSolve.get(problemId);
 
@@ -309,5 +205,12 @@ class CommunicationThread implements IServerProtocol
 	public void informAboutComponentStatusMessage(BigInteger componentId)
 	{
 		core.componentMonitorThread.informaAboutConnectedComponent(componentId);
+	}
+
+	@Override
+	public void reactToDivideProblem(BigInteger taskManagerId,
+			BigInteger problemId)
+	{
+		// we should never receive this message!
 	}
 }

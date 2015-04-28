@@ -178,7 +178,7 @@ public class SolveRequest extends AbstractMessage
 	{
 		List<IMessage> messages = new ArrayList<>(2);
 
-		BigInteger id = serverProtocol.registerProblem(getData(),
+		BigInteger id = serverProtocol.registerProblem(getId(), getData(),
 				getProblemType(), getSolvingTimeout());
 
 		// Inform CC about problem id

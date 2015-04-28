@@ -151,50 +151,52 @@ public class ComputationalServerCore
 	 * @param address
 	 * @return
 	 */
-	BigInteger registerComponent(GenericComponent.ComponentType componentType,
+	BigInteger registerComponent(BigInteger suggestedId,
+			GenericComponent.ComponentType componentType,
 			List<String> solvableProblems, Integer port, String address)
 	{
 		BigInteger idForComponent = new BigInteger("-1");
 
 		switch (componentType)
 		{
-		case TaskManager:
-			Logger.log("TM connected\n");
-			idForComponent = getCurrentFreeComponentId();
-			taskManagers.put(idForComponent, new TaskManagerInfo(
-					idForComponent, solvableProblems));
-			componentMonitorThread
-					.informaAboutConnectedComponent(idForComponent);
-			break;
-
-		case ComputationalNode:
-			Logger.log("CN connected\n");
-			idForComponent = getCurrentFreeComponentId();
-			computationalNodes.put(idForComponent, new ComputationalNodeInfo(
-					idForComponent, solvableProblems));
-			componentMonitorThread
-					.informaAboutConnectedComponent(idForComponent);
-			break;
-
-		case ComputationalServer:
-			Logger.log("CS Connected\n");
-			if (null == backupServer)
-			{
-				idForComponent = new BigInteger("9999");
-				backupServer = (new BackupServerInformation(idForComponent,
-						port, address));
+			case TaskManager:
+				Logger.log("TM connected\n");
+				idForComponent = getCurrentFreeComponentId(suggestedId);
+				taskManagers.put(idForComponent, new TaskManagerInfo(
+						idForComponent, solvableProblems));
 				componentMonitorThread
 						.informaAboutConnectedComponent(idForComponent);
-			}
-			else
-			{
-				Logger.log("Only one Backup Server permitted! Rejecting...\n");
-			}
-			break;
+				break;
 
-		default:
-			Logger.log("Unsupported component Connected\n");
-			break;
+			case ComputationalNode:
+				Logger.log("CN connected\n");
+				idForComponent = getCurrentFreeComponentId(suggestedId);
+				computationalNodes.put(idForComponent,
+						new ComputationalNodeInfo(idForComponent,
+								solvableProblems));
+				componentMonitorThread
+						.informaAboutConnectedComponent(idForComponent);
+				break;
+
+			case ComputationalServer:
+				Logger.log("CS Connected\n");
+				if (null == backupServer)
+				{
+					idForComponent = new BigInteger("9999");
+					backupServer = (new BackupServerInformation(idForComponent,
+							port, address));
+					componentMonitorThread
+							.informaAboutConnectedComponent(idForComponent);
+				}
+				else
+				{
+					Logger.log("Only one Backup Server permitted! Rejecting...\n");
+				}
+				break;
+
+			default:
+				Logger.log("Unsupported component Connected\n");
+				break;
 		}
 
 		return idForComponent;
@@ -210,17 +212,19 @@ public class ComputationalServerCore
 		if (null != mainWindow) mainWindow.refreshConnectedComponents();
 	}
 
-	synchronized BigInteger getCurrentFreeProblemId()
+	synchronized BigInteger getCurrentFreeProblemId(BigInteger suggestedId)
 	{
 		BigInteger one = new BigInteger("1");
+		if (null != suggestedId) freeProblemId = suggestedId;
 		BigInteger result = new BigInteger(freeProblemId.toString());
 		freeProblemId = freeProblemId.add(one);
 		return result;
 	}
 
-	synchronized BigInteger getCurrentFreeComponentId()
+	synchronized BigInteger getCurrentFreeComponentId(BigInteger suggestedId)
 	{
 		BigInteger one = new BigInteger("1");
+		if (null != suggestedId) freeComponentId = suggestedId;
 		BigInteger result = new BigInteger(freeComponentId.toString());
 		freeComponentId = freeComponentId.add(one);
 		return result;
@@ -302,9 +306,9 @@ public class ComputationalServerCore
 			@Override
 			public void run()
 			{
-				MessageParserForBackupServer messageParser = new MessageParserForBackupServer(
+				CommunicationThreadForBackup backupCommunicationThread = new CommunicationThreadForBackup(
 						ComputationalServerCore.this);
-				messageParser.parseMessages();
+				backupCommunicationThread.parseMessages();
 				while (isInBackupMode)
 				{
 					Status statusMessage = new Status();
@@ -318,9 +322,9 @@ public class ComputationalServerCore
 								statusMessage);
 						List<IMessage> messages = GenericProtocol
 								.receiveMessage(connectionSocket);
-						messageParser.backupMessageQueue.addAll(messages);
+						backupCommunicationThread.backupMessageQueue.addAll(messages);
 						listOfMessagesForBackupServer.addAll(messages);
-						messageParser.messageSemaphore.release(messages.size());
+						backupCommunicationThread.messageSemaphore.release(messages.size());
 					}
 					catch (InterruptedException e)
 					{
