@@ -25,6 +25,7 @@ class TaskManagerInfo
 	/******************/
 	/* VARIABLES */
 	/******************/
+	int numberOfThreads;
 	BigInteger id;
 	List<IMessage> assignedMessages;
 	List<String> supportedProblems;
@@ -39,8 +40,9 @@ class TaskManagerInfo
 	 * 
 	 * @param id
 	 */
-	TaskManagerInfo(BigInteger id, List<String> solvableProblems)
+	TaskManagerInfo(int noOfThreads, BigInteger id, List<String> solvableProblems)
 	{
+		this.numberOfThreads = noOfThreads;
 		this.id = id;
 		assignedMessages = new ArrayList<>();
 

@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import DebugTools.Logger;
+import GenericCommonClasses.GenericComponent.ComponentType;
 import XMLMessages.Register;
 
 /**
@@ -70,7 +71,7 @@ class ComponentMonitorThread extends Thread
 		{
 			isValid = false;
 		}
-		else if(!core.isInBackupMode)
+		else if (!core.isInBackupMode)
 		{
 			if (null != scheduledRemovals.get(id))
 			{
@@ -87,7 +88,6 @@ class ComponentMonitorThread extends Thread
 					Logger.log("Timeout for component id: " + id
 							+ " has passed!\nDropping lease\n");
 					dropComponent(id);
-					core.informAboutComponentChanges();
 				}
 			}), core.timeout + 1, TimeUnit.SECONDS)));
 		}
@@ -97,12 +97,16 @@ class ComponentMonitorThread extends Thread
 
 	void dropComponent(BigInteger id)
 	{
+		ComponentType type = null;
+
 		if (core.taskManagers.containsKey(id))
 		{
+			type = ComponentType.TaskManager;
 			reactToTaskManagerFailure(id);
 		}
 		else if (core.computationalNodes.containsKey(id))
 		{
+			type = ComponentType.ComputationalNode;
 			reactToComputationalNodeFailure(id);
 		}
 
@@ -114,8 +118,9 @@ class ComponentMonitorThread extends Thread
 		else
 		{
 			invalidId.add(id);
-			informBackupServerAboutComponentFailure(id);
+			informBackupServerAboutComponentFailure(id, type);
 		}
+		core.informAboutComponentChanges();
 	}
 
 	private void reactToTaskManagerFailure(BigInteger id)
@@ -139,11 +144,13 @@ class ComponentMonitorThread extends Thread
 		core.computationalNodes.remove(id);
 	}
 
-	private void informBackupServerAboutComponentFailure(BigInteger id)
+	private void informBackupServerAboutComponentFailure(BigInteger id,
+			ComponentType type)
 	{
 		Register message = new Register();
 		message.setDeregister(true);
 		message.setId(id);
+		if (null != type) message.setType(type.name());
 
 		core.listOfMessagesForBackupServer.add(message);
 	}

@@ -495,10 +495,9 @@ public class Solutiones extends AbstractMessage
 	{
 		List<Solution> solutionsToMerge = null;
 
-		for (Solution s : getSolutions().getSolution())
-			solutionsToMerge = serverProtocol
-					.informAboutProblemSolution(getId(), getSolutions()
-							.getSolution().get(0).getTaskId(), s);
+		solutionsToMerge = serverProtocol.informAboutProblemSolutions(getId(),
+				getSolutions().getSolution().get(0).getTaskId(), getSolutions()
+						.getSolution());
 
 		// Received all partial solutions?
 		// so prepare them for merging
@@ -510,11 +509,12 @@ public class Solutiones extends AbstractMessage
 					getCommonData(), solution));
 		}
 
-		// Relay information with BS
-		serverProtocol.addBackupServerMessage(this);
-
 		if (null != socket)
+		{
+			// Relay information with BS
+			serverProtocol.addBackupServerMessage(this);
 			GenericProtocol.sendMessages(socket,
 					serverProtocol.getNoOperationMessage());
+		}
 	}
 }

@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import DebugTools.Logger;
 import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
 import XMLMessages.DivideProblem;
 import XMLMessages.Solutiones;
-import XMLMessages.SolvePartialProblems;
 import XMLMessages.Solutiones.Solutions.Solution;
+import XMLMessages.SolvePartialProblems;
 
 /**
  * <p>
@@ -47,12 +48,13 @@ class CommunicationThread extends AbstractServerCoreProtocol
 
 	@Override
 	public BigInteger registerComponent(BigInteger receivedId,
-			boolean deregister, GenericComponent.ComponentType componentType,
+			int numberOfThreads, boolean deregister,
+			GenericComponent.ComponentType componentType,
 			List<String> solvableProblems, Integer remotePort,
 			String remoteAddress)
 	{
-		return core.registerComponent(null, componentType, solvableProblems,
-				remotePort, remoteAddress);
+		return core.registerComponent(null, numberOfThreads, componentType,
+				solvableProblems, remotePort, remoteAddress);
 	}
 
 	@Override
@@ -71,59 +73,39 @@ class CommunicationThread extends AbstractServerCoreProtocol
 			int freeThreads)
 	{
 		List<IMessage> messages = new ArrayList<>(freeThreads);
-		Iterator<IMessage> it = core.delayedMessages.iterator();
 
 		switch (getComponentTypeFromId(id))
 		{
 			case TaskManager:
 				TaskManagerInfo taskManager = core.taskManagers.get(id);
-
-				while ((freeThreads--) > 0 && it.hasNext())
+				// If there is some problem with number of threads (consistency
+				// loss probably!)
+				if (taskManager.numberOfThreads != taskManager.assignedMessages
+						.size() + freeThreads)
 				{
-					IMessage m = it.next();
-					if (taskManager.isProblemSupported(m))
-					{
-						// For DIVIDE_PROBLEM we have to set some specific
-						// options
-						if (m.getMessageType() == MessageType.DIVIDE_PROBLEM
-								&& core.computationalNodes.size() > 0)
-						{
-							DivideProblem message = (DivideProblem) m;
-							message.setNodeID(id);
-							message.setComputationalNodes(new BigInteger(String
-									.valueOf(core.computationalNodes.size())));
-						}
-						else
-						{
-							Solutiones message = (Solutiones) m;
-							message.getSolutions().getSolution().get(0)
-									.setTaskId(id);
-						}
-						messages.add(m);
-					}
-
+					Logger.log("Consistency loss! Number of free threads is wrong! Dropping component id "
+							+ taskManager.id + "\n");
+					core.componentMonitorThread.dropComponent(taskManager.id);
 				}
-				taskManager.assignedMessages.addAll(messages);
-
+				else
+					addTaskManagerMessages(taskManager, freeThreads, messages);
 				break;
 
 			case ComputationalNode:
 				ComputationalNodeInfo computationalNode = core.computationalNodes
 						.get(id);
-
-				while ((freeThreads--) > 0 && it.hasNext())
+				// If there is some problem with number of threads (consistency
+				// loss probably!)
+				if (computationalNode.numberOfThreads != computationalNode.assignedMessages
+						.size() + freeThreads)
 				{
-					IMessage m = it.next();
-					if (computationalNode.isProblemSupported(m))
-					{
-						SolvePartialProblems message = (SolvePartialProblems) m;
-						message.getPartialProblems().getPartialProblem().get(0)
-								.setNodeID(id);
-						messages.add(m);
-					}
+					Logger.log("Consistency loss! Number of free threads is wrong! Dropping component id "
+							+ computationalNode.id + "\n");
+					core.componentMonitorThread.dropComponent(computationalNode.id);
 				}
-				computationalNode.assignedMessages.addAll(messages);
-
+				else
+					addComputationalNodeMessages(computationalNode,
+							freeThreads, messages);
 				break;
 
 			default:
@@ -189,8 +171,8 @@ class CommunicationThread extends AbstractServerCoreProtocol
 	}
 
 	@Override
-	public List<Solution> informAboutProblemSolution(BigInteger problemId,
-			BigInteger taskManagerId, Solution solution)
+	public List<Solution> informAboutProblemSolutions(BigInteger problemId,
+			BigInteger taskManagerId, List<Solution> solution)
 	{
 		ProblemInfo problem = core.problemsToSolve.get(problemId);
 
@@ -198,16 +180,18 @@ class CommunicationThread extends AbstractServerCoreProtocol
 		if (problem.parts == 0)
 		{
 			problem.parts = -1;
-			problem.finalSolution = solution;
+			problem.finalSolution = solution.get(0);
 			removeTaskManagerSpecificMessage(problemId);
 		}
 		else
 		// Received partial solution
 		{
-			problem.partialSolutions.add(solution);
-			problem.parts--;
-			removeComputationalNodeSpecificMessage(problemId,
-					solution.getTaskId());
+			problem.partialSolutions.addAll(solution);
+
+			for (Solution s : solution)
+				removeComputationalNodeSpecificMessage(problemId, s.getTaskId());
+			if (problem.parts == problem.partialSolutions.size())
+				problem.parts = 0;
 		}
 
 		return (problem.parts == 0 ? problem.partialSolutions : null);
@@ -224,5 +208,57 @@ class CommunicationThread extends AbstractServerCoreProtocol
 			BigInteger problemId)
 	{
 		// we should never receive this message!
+	}
+
+	private void addTaskManagerMessages(TaskManagerInfo taskManager,
+			int freeThreads, List<IMessage> messages)
+	{
+		Iterator<IMessage> it = core.delayedMessages.iterator();
+		while ((freeThreads--) > 0 && it.hasNext())
+		{
+			IMessage m = it.next();
+			if (taskManager.isProblemSupported(m))
+			{
+				// For DIVIDE_PROBLEM we have to set some specific
+				// options
+				if (m.getMessageType() == MessageType.DIVIDE_PROBLEM
+						&& core.computationalNodes.size() > 0)
+				{
+					DivideProblem message = (DivideProblem) m;
+					message.setNodeID(taskManager.id);
+					message.setComputationalNodes(new BigInteger(String
+							.valueOf(core.computationalNodes.size())));
+				}
+				else
+				{
+					Solutiones message = (Solutiones) m;
+					// TODO: Here is my secret hack!!!!
+					message.getSolutions().getSolution().get(0)
+							.setTaskId(taskManager.id);
+				}
+				messages.add(m);
+			}
+
+		}
+		taskManager.assignedMessages.addAll(messages);
+	}
+
+	private void addComputationalNodeMessages(
+			ComputationalNodeInfo computationalNode, int freeThreads,
+			List<IMessage> messages)
+	{
+		Iterator<IMessage> it = core.delayedMessages.iterator();
+		while ((freeThreads--) > 0 && it.hasNext())
+		{
+			IMessage m = it.next();
+			if (computationalNode.isProblemSupported(m))
+			{
+				SolvePartialProblems message = (SolvePartialProblems) m;
+				message.getPartialProblems().getPartialProblem().get(0)
+						.setNodeID(computationalNode.id);
+				messages.add(m);
+			}
+		}
+		computationalNode.assignedMessages.addAll(messages);
 	}
 }

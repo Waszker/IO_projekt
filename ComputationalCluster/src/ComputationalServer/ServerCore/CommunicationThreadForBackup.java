@@ -55,16 +55,17 @@ public class CommunicationThreadForBackup extends AbstractServerCoreProtocol
 
 	@Override
 	public BigInteger registerComponent(BigInteger receivedId,
-			boolean deregister, ComponentType componentType,
-			List<String> solvableProblems, Integer port, String address)
+			int numberOfThreads, boolean deregister,
+			ComponentType componentType, List<String> solvableProblems,
+			Integer port, String address)
 	{
-		BigInteger id = null;
+		BigInteger id = new BigInteger("-1");
 
 		if (deregister)
 			core.componentMonitorThread.dropComponent(receivedId);
 		else
-			id = core.registerComponent(receivedId, componentType,
-					solvableProblems, port, address);
+			id = core.registerComponent(receivedId, numberOfThreads,
+					componentType, solvableProblems, port, address);
 		return id;
 	}
 
@@ -150,8 +151,8 @@ public class CommunicationThreadForBackup extends AbstractServerCoreProtocol
 	}
 
 	@Override
-	public List<Solution> informAboutProblemSolution(BigInteger problemId,
-			BigInteger taskManagerId, Solution solution)
+	public List<Solution> informAboutProblemSolutions(BigInteger problemId,
+			BigInteger taskManagerId, List<Solution> solution)
 	{
 		ProblemInfo problem = core.problemsToSolve.get(problemId);
 
@@ -159,12 +160,14 @@ public class CommunicationThreadForBackup extends AbstractServerCoreProtocol
 		if (problem.parts == 0)
 		{
 			problem.parts = -1;
-			problem.finalSolution = solution;
+			problem.finalSolution = solution.get(0);
+			problem.isProblemCurrentlyDelegated = false;
 			removeTaskManagerSpecificMessage(problemId);
 		}
 		// Solution for final merging was sent to TM
-		else if (problem.parts == 0 && problem.finalSolution == null)
+		else if (problem.parts == problem.partialSolutions.size())
 		{
+			problem.parts = 0;
 			TaskManagerInfo taskManager = core.taskManagers.get(taskManagerId);
 			Iterator<IMessage> it = core.delayedMessages.iterator();
 			while (it.hasNext())
@@ -185,13 +188,13 @@ public class CommunicationThreadForBackup extends AbstractServerCoreProtocol
 		else
 		// Received partial solution
 		{
-			problem.partialSolutions.add(solution);
-			problem.parts--;
-			removeComputationalNodeSpecificMessage(problemId,
-					solution.getTaskId());
+			problem.partialSolutions.addAll(solution);
+			for (Solution s : solution)
+				removeComputationalNodeSpecificMessage(problemId, s.getTaskId());
 		}
 
-		return (problem.parts == 0 ? problem.partialSolutions : null);
+		return (problem.parts == problem.partialSolutions.size() ? problem.partialSolutions
+				: null);
 	}
 
 	@Override

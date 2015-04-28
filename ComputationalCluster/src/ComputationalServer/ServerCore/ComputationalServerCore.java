@@ -151,7 +151,7 @@ public class ComputationalServerCore
 	 * @param address
 	 * @return
 	 */
-	BigInteger registerComponent(BigInteger suggestedId,
+	BigInteger registerComponent(BigInteger suggestedId, int numberOfThreads,
 			GenericComponent.ComponentType componentType,
 			List<String> solvableProblems, Integer port, String address)
 	{
@@ -163,7 +163,7 @@ public class ComputationalServerCore
 				Logger.log("TM connected\n");
 				idForComponent = getCurrentFreeComponentId(suggestedId);
 				taskManagers.put(idForComponent, new TaskManagerInfo(
-						idForComponent, solvableProblems));
+						numberOfThreads, idForComponent, solvableProblems));
 				componentMonitorThread
 						.informaAboutConnectedComponent(idForComponent);
 				break;
@@ -172,8 +172,8 @@ public class ComputationalServerCore
 				Logger.log("CN connected\n");
 				idForComponent = getCurrentFreeComponentId(suggestedId);
 				computationalNodes.put(idForComponent,
-						new ComputationalNodeInfo(idForComponent,
-								solvableProblems));
+						new ComputationalNodeInfo(numberOfThreads,
+								idForComponent, solvableProblems));
 				componentMonitorThread
 						.informaAboutConnectedComponent(idForComponent);
 				break;
@@ -322,9 +322,11 @@ public class ComputationalServerCore
 								statusMessage);
 						List<IMessage> messages = GenericProtocol
 								.receiveMessage(connectionSocket);
-						backupCommunicationThread.backupMessageQueue.addAll(messages);
+						backupCommunicationThread.backupMessageQueue
+								.addAll(messages);
 						listOfMessagesForBackupServer.addAll(messages);
-						backupCommunicationThread.messageSemaphore.release(messages.size());
+						backupCommunicationThread.messageSemaphore
+								.release(messages.size());
 					}
 					catch (InterruptedException e)
 					{

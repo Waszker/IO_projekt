@@ -57,7 +57,7 @@ public interface IServerProtocol
 	 * @param componentType
 	 * @return
 	 */
-	public BigInteger registerComponent(BigInteger sentId, boolean deregister,
+	public BigInteger registerComponent(BigInteger sentId, int numberOfThreads, boolean deregister,
 			GenericComponent.ComponentType componentType,
 			List<String> solvableProblems, Integer port, String address);
 
@@ -132,7 +132,8 @@ public interface IServerProtocol
 	 * @param id
 	 * @param commonData
 	 * @param numberOfParts
-	 * @return if server is in backup mode
+	 * @return if received partial problem was sent by CN or was just delegated
+	 *         to TM
 	 */
 	public boolean setProblemPartsInfo(
 			BigInteger id,
@@ -172,8 +173,8 @@ public interface IServerProtocol
 	 * @param solution
 	 * @return
 	 */
-	public List<Solution> informAboutProblemSolution(BigInteger problemId,
-			BigInteger taskManagerId, Solution solution);
+	public List<Solution> informAboutProblemSolutions(BigInteger problemId,
+			BigInteger taskManagerId, List<Solution> solution);
 
 	/**
 	 * <p>
@@ -183,6 +184,7 @@ public interface IServerProtocol
 	 * @param componentId
 	 */
 	public void informAboutComponentStatusMessage(BigInteger componentId);
-	
-	public void reactToDivideProblem(BigInteger taskManagerId, BigInteger problemId);
+
+	public void reactToDivideProblem(BigInteger taskManagerId,
+			BigInteger problemId);
 }

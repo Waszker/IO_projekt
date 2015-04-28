@@ -439,9 +439,8 @@ public class Status extends AbstractMessage
 				break;
 		}
 
-		if (null != socket)
-			GenericProtocol.sendMessages(socket,
-					responses.toArray(new IMessage[responses.size()]));
+		GenericProtocol.sendMessages(socket,
+				responses.toArray(new IMessage[responses.size()]));
 	}
 
 	private int getFreeThreads()

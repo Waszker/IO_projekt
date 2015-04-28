@@ -24,6 +24,7 @@ class ComputationalNodeInfo
 	/******************/
 	/* VARIABLES */
 	/******************/
+	int numberOfThreads;
 	BigInteger id;
 	List<String> supportedProblems;
 	List<IMessage> assignedMessages;
@@ -38,8 +39,10 @@ class ComputationalNodeInfo
 	 * 
 	 * @param id
 	 */
-	ComputationalNodeInfo(BigInteger id, List<String> solvableProblems)
+	ComputationalNodeInfo(int noOfThreads, BigInteger id,
+			List<String> solvableProblems)
 	{
+		this.numberOfThreads = noOfThreads;
 		this.id = id;
 		assignedMessages = new ArrayList<>();
 		try
@@ -60,7 +63,7 @@ class ComputationalNodeInfo
 				+ supportedProblems + ", assignedMessages="
 				+ assignedMessages.size() + "]";
 	}
-	
+
 	/**
 	 * <p>
 	 * Checks if problem type is supported by this component.
@@ -72,7 +75,7 @@ class ComputationalNodeInfo
 	boolean isProblemSupported(IMessage message)
 	{
 		boolean isSupported = false;
-		
+
 		if (message.getMessageType() == MessageType.PARTIAL_PROBLEM
 				&& supportedProblems.contains(((SolvePartialProblems) message)
 						.getProblemType())) isSupported = true;

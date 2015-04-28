@@ -451,11 +451,13 @@ public class SolvePartialProblems extends AbstractMessage
 								problems));
 			}
 
-			GenericProtocol.sendMessages(socket,
-					serverProtocol.getNoOperationMessage());
-
-			// Relay information with BS
-			serverProtocol.addBackupServerMessage(this);
+			if (null != socket)
+			{
+				// Relay information with BS
+				serverProtocol.addBackupServerMessage(this);
+				GenericProtocol.sendMessages(socket,
+						serverProtocol.getNoOperationMessage());
+			}
 		}
 	}
 

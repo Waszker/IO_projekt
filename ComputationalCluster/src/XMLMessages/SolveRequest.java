@@ -186,12 +186,13 @@ public class SolveRequest extends AbstractMessage
 		messages.add(new SolveRequestResponse(id));
 
 		if (null != socket)
+		{
+			// Relay information for BS
+			setId(id);
+			serverProtocol.addBackupServerMessage(this);
 			GenericProtocol.sendMessages(socket,
 					messages.toArray(new IMessage[messages.size()]));
-
-		// Relay information for BS
-		setId(id);
-		serverProtocol.addBackupServerMessage(this);
+		}
 
 		// Add problem to delayed responses
 		delayedResponse.add(new DivideProblem(getProblemType(), id, getData(),

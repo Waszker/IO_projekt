@@ -292,7 +292,7 @@ public class Register extends AbstractMessage
 		{
 			GenericComponent.ComponentType componentType = getComponentType(getType());
 
-			BigInteger id = serverProtocol.registerComponent(getId(),
+			BigInteger id = serverProtocol.registerComponent(getId(), (int)getParallelThreads(),
 					(null != isDeregister() && isDeregister().booleanValue()),
 					componentType,
 					(null != getSolvableProblems() ? getSolvableProblems()
@@ -305,16 +305,20 @@ public class Register extends AbstractMessage
 					&& componentType != ComponentType.ComputationalServer)
 			{
 				((Error) response)
-						.setErrorMessage("Component cannot be regstered");
+						.setErrorMessage("Component cannot be registered");
 			}
 			else
 			// Get component RegisterResponse message
 			{
+				// Response for newly registered BS requires BS list to be null
 				response = new RegisterResponse(id,
-						serverProtocol.getServerTimeout(), null);
+						serverProtocol.getServerTimeout(),
+						(-1 != id.intValue() ? null : serverProtocol
+								.getBackupServer()));
 
 				// Add message for backup server
-				if (componentType != ComponentType.ComputationalServer)
+				if (null != socket
+						&& componentType != ComponentType.ComputationalServer)
 				{
 					setDeregister(false);
 					setId(id);
