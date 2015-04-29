@@ -101,7 +101,8 @@ class CommunicationThread extends AbstractServerCoreProtocol
 				{
 					Logger.log("Consistency loss! Number of free threads is wrong! Dropping component id "
 							+ computationalNode.id + "\n");
-					core.componentMonitorThread.dropComponent(computationalNode.id);
+					core.componentMonitorThread
+							.dropComponent(computationalNode.id);
 				}
 				else
 					addComputationalNodeMessages(computationalNode,
@@ -211,9 +212,10 @@ class CommunicationThread extends AbstractServerCoreProtocol
 	}
 
 	private void addTaskManagerMessages(TaskManagerInfo taskManager,
-			int freeThreads, List<IMessage> messages)
+			int numFreeThreads, List<IMessage> messages)
 	{
 		Iterator<IMessage> it = core.delayedMessages.iterator();
+		int freeThreads = numFreeThreads;
 		while ((freeThreads--) > 0 && it.hasNext())
 		{
 			IMessage m = it.next();
@@ -244,10 +246,11 @@ class CommunicationThread extends AbstractServerCoreProtocol
 	}
 
 	private void addComputationalNodeMessages(
-			ComputationalNodeInfo computationalNode, int freeThreads,
+			ComputationalNodeInfo computationalNode, int numFreeThreads,
 			List<IMessage> messages)
 	{
 		Iterator<IMessage> it = core.delayedMessages.iterator();
+		int freeThreads = numFreeThreads;
 		while ((freeThreads--) > 0 && it.hasNext())
 		{
 			IMessage m = it.next();
