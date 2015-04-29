@@ -1,6 +1,6 @@
 package ComputationalNode;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.Map;
 
 import GenericCommonClasses.GenericFlagInterpreter;
@@ -46,8 +46,7 @@ public class ComputationalNodeMainActivity
 			{
 				computationalNode.connectToServer();
 			}
-		} catch (NumberFormatException | UnknownHostException
-				| IndexOutOfBoundsException e)
+		} catch (NumberFormatException | IndexOutOfBoundsException | IOException e)
 		{
 			// TODO Auto-generated catch block
 			usage();

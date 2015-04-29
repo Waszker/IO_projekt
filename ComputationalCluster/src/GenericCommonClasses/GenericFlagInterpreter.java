@@ -1,7 +1,9 @@
 package GenericCommonClasses;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,15 +15,14 @@ import java.util.TreeMap;
  * 
  * @author Piotr Waszkiewicz
  * @version 1.0
- *
+ * 
  */
 public class GenericFlagInterpreter
 {
-
 	/******************/
 	/* VARIABLES */
 	/******************/
-
+	public static final String CONFIGURATION_FILE = ".ccluster.ini";
 	public static final String FLAG_PORT = "port";
 	public static final String FLAG_ADDRESS = "address";
 	public static final String FLAG_TIMEOUT = "timeout";
@@ -46,11 +47,11 @@ public class GenericFlagInterpreter
 	 * @param args
 	 *            array of arguments provided during startup
 	 * @return map containing information in proper way
-	 * @throws UnknownHostException
-	 *             , NumberFormatException
+	 * @throws IOException
+	 *             if no flags and no configuration file was provided
 	 */
 	public static Map<String, Object> interpretFlags(String[] args)
-			throws NumberFormatException, UnknownHostException
+			throws NumberFormatException, IOException
 	{
 		Map<String, Object> flagMap = new TreeMap<>();
 
@@ -90,9 +91,21 @@ public class GenericFlagInterpreter
 					flagMap.put(FLAG_FILE, args[i + 1]);
 					i--;
 					break;
+
+				default:
+					throw new IOException();
 			}
 		}
 
-		return flagMap;
+		return (args.length == 0 ? loadFromConfig() : flagMap);
+	}
+
+	private static Map<String, Object> loadFromConfig() throws IOException
+	{
+		StringBuilder stringBuilder = new StringBuilder();
+		Files.lines(FileSystems.getDefault().getPath(CONFIGURATION_FILE))
+				.forEach(s -> stringBuilder.append(s));
+
+		return interpretFlags(stringBuilder.toString().split(" "));
 	}
 }
