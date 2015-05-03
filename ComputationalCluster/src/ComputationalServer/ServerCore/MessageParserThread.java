@@ -9,12 +9,6 @@ import DebugTools.Logger;
 import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
 import XMLMessages.Error;
-import XMLMessages.Register;
-import XMLMessages.SolutionRequest;
-import XMLMessages.Solutiones;
-import XMLMessages.SolvePartialProblems;
-import XMLMessages.SolveRequest;
-import XMLMessages.Status;
 import XMLMessages.Error.ErrorMessage;
 
 /**
@@ -97,46 +91,14 @@ class MessageParserThread extends Thread
 	private void reactToMessage(IMessage message, Socket socket)
 			throws JAXBException, IOException
 	{
-		try {
-		switch (message.getMessageType())
+		try
 		{
-			case REGISTER:
-				communicationThread.reactToRegisterMessage((Register) message,
-						socket);
-				break;
-
-			case STATUS:
-				communicationThread.reactToStatusMessage((Status) message,
-						socket);
-				break;
-
-			case SOLVE_REQUEST:
-				communicationThread.reactToSolveRequest((SolveRequest) message,
-						socket);
-				break;
-
-			case SOLUTION_REQUEST:
-				communicationThread.reactToSolutionRequest(
-						(SolutionRequest) message, socket);
-				break;
-
-			case PARTIAL_PROBLEM:
-				communicationThread.reactToPartialProblems(
-						(SolvePartialProblems) message, socket);
-				break;
-
-			case SOLUTION:
-				communicationThread.reactToSolution((Solutiones) message,
-						socket);
-				break;
-
-			default:
-				Logger.log("Unsupported message " + message.getString()
-						+ "\n\n");
-				sendErrorMessage(socket);
-				break;
+			core.delayedMessages.addAll(message.prepareResponse(
+					communicationThread, socket));
+			core.informAboutComponentChanges();
 		}
-		core.informAboutComponentChanges();
+		catch (IOException e)
+		{
 		}
 		catch (NullPointerException e)
 		{
@@ -144,7 +106,7 @@ class MessageParserThread extends Thread
 			sendErrorMessage(socket);
 		}
 	}
-	
+
 	private void sendErrorMessage(Socket socket) throws IOException
 	{
 		XMLMessages.Error errorMessage = new Error();

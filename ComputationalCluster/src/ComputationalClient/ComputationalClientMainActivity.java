@@ -1,6 +1,6 @@
 package ComputationalClient;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.Map;
 
 import DebugTools.Logger;
@@ -39,7 +39,7 @@ public class ComputationalClientMainActivity {
 				client.sendSolveRequestMessage();
 				client.sendSolutionRequestMessage();
 			}
-		} catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e) {
+		} catch (NumberFormatException | IndexOutOfBoundsException | IOException e) {
 			Logger.log("USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] \n");
 			
 		}

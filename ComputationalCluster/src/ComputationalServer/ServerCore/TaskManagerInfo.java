@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import DebugTools.Logger;
-import XMLMessages.Register;
+import GenericCommonClasses.IMessage;
+import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.DivideProblem;
+import XMLMessages.Solutiones;
 
 /**
  * <p>
@@ -22,9 +25,9 @@ class TaskManagerInfo
 	/******************/
 	/* VARIABLES */
 	/******************/
+	int numberOfThreads;
 	BigInteger id;
-	Register info;
-	List<BigInteger> assignedProblems;
+	List<IMessage> assignedMessages;
 	List<String> supportedProblems;
 
 	/******************/
@@ -37,16 +40,15 @@ class TaskManagerInfo
 	 * 
 	 * @param id
 	 */
-	TaskManagerInfo(BigInteger id, Register message)
+	TaskManagerInfo(int noOfThreads, BigInteger id, List<String> solvableProblems)
 	{
+		this.numberOfThreads = noOfThreads;
 		this.id = id;
-		info = message;
-		assignedProblems = new ArrayList<>(info.getParallelThreads());
+		assignedMessages = new ArrayList<>();
 
 		try
 		{
-			supportedProblems = new ArrayList<>(message.getSolvableProblems()
-					.getProblemName());
+			supportedProblems = new ArrayList<>(solvableProblems);
 		}
 		catch (NullPointerException e)
 		{
@@ -55,24 +57,34 @@ class TaskManagerInfo
 		}
 	}
 
-	/**
-	 * <p>
-	 * Returns number of unoccupied threads.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	int getFreeThreads()
-	{
-		return this.info.getParallelThreads() - this.assignedProblems.size();
-	}
-
 	@Override
 	public String toString()
 	{
-		return "TaskManager [id=" + id + ", info=" + info
-				+ ", assignedProblems=" + assignedProblems.size()
-				+ ", supportedProblems=" + supportedProblems + "]";
+		return "TaskManager [id=" + id + ", assignedMessages="
+				+ assignedMessages.size() + ", supportedProblems="
+				+ supportedProblems + "]";
 	}
 
+	/**
+	 * <p>
+	 * Checks if problem type is supported by this component.
+	 * </p>
+	 * 
+	 * @param message
+	 * @return
+	 */
+	boolean isProblemSupported(IMessage message)
+	{
+		boolean isSupported = false;
+
+		if (message.getMessageType() == MessageType.DIVIDE_PROBLEM
+				&& supportedProblems.contains(((DivideProblem) message)
+						.getProblemType()))
+			isSupported = true;
+		else if (message.getMessageType() == MessageType.SOLUTION
+				&& supportedProblems.contains(((Solutiones) message)
+						.getProblemType())) isSupported = true;
+
+		return isSupported;
+	}
 }

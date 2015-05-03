@@ -17,7 +17,7 @@ public class TestProblemTests
 	}
 
 	@Test
-	public void test1()
+	public void divideShortProblemAndSolveSolutionTest1()
 	{
 		final String testString = "abcdefgh";
 		final int parts = 3;
@@ -36,7 +36,7 @@ public class TestProblemTests
 	}
 	
 	@Test
-	public void test2()
+	public void divideLongProblemAndMergeSolutionTest2()
 	{
 		final String testString = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh";
 		final int parts = 3;
@@ -55,7 +55,7 @@ public class TestProblemTests
 	}
 	
 	@Test
-	public void test3()
+	public void divideShortProblemIntoManyPartsTest3()
 	{
 		final String testString = "aaaaaa";
 		final int parts = 3000;

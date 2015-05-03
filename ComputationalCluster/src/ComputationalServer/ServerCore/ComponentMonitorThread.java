@@ -4,14 +4,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import DebugTools.Logger;
+import GenericCommonClasses.GenericComponent.ComponentType;
 import XMLMessages.Register;
-import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
 /**
  * <p>
@@ -72,7 +71,7 @@ class ComponentMonitorThread extends Thread
 		{
 			isValid = false;
 		}
-		else
+		else if (!core.isInBackupMode)
 		{
 			if (null != scheduledRemovals.get(id))
 			{
@@ -89,7 +88,6 @@ class ComponentMonitorThread extends Thread
 					Logger.log("Timeout for component id: " + id
 							+ " has passed!\nDropping lease\n");
 					dropComponent(id);
-					core.informAboutComponentChanges();
 				}
 			}), core.timeout + 1, TimeUnit.SECONDS)));
 		}
@@ -99,12 +97,16 @@ class ComponentMonitorThread extends Thread
 
 	void dropComponent(BigInteger id)
 	{
+		ComponentType type = null;
+
 		if (core.taskManagers.containsKey(id))
 		{
+			type = ComponentType.TaskManager;
 			reactToTaskManagerFailure(id);
 		}
 		else if (core.computationalNodes.containsKey(id))
 		{
+			type = ComponentType.ComputationalNode;
 			reactToComputationalNodeFailure(id);
 		}
 
@@ -116,8 +118,9 @@ class ComponentMonitorThread extends Thread
 		else
 		{
 			invalidId.add(id);
-			informBackupServerAboutComponentFailure(id);
+			informBackupServerAboutComponentFailure(id, type);
 		}
+		core.informAboutComponentChanges();
 	}
 
 	private void reactToTaskManagerFailure(BigInteger id)
@@ -126,10 +129,7 @@ class ComponentMonitorThread extends Thread
 		// (their states are still kept inside ProblemInfo object)
 		TaskManagerInfo info = core.taskManagers.get(id);
 
-		for (BigInteger problemId : info.assignedProblems)
-		{
-			core.problemsToSolve.get(problemId).isProblemCurrentlyDelegated = false;
-		}
+		core.delayedMessages.addAll(info.assignedMessages);
 
 		core.taskManagers.remove(id);
 	}
@@ -139,26 +139,18 @@ class ComponentMonitorThread extends Thread
 		// ComputationalNode failure involves restoring partial problems
 		ComputationalNodeInfo info = core.computationalNodes.get(id);
 
-		for (Map.Entry<BigInteger, List<PartialProblem>> entry : info.assignedPartialProblems
-				.entrySet())
-		{
-			ProblemInfo problem = core.problemsToSolve.get(entry.getKey());
-			List<PartialProblem> partialProblems = entry.getValue();
-
-			for (PartialProblem p : partialProblems)
-			{
-				problem.partialProblems.add(p);
-			}
-		}
+		core.delayedMessages.addAll(info.assignedMessages);
 
 		core.computationalNodes.remove(id);
 	}
 
-	private void informBackupServerAboutComponentFailure(BigInteger id)
+	private void informBackupServerAboutComponentFailure(BigInteger id,
+			ComponentType type)
 	{
 		Register message = new Register();
 		message.setDeregister(true);
 		message.setId(id);
+		if (null != type) message.setType(type.name());
 
 		core.listOfMessagesForBackupServer.add(message);
 	}
