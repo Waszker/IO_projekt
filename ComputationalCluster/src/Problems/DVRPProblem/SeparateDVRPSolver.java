@@ -14,6 +14,7 @@ public class SeparateDVRPSolver
 {
 	/* VARIABLES */
 	private static double currentBest; //current best solution of oneDvrp function
+	public static IGraphNode[] path = null;
 	
 	
 	/* PRIVATE AUXILIARY FUNCTIONS */
@@ -21,6 +22,7 @@ public class SeparateDVRPSolver
 	// checks if move to 'to' node is legal
 	private static boolean moveLegal(IGraphNode to, double currentCargo, double arriveTime)
 	{
+		
 		if ( to instanceof Depot )
 		{
 			Depot d = (Depot)to;
@@ -78,7 +80,10 @@ public class SeparateDVRPSolver
 			{			
 				curCost+=cost;
 				if ( curCost < currentBest )
+				{
 					currentBest = curCost;
+					//path = currentPath.toArray(new IGraphNode[currentPath.size()]);
+				}
 			}
 			return;
 		}
@@ -109,7 +114,7 @@ public class SeparateDVRPSolver
 				if ( thisIndex == i )continue;
 				
 				double travelTime = g.e[thisIndex][i];
-				if ( !moveLegal(g.c[i], cap, curTime+travelTime) )continue;
+				if ( !moveLegal(g.d[i], cap, curTime+travelTime) )continue;
 				currentPath.add(g.d[i]);
 				recursive(g, i, currentPath, clientVisited, cap, cap, curTime+travelTime, curCost+travelTime);
 				currentPath.remove(currentPath.size()-1);

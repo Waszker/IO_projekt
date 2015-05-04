@@ -8,6 +8,10 @@
 
 package XMLMessages;
 
+import java.math.BigInteger;
+import java.net.Socket;
+import java.util.List;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -18,6 +22,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
@@ -251,4 +256,17 @@ public class NoOperation implements IMessage {
 		return MessageType.NO_OPERATION;
 	}
 
+	@Override
+	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
+			Socket socket)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return null;
+	}
 }

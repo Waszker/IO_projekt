@@ -90,9 +90,9 @@ public class ComputationalClient extends GenericComponent
 		{
 			byte[] data = loadFile2(this.dataFile);
 			SolveRequest sr = new SolveRequest();
-			//sr.setProblemType("TestProblem");
+			sr.setProblemType("TestProblem");
 			//sr.setProblemType("DVRP");
-			sr.setProblemType(DVRPSolver.PROBLEMNAME);
+			//sr.setProblemType("IntegralProblem");
 			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
 			this.sendMessages(sr);

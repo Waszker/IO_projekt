@@ -5,10 +5,13 @@
 // Generated on: 2015.03.16 at 05:00:15 PM CET 
 //
 
-
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,15 +21,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import GenericCommonClasses.AbstractMessage;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
-
+import XMLMessages.Solutiones.Solutions;
 
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -43,39 +52,37 @@ import GenericCommonClasses.Parser.MessageType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "id"
-})
+@XmlType(name = "", propOrder = { "id" })
 @XmlRootElement(name = "SolutionRequest")
-public class SolutionRequest implements IMessage {
+public class SolutionRequest extends AbstractMessage
+{
 
-    @XmlElement(name = "Id", required = true)
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger id;
+	@XmlElement(name = "Id", required = true)
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger id;
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getId() {
-        return id;
-    }
+	/**
+	 * Gets the value of the id property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getId()
+	{
+		return id;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setId(BigInteger value) {
-        this.id = value;
-    }
+	/**
+	 * Sets the value of the id property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setId(BigInteger value)
+	{
+		this.id = value;
+	}
 
 	@Override
 	public String getString() throws JAXBException
@@ -89,4 +96,26 @@ public class SolutionRequest implements IMessage {
 		return MessageType.SOLUTION_REQUEST;
 	}
 
+	@Override
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
+	{
+		List<IMessage> messages = new ArrayList<>(2);
+		Solutiones response = new Solutiones(null, getId(), null,
+				new Solutions());
+		
+		response.getSolutions().getSolution()
+				.add(serverProtocol.getProblemSolution(getId()));
+		messages.add(serverProtocol.getNoOperationMessage());
+		messages.add(response);
+
+		GenericProtocol.sendMessages(socket,
+				messages.toArray(new IMessage[messages.size()]));
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return getId();
+	}
 }

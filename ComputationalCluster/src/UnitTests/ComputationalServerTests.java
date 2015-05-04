@@ -25,7 +25,7 @@ import XMLMessages.SolveRequestResponse;
 public class ComputationalServerTests
 {
 	@Test
-	public void ComputationalServerTest1()
+	public void ComputationalServerWithDefaultParametersTest1()
 	{
 		ComputationalServer server = new ComputationalServer(false, null, null, 111,
 				null, false);
@@ -36,7 +36,7 @@ public class ComputationalServerTests
 	}
 
 	@Test
-	public void ComputationalServerTest2()
+	public void ComputationalServerWithIPAddressTest2()
 	{
 		ComputationalServer server = new ComputationalServer(false, 777, null, 111,
 				"127.0.0.1", false);

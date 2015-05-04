@@ -11,6 +11,8 @@ import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
 import GenericCommonClasses.ProblemHelper;
+import XMLMessages.NoOperation;
+import XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer;
 import XMLMessages.Register;
 import XMLMessages.Register.SolvableProblems;
 import XMLMessages.Solutiones;
@@ -35,6 +37,8 @@ public class ComputationalNode extends GenericComponent
 	private TaskSolver currentProblemTaskSolver = null; // if null - we have no
 														// problem assigned
 	private BigInteger timeout = BigInteger.valueOf(0);
+	
+	private boolean busy = false;
 
 	public ComputationalNode(String serverIpAddress, Integer serverPort,
 			boolean isGui)
@@ -68,6 +72,14 @@ public class ComputationalNode extends GenericComponent
 				Logger.log("Your id is: " + id + "\n");
 				firstNoOp = false;
 			}
+			
+			BackupCommunicationServer bcs = ((NoOperation)message).getBackupCommunicationServers().getBackupCommunicationServer();
+			
+			if (bcs != null)
+			{
+				backupServerIp = bcs.getAddress();
+				backupServerPort = bcs.getPort();
+			}
 		} else if (message.getMessageType() == MessageType.PARTIAL_PROBLEM)
 		{
 			Logger.log("Node: " + id + " recieved PARTIAL_PROBLEM message\n");
@@ -93,7 +105,8 @@ public class ComputationalNode extends GenericComponent
 				.getPartialProblem();
 
 		currentProblemTaskSolver = ProblemHelper.instantinateTaskSolver(sppm);
-
+		busy = true;
+		
 		for (int i = 0; i < lpp.size(); ++i)
 		{
 			taskId = lpp.get(i).getTaskId();
@@ -101,6 +114,8 @@ public class ComputationalNode extends GenericComponent
 					timeout.longValue());
 			sendSolutionsMessage();
 		}
+		
+		busy = false;
 	}
 
 	protected void sendSolutionsMessage()
@@ -115,6 +130,7 @@ public class ComputationalNode extends GenericComponent
 		Solution s = new Solution();
 		s.setTaskId(taskId);
 		s.setTimeoutOccured(false);
+		s.setType("Partial");
 
 		s.setData(solutions);
 
@@ -143,8 +159,8 @@ public class ComputationalNode extends GenericComponent
 		Status ret = new Status();
 		Threads threads = new Threads();
 		Threads.Thread thread = new Threads.Thread();
-		thread.setHowLong(BigInteger.valueOf(1000));
-		thread.setState("Idle");
+		thread.setHowLong(BigInteger.valueOf(5000));
+		thread.setState(busy ? "Busy" : "Idle");
 		threads.getThread().add(thread);
 
 		ret.setId(id);

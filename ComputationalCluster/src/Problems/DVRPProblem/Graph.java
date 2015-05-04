@@ -106,6 +106,7 @@ public class Graph
 	{		
 		double dx = g1.getX()-g2.getX();
 		double dy = g1.getY()-g2.getY();
-		return Math.sqrt(dx*dx + dy*dy) / vehicleSpeed;
+		//return Math.sqrt(dx*dx + dy*dy) / vehicleSpeed;
+		return Math.sqrt(dx*dx + dy*dy);
 	}
 }

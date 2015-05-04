@@ -1,48 +1,35 @@
 package ComputationalServer.ServerCore;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import DebugTools.Logger;
-import GenericCommonClasses.GenericComponent.ComponentType;
-import GenericCommonClasses.GenericProtocol;
+import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.IMessage;
-import XMLMessages.Error;
-import XMLMessages.Error.ErrorMessage;
-import XMLMessages.Register;
-import XMLMessages.RegisterResponse.BackupCommunicationServers;
-import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicationServer;
-import XMLMessages.SolutionRequest;
+import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.DivideProblem;
 import XMLMessages.Solutiones;
-import XMLMessages.Solutiones.Solutions;
 import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
-import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
-import XMLMessages.SolveRequest;
-import XMLMessages.SolveRequestResponse;
-import XMLMessages.Status;
 
 /**
  * <p>
- * Class used by ComputationalServerCore to send messages and problems to
- * components.
+ * Class used by IMessages to get and set information associated with
+ * computational server.
  * </p>
  * 
  * @author Piotr Waszkiewicz
  * @version 1.0
+ * @version 1.1 complete refactoring for the more object-oriented approach
  * 
  */
-class CommunicationThread
+class CommunicationThread extends AbstractServerCoreProtocol
 {
 	/******************/
 	/* VARIABLES */
 	/******************/
-	ComputationalServerCore core;
-	private MessageGeneratorThread messageGenerator;
 
 	/******************/
 	/* FUNCTIONS */
@@ -56,354 +43,225 @@ class CommunicationThread
 	 */
 	public CommunicationThread(ComputationalServerCore core)
 	{
-		this.core = core;
-		messageGenerator = new MessageGeneratorThread(core);
+		super(core);
 	}
 
-	/**
-	 * <p>
-	 * Reaction to Register message involves getting free id from server core
-	 * and (if component is permitted to connect) registering it. This will also
-	 * begin countdown procedure for component. and
-	 * </p>
-	 * 
-	 * @param message
-	 * @param socket
-	 * @throws IOException
-	 */
-	void reactToRegisterMessage(Register message, Socket socket)
-			throws IOException
+	@Override
+	public BigInteger registerComponent(BigInteger receivedId,
+			int numberOfThreads, boolean deregister,
+			GenericComponent.ComponentType componentType,
+			List<String> solvableProblems, Integer remotePort,
+			String remoteAddress)
 	{
-		BigInteger id = new BigInteger("-1");
-		Integer remotePort = socket.getPort();
-		String remoteAddress = socket.getInetAddress().toString();
-		IMessage response = null;
-		BackupCommunicationServers backupServers = getBackupServer();
-
-		// Get the id for component from server core
-		if (null != ((Register) message).getType())
-		{
-			id = core.registerComponent((Register) message, remotePort,
-					remoteAddress);
-		}
-
-		// If component is invalid
-		if (-1 == id.intValue()
-				&& !message.getType().contentEquals(
-						ComponentType.ComputationalServer.name))
-		{
-			XMLMessages.Error errorMessage = new Error();
-			errorMessage.setErrorType(ErrorMessage.UnknownSender);
-			response = errorMessage;
-		}
-		else
-		// Get component RegisterResponse message
-		{
-			response = messageGenerator.getRegisterResponseMessage(id,
-					backupServers);
-
-			if (null == core.backupServer)
-				core.componentMonitorThread.informaAboutConnectedComponent(id);
-
-			// Add message for BS
-			if (!message.getType().contentEquals(
-					ComponentType.ComputationalServer.name))
-			{
-				message.setDeregister(false);
-				message.setId(id);
-				core.listOfMessagesForBackupServer.add(message);
-			}
-		}
-
-		GenericProtocol.sendMessages(socket, response);
+		return core.registerComponent(null, numberOfThreads, componentType,
+				solvableProblems, remotePort, remoteAddress);
 	}
 
-	/**
-	 * <p>
-	 * Reaction to Status message involves reseting lease time for component and
-	 * updation information about it. It is also moment when component can get
-	 * new work assigned to it.
-	 * </p>
-	 * 
-	 * @param message
-	 * @param socket
-	 * @throws IOException
-	 */
-	void reactToStatusMessage(Status message, Socket socket) throws IOException
+	@Override
+	public BigInteger registerProblem(BigInteger sentId, byte[] data,
+			String problemType, BigInteger solvingTimeout)
 	{
-		BigInteger id = message.getId();
+		BigInteger id = core.getCurrentFreeProblemId(null);
+		core.problemsToSolve.put(id, new ProblemInfo(id, data, problemType,
+				solvingTimeout));
 
-		// Check if component is still valid in system
-		if (false == core.componentMonitorThread
-				.informaAboutConnectedComponent(id) && !core.isInBackupMode)
-		{
-			Logger.log("Component not registered\n");
-			XMLMessages.Error errorMessage = new Error();
-			errorMessage.setErrorType(ErrorMessage.UnknownSender);
-			GenericProtocol.sendMessages(socket, errorMessage);
-		}
-		else
-		// Check if component needs some work
-		{
-			List<IMessage> messagesList = new ArrayList<>();
-			messagesList.add(messageGenerator.getNoOperationMessage());
-
-			if (core.taskManagers.containsKey(id))
-			{
-				messagesList.addAll(messageGenerator.getTaskManagerQuests(
-						socket, core.taskManagers.get(id)));
-			}
-			else if (core.computationalNodes.containsKey(id))
-			{
-				messagesList.addAll(messageGenerator
-						.makeComputationalNodeWorkHard(socket,
-								core.computationalNodes.get(id)));
-			}
-			else if (null != core.backupServer
-					&& core.backupServer.id.equals(message.getId()))
-			{
-				messagesList.clear();
-				if (core.backupServer.indexOfLastUnSynchronizedMessage < core.listOfMessagesForBackupServer
-						.size())
-					messagesList
-							.addAll(core.listOfMessagesForBackupServer
-									.subList(
-											core.backupServer.indexOfLastUnSynchronizedMessage,
-											core.listOfMessagesForBackupServer
-													.size()));
-				core.backupServer.indexOfLastUnSynchronizedMessage = core.listOfMessagesForBackupServer
-						.size();
-
-			}
-
-			GenericProtocol.sendMessages(socket,
-					messagesList.toArray(new IMessage[messagesList.size()]));
-		}
+		return id;
 	}
 
-	/**
-	 * <p>
-	 * Reacting to SolutionRequest message involves sending information about
-	 * status of specified problem.
-	 * </p>
-	 * 
-	 * @param message
-	 * @param socket
-	 * @throws IOException
-	 */
-	void reactToSolutionRequest(SolutionRequest message, Socket socket)
-			throws IOException
+	@Override
+	public List<IMessage> getStatusResponseMessages(BigInteger id,
+			int freeThreads)
 	{
-		List<IMessage> messages = new ArrayList<>(2);
-		BigInteger id = message.getId();
-		ProblemInfo problem = core.problemsToSolve.get(id);
-		Solutiones result = new Solutiones();
-		result.setId(id);
-		result.setSolutions(new Solutions());
+		List<IMessage> messages = new ArrayList<>(freeThreads);
 
-		if (null != problem.finalSolution)
+		switch (getComponentTypeFromId(id))
 		{
-			result.getSolutions().getSolution().add(problem.finalSolution);
-			result.getSolutions().getSolution().get(0).setType("Final");
-		}
-		else
-		{
-			Solution sol = new Solution();
-			sol.setType("Ongoing");
-			result.getSolutions().getSolution().add(sol);
-		}
-		messages.add(messageGenerator.getNoOperationMessage());
-		messages.add(result);
+			case TaskManager:
+				TaskManagerInfo taskManager = core.taskManagers.get(id);
+				// If there is some problem with number of threads (consistency
+				// loss probably!)
+				if (taskManager.numberOfThreads != taskManager.assignedMessages
+						.size() + freeThreads)
+				{
+					Logger.log("Consistency loss! Number of free threads is wrong! Dropping component id "
+							+ taskManager.id + "\n");
+					core.componentMonitorThread.dropComponent(taskManager.id);
+				}
+				else
+					addTaskManagerMessages(taskManager, freeThreads, messages);
+				break;
 
-		GenericProtocol.sendMessages(socket,
-				messages.toArray(new IMessage[messages.size()]));
+			case ComputationalNode:
+				ComputationalNodeInfo computationalNode = core.computationalNodes
+						.get(id);
+				// If there is some problem with number of threads (consistency
+				// loss probably!)
+				if (computationalNode.numberOfThreads != computationalNode.assignedMessages
+						.size() + freeThreads)
+				{
+					Logger.log("Consistency loss! Number of free threads is wrong! Dropping component id "
+							+ computationalNode.id + "\n");
+					core.componentMonitorThread
+							.dropComponent(computationalNode.id);
+				}
+				else
+					addComputationalNodeMessages(computationalNode,
+							freeThreads, messages);
+				break;
+
+			default:
+				break;
+		}
+		core.delayedMessages.removeAll(messages);
+
+		return messages;
 	}
 
-	/**
-	 * <p>
-	 * Reacting to SolverRequest message is pretty straightforward - just save
-	 * problem inside ProblemInfo instance and return new problem ID to CC.
-	 * </p>
-	 * 
-	 * @param message
-	 * @param socket
-	 * @throws IOException
-	 */
-	void reactToSolveRequest(SolveRequest message, Socket socket)
-			throws IOException
+	@Override
+	public List<IMessage> getBackupServerSynchronizationMessages()
 	{
-		// Set problem data
-		List<IMessage> messages = new ArrayList<>(2);
-		BigInteger id = core.getCurrentFreeProblemId();
-		ProblemInfo problem = new ProblemInfo(id, message);
-		core.problemsToSolve.put(id, problem);
+		List<IMessage> messages = new ArrayList<>();
 
-		// Inform CC about problem id
-		SolveRequestResponse response = new SolveRequestResponse();
-		response.setId(id);
-		messages.add(messageGenerator.getNoOperationMessage());
-		messages.add(response);
-		GenericProtocol.sendMessages(socket,
-				messages.toArray(new IMessage[messages.size()]));
+		if (core.backupServer.indexOfLastUnSynchronizedMessage < core.listOfMessagesForBackupServer
+				.size())
+			messages.addAll(core.listOfMessagesForBackupServer.subList(
+					core.backupServer.indexOfLastUnSynchronizedMessage,
+					core.listOfMessagesForBackupServer.size()));
+		core.backupServer.indexOfLastUnSynchronizedMessage = core.listOfMessagesForBackupServer
+				.size();
 
-		// Relay information for BS
-		message.setId(id);
+		return messages;
+	}
+
+	@Override
+	public Solution getProblemSolution(BigInteger id)
+	{
+		Solution solution = new Solution();
+		solution.setType(ProblemInfo.ProblemStatus.Ongoing.text);
+
+		if (core.problemsToSolve.get(id) != null
+				&& core.problemsToSolve.get(id).finalSolution != null)
+		{
+			solution = core.problemsToSolve.get(id).finalSolution;
+			solution.setType(ProblemInfo.ProblemStatus.Final.text);
+		}
+
+		return solution;
+	}
+
+	@Override
+	public void addBackupServerMessage(IMessage message)
+	{
 		core.listOfMessagesForBackupServer.add(message);
 	}
 
-	/**
-	 * <p>
-	 * Reacting to PartialProblems message involves saving partial problems data
-	 * and sending NoOperation message.
-	 * </p>
-	 * 
-	 * @param message
-	 * @param socket
-	 * @throws IOException
-	 */
-	void reactToPartialProblems(SolvePartialProblems message, Socket socket)
-			throws IOException
+	@Override
+	public boolean setProblemPartsInfo(
+			BigInteger id,
+			byte[] commonData,
+			List<SolvePartialProblems.PartialProblems.PartialProblem> partialProblems)
 	{
-		ProblemInfo problem = core.problemsToSolve.get(message.getId());
-		problem.data = message.getCommonData();
-		problem.parts = message.getPartialProblems().getPartialProblem().size();
-
-		// Set ProblemInfo about partial problems
-		for (PartialProblem p : message.getPartialProblems()
-				.getPartialProblem())
-		{
-			problem.partialProblems.add(p);
-		}
-
-		// Remove problem from specific taskManager
-		for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
-				.entrySet())
-		{
-			TaskManagerInfo tm = entry.getValue();
-			if (tm.assignedProblems.contains(message.getId()))
-			{
-				tm.assignedProblems.remove(message.getId());
-				break;
-			}
-		}
-
-		// Set problem information
+		ProblemInfo problem = core.problemsToSolve.get(id);
+		int numberOfParts = partialProblems.size();
+		problem.data = commonData.clone();
+		problem.parts = numberOfParts;
 		problem.isProblemDivided = true;
 		problem.isProblemCurrentlyDelegated = false;
 
-		if (!core.isInBackupMode)
-		{
-			GenericProtocol.sendMessages(socket,
-					messageGenerator.getNoOperationMessage());
-			// Relay information for BS
-			core.listOfMessagesForBackupServer.add(message);
-		}
+		return false;
 	}
 
-	/**
-	 * <p>
-	 * Solutiones message can be obtained by server if sent from TaskManager
-	 * (with final solution) or ComputationalNode (if sending partial
-	 * solutions).
-	 * </p>
-	 * 
-	 * @param message
-	 * @param socket
-	 * @throws IOException
-	 */
-	void reactToSolution(Solutiones message, Socket socket) throws IOException
+	@Override
+	public List<Solution> informAboutProblemSolutions(BigInteger problemId,
+			BigInteger taskManagerId, List<Solution> solution)
 	{
-		BigInteger problemId = message.getId();
 		ProblemInfo problem = core.problemsToSolve.get(problemId);
 
-		// Received partial solution?
-		if (problem.isProblemReadyToSolve == false)
-		{
-			receivePartialSolution(problem, message);
-		}
-		else
-		// received final solution
-		{
-			problem.finalSolution = message.getSolutions().getSolution().get(0);
-
-			for (Map.Entry<BigInteger, TaskManagerInfo> entry : core.taskManagers
-					.entrySet())
-			{
-				if (entry.getValue().assignedProblems.contains(problemId))
-				{
-					entry.getValue().assignedProblems.remove(problemId);
-				}
-			}
-
-		}
-
-		// Relay information with BS
-		core.listOfMessagesForBackupServer.add(message);
-
-		GenericProtocol.sendMessages(socket,
-				messageGenerator.getNoOperationMessage());
-	}
-
-	/**
-	 * <p>
-	 * Receives partial solution from ComputationalNode.
-	 * </p>
-	 * 
-	 * @param problem
-	 * @param message
-	 */
-	void receivePartialSolution(ProblemInfo problem, Solutiones message)
-	{
-		BigInteger problemId = message.getId();
-
-		problem.partialSolutions.addAll(message.getSolutions().getSolution());
-		problem.parts -= message.getSolutions().getSolution().size();
-
+		// If it was final solution
 		if (problem.parts == 0)
 		{
-			problem.isProblemReadyToSolve = true;
-		}
-
-		// Remove problems from CN
-		for (Map.Entry<BigInteger, ComputationalNodeInfo> entry : core.computationalNodes
-				.entrySet())
-		{
-			ComputationalNodeInfo computationalNode = entry.getValue();
-			if (computationalNode.assignedPartialProblems
-					.containsKey(problemId))
-			{
-				List<PartialProblem> partialProblems = computationalNode.assignedPartialProblems
-						.get(problemId);
-				for (int i = 0; i < partialProblems.size(); i++)
-				{
-					if (partialProblems
-							.get(i)
-							.getTaskId()
-							.equals(message.getSolutions().getSolution().get(0)
-									.getTaskId()))
-					{
-						partialProblems.remove(i);
-					}
-				}
-			}
-		}
-	}
-
-	private BackupCommunicationServers getBackupServer()
-	{
-		BackupCommunicationServers backupServers = new BackupCommunicationServers();
-		if (null != core.backupServer)
-		{
-			backupServers
-					.setBackupCommunicationServer(new BackupCommunicationServer());
-			backupServers.getBackupCommunicationServer().setAddress(
-					core.backupServer.address);
-			backupServers.getBackupCommunicationServer().setPort(
-					core.backupServer.port);
+			problem.parts = -1;
+			problem.finalSolution = solution.get(0);
+			removeTaskManagerSpecificMessage(problemId);
 		}
 		else
-			backupServers = null;
+		// Received partial solution
+		{
+			problem.partialSolutions.addAll(solution);
 
-		return backupServers;
+			for (Solution s : solution)
+				removeComputationalNodeSpecificMessage(problemId, s.getTaskId());
+			if (problem.parts == problem.partialSolutions.size())
+				problem.parts = 0;
+		}
+
+		return (problem.parts == 0 ? problem.partialSolutions : null);
+	}
+
+	@Override
+	public void informAboutComponentStatusMessage(BigInteger componentId)
+	{
+		core.componentMonitorThread.informaAboutConnectedComponent(componentId);
+	}
+
+	@Override
+	public void reactToDivideProblem(BigInteger taskManagerId,
+			BigInteger problemId)
+	{
+		// we should never receive this message!
+	}
+
+	private void addTaskManagerMessages(TaskManagerInfo taskManager,
+			int numFreeThreads, List<IMessage> messages)
+	{
+		Iterator<IMessage> it = core.delayedMessages.iterator();
+		int freeThreads = numFreeThreads;
+		while ((freeThreads--) > 0 && it.hasNext())
+		{
+			IMessage m = it.next();
+			if (taskManager.isProblemSupported(m))
+			{
+				// For DIVIDE_PROBLEM we have to set some specific
+				// options
+				if (m.getMessageType() == MessageType.DIVIDE_PROBLEM
+						&& core.computationalNodes.size() > 0)
+				{
+					DivideProblem message = (DivideProblem) m;
+					message.setNodeID(taskManager.id);
+					message.setComputationalNodes(new BigInteger(String
+							.valueOf(core.computationalNodes.size())));
+				}
+				else
+				{
+					Solutiones message = (Solutiones) m;
+					// TODO: Here is my secret hack!!!!
+					message.getSolutions().getSolution().get(0)
+							.setTaskId(taskManager.id);
+				}
+				messages.add(m);
+			}
+
+		}
+		taskManager.assignedMessages.addAll(messages);
+	}
+
+	private void addComputationalNodeMessages(
+			ComputationalNodeInfo computationalNode, int numFreeThreads,
+			List<IMessage> messages)
+	{
+		Iterator<IMessage> it = core.delayedMessages.iterator();
+		int freeThreads = numFreeThreads;
+		while ((freeThreads--) > 0 && it.hasNext())
+		{
+			IMessage m = it.next();
+			if (computationalNode.isProblemSupported(m))
+			{
+				SolvePartialProblems message = (SolvePartialProblems) m;
+				message.getPartialProblems().getPartialProblem().get(0)
+						.setNodeID(computationalNode.id);
+				messages.add(m);
+			}
+		}
+		computationalNode.assignedMessages.addAll(messages);
 	}
 }

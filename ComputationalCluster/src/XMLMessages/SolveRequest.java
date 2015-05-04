@@ -7,7 +7,11 @@
 
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,7 +21,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import GenericCommonClasses.AbstractMessage;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
@@ -49,7 +56,7 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "problemType", "solvingTimeout", "data", "id" })
 @XmlRootElement(name = "SolveRequest")
-public class SolveRequest implements IMessage
+public class SolveRequest extends AbstractMessage
 {
 
 	@XmlElement(name = "ProblemType", required = true)
@@ -163,5 +170,38 @@ public class SolveRequest implements IMessage
 	public MessageType getMessageType()
 	{
 		return MessageType.SOLVE_REQUEST;
+	}
+
+	@Override
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
+	{
+		List<IMessage> messages = new ArrayList<>(2);
+
+		BigInteger id = serverProtocol.registerProblem(getId(), getData(),
+				getProblemType(), getSolvingTimeout());
+
+		// Inform CC about problem id
+		messages.add(serverProtocol.getNoOperationMessage());
+		messages.add(new SolveRequestResponse(id));
+
+		if (null != socket)
+		{
+			// Relay information for BS
+			setId(id);
+			serverProtocol.addBackupServerMessage(this);
+			GenericProtocol.sendMessages(socket,
+					messages.toArray(new IMessage[messages.size()]));
+		}
+
+		// Add problem to delayed responses
+		delayedResponse.add(new DivideProblem(getProblemType(), id, getData(),
+				new BigInteger("0"), new BigInteger("-1")));
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return getId();
 	}
 }

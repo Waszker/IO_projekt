@@ -1,7 +1,9 @@
 package UnitTests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ public class FlagInterpreterTests
 {
 
 	@Test
-	public void flagInterpreterTest1()
+	public void flagInterpreterWithPortTest1() throws UnknownHostException
 	{
 		try
 		{
@@ -30,14 +32,14 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
 	@Test
-	public void flagInterpreterTest2()
+	public void flagInterpreterWithPortAndGoodAddressTest2()
 	{
 		try
 		{
@@ -54,14 +56,14 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
 	@Test
-	public void flagInterpreterTest3()
+	public void flagInterpreterWithPortAndBadAddressTest3()
 	{
 		try
 		{
@@ -78,10 +80,15 @@ public class FlagInterpreterTests
 		{
 
 		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Test
-	public void flagInterpreterTest4()
+	public void flagInterpreterWithPortAddressGuiAndBackupTest4()
 	{
 		try
 		{
@@ -99,14 +106,14 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), true);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
 	@Test
-	public void flagInterpreterTest5()
+	public void flagInterpreterWithTimeoutTest5()
 	{
 		try
 		{
@@ -123,14 +130,14 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
 	@Test
-	public void flagInterpreterTest6()
+	public void flagInterpreterWithBadPortTest6()
 	{
 		try
 		{
@@ -139,7 +146,7 @@ public class FlagInterpreterTests
 			fail("NumberFormatException expected.");
 
 		}
-		catch (UnknownHostException e)
+		catch (IOException e)
 		{
 			fail(e.getMessage());
 		}

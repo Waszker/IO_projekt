@@ -11,7 +11,7 @@ import GenericCommonClasses.GenericComponent.ComponentType;
 public class ComputationalNodeTests
 {
 	@Test
-	public void ComputationalNodeTest1()
+	public void ComputationalNodeWithDefaultParametersTest1()
 	{
 		ComputationalNode node = new ComputationalNode(null, null, false);
 		assertEquals(node.getType(), ComponentType.ComputationalNode);
@@ -20,7 +20,7 @@ public class ComputationalNodeTests
 	}
 	
 	@Test
-	public void ComputationalNodeTest2()
+	public void ComputationalNodeWithIPAddressTest2()
 	{
 		ComputationalNode node = new ComputationalNode("127.0.0.1", null, false);
 		assertEquals(node.getType(), ComponentType.ComputationalNode);
@@ -29,7 +29,7 @@ public class ComputationalNodeTests
 	}
 	
 	@Test
-	public void ComputationalNodeTest3()
+	public void ComputationalNodeWithPortTest3()
 	{
 		ComputationalNode node = new ComputationalNode(null, 1234, false);
 		assertEquals(node.getType(), ComponentType.ComputationalNode);
@@ -38,7 +38,7 @@ public class ComputationalNodeTests
 	}
 	
 	@Test
-	public void ComputationalNodeTest4()
+	public void ComputationalNodeWithAllParametersTest4()
 	{
 		ComputationalNode node = new ComputationalNode("127.0.0.1", 1234, false);
 		assertEquals(node.getType(), ComponentType.ComputationalNode);

@@ -10,7 +10,7 @@ public class IntegralProblemTest
 {
 
 	@Test
-	public void test()
+	public void divideProblemAndMergeSolutionTest1()
 	{
 		final String input = "0 1 100000";
 		final int nnodes = 1;
