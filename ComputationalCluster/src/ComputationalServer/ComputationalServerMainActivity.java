@@ -1,6 +1,6 @@
 package ComputationalServer;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.Map;
 
 import DebugTools.Logger;
@@ -29,15 +29,16 @@ public class ComputationalServerMainActivity
 				ComputationalServerWindow window = new ComputationalServerWindow(
 						server);
 				window.setVisible(true);
-			} else
+			}
+			else
 			{
 				// we don't have window here
 				server.startWork(null);
 			}
 		}
-		catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e)
+		catch (NumberFormatException | IndexOutOfBoundsException | IOException e)
 		{
-			//e.printStackTrace();
+			// e.printStackTrace();
 			Logger.log("Incorrectly formatted flags.\n"
 					+ "Usage: java -jar ComputationalServer.jar "
 					+ "[-port [port number]] [-backup] "

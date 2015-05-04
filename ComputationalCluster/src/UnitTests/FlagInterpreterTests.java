@@ -1,7 +1,9 @@
 package UnitTests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ public class FlagInterpreterTests
 {
 
 	@Test
-	public void flagInterpreterWithPortTest1()
+	public void flagInterpreterWithPortTest1() throws UnknownHostException
 	{
 		try
 		{
@@ -30,7 +32,7 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
@@ -54,7 +56,7 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
@@ -78,6 +80,11 @@ public class FlagInterpreterTests
 		{
 
 		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Test
@@ -99,7 +106,7 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), true);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
@@ -123,7 +130,7 @@ public class FlagInterpreterTests
 			assertEquals(flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI), null);
 
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IOException e)
 		{
 			fail(e.getMessage());
 		}
@@ -139,7 +146,7 @@ public class FlagInterpreterTests
 			fail("NumberFormatException expected.");
 
 		}
-		catch (UnknownHostException e)
+		catch (IOException e)
 		{
 			fail(e.getMessage());
 		}

@@ -5,10 +5,12 @@
 // Generated on: 2015.03.16 at 05:00:12 PM CET 
 //
 
-
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.Socket;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,15 +20,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import GenericCommonClasses.AbstractMessage;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -47,147 +53,163 @@ import GenericCommonClasses.Parser.MessageType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "problemType",
-    "id",
-    "data",
-    "computationalNodes",
-    "nodeID"
-})
+@XmlType(name = "", propOrder = { "problemType", "id", "data",
+		"computationalNodes", "nodeID" })
 @XmlRootElement(name = "DivideProblem")
-public class DivideProblem implements IMessage {
+public class DivideProblem extends AbstractMessage
+{
+	@XmlElement(name = "ProblemType", required = true)
+	protected String problemType;
+	@XmlElement(name = "Id", required = true)
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger id;
+	@XmlElement(name = "Data", required = true)
+	protected byte[] data;
+	@XmlElement(name = "ComputationalNodes", required = true)
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger computationalNodes;
+	@XmlElement(name = "NodeID", required = true)
+	@XmlSchemaType(name = "unsignedLong")
+	protected BigInteger nodeID;
 
-    @XmlElement(name = "ProblemType", required = true)
-    protected String problemType;
-    @XmlElement(name = "Id", required = true)
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger id;
-    @XmlElement(name = "Data", required = true)
-    protected byte[] data;
-    @XmlElement(name = "ComputationalNodes", required = true)
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger computationalNodes;
-    @XmlElement(name = "NodeID", required = true)
-    @XmlSchemaType(name = "unsignedLong")
-    protected BigInteger nodeID;
+	public DivideProblem()
+	{
+	}
 
-    /**
-     * Gets the value of the problemType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getProblemType() {
-        return problemType;
-    }
+	/**
+	 * <p>
+	 * Creates DivideProblem message.
+	 * </p>
+	 * 
+	 * @param problemType
+	 * @param id
+	 * @param data
+	 * @param computationalNodes
+	 * @param nodeID
+	 */
+	public DivideProblem(String problemType, BigInteger id, byte[] data,
+			BigInteger computationalNodes, BigInteger nodeID)
+	{
+		super();
+		this.problemType = problemType;
+		this.id = id;
+		this.data = data;
+		this.computationalNodes = computationalNodes;
+		this.nodeID = nodeID;
+	}
 
-    /**
-     * Sets the value of the problemType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setProblemType(String value) {
-        this.problemType = value;
-    }
+	/**
+	 * Gets the value of the problemType property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getProblemType()
+	{
+		return problemType;
+	}
 
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getId() {
-        return id;
-    }
+	/**
+	 * Sets the value of the problemType property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link String }
+	 * 
+	 */
+	public void setProblemType(String value)
+	{
+		this.problemType = value;
+	}
 
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setId(BigInteger value) {
-        this.id = value;
-    }
+	/**
+	 * Gets the value of the id property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getId()
+	{
+		return id;
+	}
 
-    /**
-     * Gets the value of the data property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
-     */
-    public byte[] getData() {
-        return data;
-    }
+	/**
+	 * Sets the value of the id property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setId(BigInteger value)
+	{
+		this.id = value;
+	}
 
-    /**
-     * Sets the value of the data property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
-     */
-    public void setData(byte[] value) {
-        this.data = value;
-    }
+	/**
+	 * Gets the value of the data property.
+	 * 
+	 * @return possible object is byte[]
+	 */
+	public byte[] getData()
+	{
+		return data;
+	}
 
-    /**
-     * Gets the value of the computationalNodes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getComputationalNodes() {
-        return computationalNodes;
-    }
+	/**
+	 * Sets the value of the data property.
+	 * 
+	 * @param value
+	 *            allowed object is byte[]
+	 */
+	public void setData(byte[] value)
+	{
+		this.data = value;
+	}
 
-    /**
-     * Sets the value of the computationalNodes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setComputationalNodes(BigInteger value) {
-        this.computationalNodes = value;
-    }
+	/**
+	 * Gets the value of the computationalNodes property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getComputationalNodes()
+	{
+		return computationalNodes;
+	}
 
-    /**
-     * Gets the value of the nodeID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getNodeID() {
-        return nodeID;
-    }
+	/**
+	 * Sets the value of the computationalNodes property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setComputationalNodes(BigInteger value)
+	{
+		this.computationalNodes = value;
+	}
 
-    /**
-     * Sets the value of the nodeID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setNodeID(BigInteger value) {
-        this.nodeID = value;
-    }
+	/**
+	 * Gets the value of the nodeID property.
+	 * 
+	 * @return possible object is {@link BigInteger }
+	 * 
+	 */
+	public BigInteger getNodeID()
+	{
+		return nodeID;
+	}
+
+	/**
+	 * Sets the value of the nodeID property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link BigInteger }
+	 * 
+	 */
+	public void setNodeID(BigInteger value)
+	{
+		this.nodeID = value;
+	}
 
 	@Override
 	public String getString() throws JAXBException
@@ -199,6 +221,19 @@ public class DivideProblem implements IMessage {
 	public MessageType getMessageType()
 	{
 		return MessageType.DIVIDE_PROBLEM;
+	}
+
+	@Override
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
+	{
+		serverProtocol.reactToDivideProblem(getNodeID(), getId());
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return getId();
 	}
 
 }

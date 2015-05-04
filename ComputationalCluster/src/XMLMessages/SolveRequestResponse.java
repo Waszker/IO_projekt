@@ -8,6 +8,8 @@
 package XMLMessages;
 
 import java.math.BigInteger;
+import java.net.Socket;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,6 +20,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
 
@@ -48,10 +51,26 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlRootElement(name = "SolveRequestResponse")
 public class SolveRequestResponse implements IMessage
 {
-
 	@XmlElement(name = "Id", required = true)
 	@XmlSchemaType(name = "unsignedLong")
 	protected BigInteger id;
+
+	public SolveRequestResponse()
+	{
+	}
+
+	/**
+	 * <p>
+	 * Creates SolveRequestResponse with given id.
+	 * </p>
+	 * 
+	 * @param id
+	 */
+	public SolveRequestResponse(BigInteger id)
+	{
+		super();
+		this.id = id;
+	}
 
 	/**
 	 * Gets the value of the id property.
@@ -86,6 +105,20 @@ public class SolveRequestResponse implements IMessage
 	public MessageType getMessageType()
 	{
 		return MessageType.SOLVE_REQUEST_RESPONSE;
+	}
+
+	@Override
+	public List<IMessage> prepareResponse(IServerProtocol serverProtocol,
+			Socket socket)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return getId();
 	}
 
 }

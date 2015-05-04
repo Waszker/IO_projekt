@@ -32,6 +32,9 @@ public final class ComputationalServer extends GenericComponent
 
 	private boolean isBackup;
 	private int timeout, myLocalBackupPort;
+	/**
+	 * Main server functionality is provided by this class.
+	 */
 	private ComputationalServerCore core;
 
 	/******************/
@@ -78,11 +81,11 @@ public final class ComputationalServer extends GenericComponent
 	 */
 	public void startWork(final ComputationalServerWindow mainWindow)
 	{
-		new Thread(new Runnable()
+		new Thread(new Runnable() // NOPMD by waszka on 4/29/15 3:11 PM
 		{
 
 			@Override
-			public void run()
+			public void run() // NOPMD by waszka on 4/29/15 3:09 PM
 			{
 				Logger.log("Computational server starts listening\non port: "
 						+ port + "\nwith timeout: " + timeout + " seconds.\n");

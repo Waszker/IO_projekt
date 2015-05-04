@@ -7,7 +7,9 @@
 
 package XMLMessages;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +21,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import GenericCommonClasses.AbstractMessage;
+import GenericCommonClasses.GenericComponent;
+import GenericCommonClasses.GenericComponent.ComponentType;
+import GenericCommonClasses.GenericProtocol;
 import GenericCommonClasses.IMessage;
+import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.Parser;
 import GenericCommonClasses.Parser.MessageType;
+import XMLMessages.Error.ErrorMessage;
 
 /**
  * <p>
@@ -71,7 +79,7 @@ import GenericCommonClasses.Parser.MessageType;
 @XmlType(name = "", propOrder = { "type", "solvableProblems",
 		"parallelThreads", "deregister", "id" })
 @XmlRootElement(name = "Register")
-public class Register implements IMessage
+public class Register extends AbstractMessage
 {
 
 	@XmlElement(name = "Type", required = true)
@@ -273,4 +281,58 @@ public class Register implements IMessage
 		return MessageType.REGISTER;
 	}
 
+	@Override
+	protected void getMessageResponse(IServerProtocol serverProtocol,
+			Socket socket, List<IMessage> delayedResponse) throws IOException
+	{
+		IMessage response = new XMLMessages.Error(ErrorMessage.UnknownSender,
+				"");
+
+		if (null != type)
+		{
+			GenericComponent.ComponentType componentType = getComponentType(getType());
+
+			BigInteger id = serverProtocol.registerComponent(getId(), (int)getParallelThreads(),
+					(null != isDeregister() && isDeregister().booleanValue()),
+					componentType,
+					(null != getSolvableProblems() ? getSolvableProblems()
+							.getProblemName() : new ArrayList<String>()),
+					(null == socket ? 0 : socket.getPort()),
+					(null == socket ? "" : socket.getInetAddress().toString()));
+
+			// If component is invalid
+			if (-1 == id.intValue()
+					&& componentType != ComponentType.ComputationalServer)
+			{
+				((Error) response)
+						.setErrorMessage("Component cannot be registered");
+			}
+			else
+			// Get component RegisterResponse message
+			{
+				// Response for newly registered BS requires BS list to be null
+				response = new RegisterResponse(id,
+						serverProtocol.getServerTimeout(),
+						(-1 != id.intValue() ? null : serverProtocol
+								.getBackupServer()));
+
+				// Add message for backup server
+				if (null != socket
+						&& componentType != ComponentType.ComputationalServer)
+				{
+					setDeregister(false);
+					setId(id);
+					serverProtocol.addBackupServerMessage(this);
+				}
+			}
+		}
+
+		if (null != socket) GenericProtocol.sendMessages(socket, response);
+	}
+
+	@Override
+	public BigInteger getProblemId()
+	{
+		return null;
+	}
 }
