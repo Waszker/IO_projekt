@@ -294,6 +294,7 @@ public class ComputationalServerCore
 	private void startPrimaryServerFunctions() throws IOException
 	{
 		serverSocket = new ServerSocket(this.port);
+		serverSocket.setReuseAddress(true);
 		addCloseSocketHook(serverSocket);
 		connectionEstabilisherThread.start();
 		messageParserThread.run();
