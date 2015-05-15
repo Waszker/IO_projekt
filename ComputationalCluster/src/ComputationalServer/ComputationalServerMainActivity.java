@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import DebugTools.Logger;
+import GenericCommonClasses.GenericComponent;
 import GenericCommonClasses.GenericFlagInterpreter;
 
 public class ComputationalServerMainActivity
@@ -38,12 +39,8 @@ public class ComputationalServerMainActivity
 		}
 		catch (NumberFormatException | IndexOutOfBoundsException | IOException e)
 		{
-			// e.printStackTrace();
-			Logger.log("Incorrectly formatted flags.\n"
-					+ "Usage: java -jar ComputationalServer.jar "
-					+ "[-port [port number]] [-backup] "
-					+ "[-t [time in seconds]] "
-					+ "[-backup-port [port number for backup server]]\n");
+			Logger.log("Incorrectly formatted flags.\n");
+			GenericComponent.showUsage();
 		}
 	}
 }

@@ -247,6 +247,22 @@ public abstract class GenericComponent
 		return type;
 	}
 
+	/**
+	 * <p>
+	 * Shows usage info.
+	 * </p>
+	 */
+	public static void showUsage()
+	{
+		Logger.log("Usage: java -jar ComponentName.jar "
+				+ "[-port [port number]] [-backup] "
+				+ "[-t [time in seconds]] "
+				+ "[-backup-port [port number for backup server]]\n");
+		Logger.log("Optional configuration file should be named "
+				+ GenericFlagInterpreter.CONFIGURATION_FILE
+				+ " and should be placed in root directory of .jar file.\n");
+	}
+
 	// TODO: Change (probably remove this in the future!)
 	private void startResendingThread()
 	{
@@ -258,7 +274,7 @@ public abstract class GenericComponent
 			{
 				while (true)
 				{
-					
+
 					try
 					{
 						Thread.sleep(timeout * 700); // TODO: Check if seconds
