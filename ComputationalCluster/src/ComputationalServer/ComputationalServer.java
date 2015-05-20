@@ -81,11 +81,11 @@ public final class ComputationalServer extends GenericComponent
 	 */
 	public void startWork(final ComputationalServerWindow mainWindow)
 	{
-		new Thread(new Runnable() // NOPMD by waszka on 4/29/15 3:11 PM
+		new Thread(new Runnable() 
 		{
 
 			@Override
-			public void run() // NOPMD by waszka on 4/29/15 3:09 PM
+			public void run() 
 			{
 				Logger.log("Computational server starts listening\non port: "
 						+ port + "\nwith timeout: " + timeout + " seconds.\n");
