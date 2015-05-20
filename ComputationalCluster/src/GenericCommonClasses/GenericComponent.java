@@ -137,12 +137,12 @@ public abstract class GenericComponent
 			if (null != connectionSocket)
 			{
 				connectionSocket.setReuseAddress(true);
+				GenericProtocol.sendMessages(connectionSocket, messages);
 			}
 			else
 			{
 				throw new IOException("Connection unsuccessful");
 			}
-			GenericProtocol.sendMessages(connectionSocket, messages);
 		}
 	}
 
@@ -263,7 +263,6 @@ public abstract class GenericComponent
 				+ " and should be placed in root directory of .jar file.\n");
 	}
 
-	// TODO: Change (probably remove this in the future!)
 	private void startResendingThread()
 	{
 		new Thread(new Runnable()
@@ -272,52 +271,43 @@ public abstract class GenericComponent
 			@Override
 			public void run()
 			{
-				while (true)
+				CONNECTION_POSSIBLE: while (true)
 				{
+					boolean isSendingSuccess = false;
 
 					try
 					{
-						Thread.sleep(timeout * 700); // TODO: Check if seconds
-														// or not
+						Thread.sleep(timeout * 1000);
 					}
 					catch (InterruptedException e)
 					{
 					}
 
-					new Thread(new Runnable()
+					do
 					{
-
-						@Override
-						public void run()
+						try
 						{
-							boolean isSendingSuccess = false;
+							Status status = getStatusMessage();
 
-							do
-							{
-								try
-								{
-									Status status = getStatusMessage();
-
-									sendMessages(status);
-									isSendingSuccess = true;
-									for (IMessage message : receiveMessage())
-										reactToMessage(message);
-								}
-								catch (IOException e)
-								{
-									DebugTools.Logger
-											.log("Switching to backup...\n");
-									isSendingSuccess = false;
-									ipAddress = backupServerIp;
-									port = backupServerPort;
-									backupServerIp = null;
-								}
-							} while (!isSendingSuccess);
+							sendMessages(status);
+							isSendingSuccess = true;
+							for (IMessage message : receiveMessage())
+								reactToMessage(message);
 						}
-					}).start();
+						catch (IOException e)
+						{
+							DebugTools.Logger.log("Switching to backup...\n");
+							isSendingSuccess = false;
+							ipAddress = backupServerIp;
+							port = backupServerPort;
+							backupServerIp = null;
+							if(null == ipAddress) break CONNECTION_POSSIBLE;
+						}
+					} while (!isSendingSuccess);
 				}
 			}
 		}).run();
+		Logger.log("Switching to backup impossible!\n");
 	}
 
 	// returns status message for every component
