@@ -139,7 +139,6 @@ public class DVRPSolver extends TaskSolver
 			final int from = s.nextInt();
 			final int to = s.nextInt();
 			Double lowerCost = Double.MAX_VALUE;
-			//IGraphNode[] path = null;
 			for ( int i=from; i<to; i++ )
 			{
 				List<PathNode[]> pathList = new LinkedList<>();
@@ -154,6 +153,8 @@ public class DVRPSolver extends TaskSolver
 			ret = "S " + lowerCost.toString();
 			
 			/*
+			 * TODO Encode path to the message (variable pathForEachVehilce)
+			 * 
 			if ( path == null )ret+=" 0";
 			else
 			{
