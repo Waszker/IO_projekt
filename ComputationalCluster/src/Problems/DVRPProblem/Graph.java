@@ -1,5 +1,6 @@
 package Problems.DVRPProblem;
 
+
 public class Graph
 {
 	/* VARIABLES */
@@ -14,7 +15,6 @@ public class Graph
 	public Graph(Depot[] d, Client[] c, double vehicleSpeed)
 	{
 		final int n = c.length + d.length;
-		
 		v = new IGraphNode[n];
 		this.d = d;
 		this.c = c;
