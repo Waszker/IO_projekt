@@ -182,45 +182,6 @@ public class DVRPSolver extends TaskSolver
 
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	
-	private double numOfDifferentPaths(int numOfNodes)
-	{
-		int ret = 1;
-		while ( ret < numOfNodes )
-			ret*= 2;
-		return ret;
-	}
-	
-	private int pathLen(int numOfNodes)
-	{
-		int v = 1, len = 0;
-		while ( v < numOfNodes )
-		{
-			v*= 2;
-			len++;
-		}
-		return len;
-	}
-	
-	private String generateSubproblemString(final int nodeNum, final int numberOfNodes, final int numberOfClients, final int currentVariation)
-	{
-		final double currentPathsPerNode = numOfDifferentPaths(numberOfNodes) / numberOfNodes;
-		final int pathsForThisNode = (int)((nodeNum+2)*currentPathsPerNode) - (int)((nodeNum+1)*currentPathsPerNode);
-		final int pathLenForThisNode = pathLen(numberOfNodes);
-		String ret = "P " + currentVariation + " " + pathLenForThisNode + " " + pathsForThisNode + "\n";
-		
-		for ( int i=0; i<pathsForThisNode; i++ )
-			ret += beginingPath(numberOfClients, pathLenForThisNode, i) + ( i<pathsForThisNode-1 ? "\n" : "" );
-		
-		return ret;
-	}
-	
-	
-	private String beginingPath(final int numberOfClients, final int pathLen, final int pathNum)
-	{
-		
-		return "";
-	}
-	
 	private ProblemData extractProblemData()
 	{
 		int numberOfClients;
