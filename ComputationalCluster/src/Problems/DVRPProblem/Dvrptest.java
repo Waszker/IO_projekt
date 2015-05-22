@@ -19,7 +19,7 @@ public class Dvrptest
 		clients[2] = new Client(10,-10,0,0,1);
 		
 		double best = DVRPSolver.dvrp(2, 1, 2, depots, clients);
-		System.out.println(best);*/
+		System.out.println(best);*/ 
 	}
 
 }

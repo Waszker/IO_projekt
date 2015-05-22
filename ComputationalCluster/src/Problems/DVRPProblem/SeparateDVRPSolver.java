@@ -166,7 +166,7 @@ public class SeparateDVRPSolver
 		for ( int i=0; i<g.length; i++ )
 		{
 			ret += oneDvrp(g[i], cap);
-			pathsForAllVehicles.add(SeparateDVRPSolver.path);
+			pathsForAllVehicles.add(SeparateDVRPSolver.path); 
 		}
 		return ret;
 	}

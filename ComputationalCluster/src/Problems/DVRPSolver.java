@@ -147,7 +147,7 @@ public class DVRPSolver extends TaskSolver
 				if ( cost < lowerCost )
 				{
 					lowerCost = cost;
-					pathForEachVehicle = pathList;
+					pathForEachVehicle = pathList; 
 				}
 			}
 			
