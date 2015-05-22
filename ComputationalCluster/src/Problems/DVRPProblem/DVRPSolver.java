@@ -1,5 +1,8 @@
 package Problems.DVRPProblem;
 
+import java.util.List;
+import Problems.DVRPProblem.SeparateDVRPSolver.PathNode;
+
 public class DVRPSolver
 {
 	/**
@@ -11,7 +14,7 @@ public class DVRPSolver
 	 * @param clients Set of clients.
 	 */
 	public static double dvrp(int numVehicles, double vehicleSpeed, double vehicleCapacity, Depot[] depots,
-							 Client[] clients)
+							 Client[] clients, List<PathNode[]> pathForEachVehicle)
 	{
 		int currentPartition = 0;
 		Graph[] div = null;
@@ -22,7 +25,7 @@ public class DVRPSolver
 		double best = Double.POSITIVE_INFINITY;
 		while ( (div = g.divideGraph(numVehicles, currentPartition++)) != null ) //dla każdego podziału
 		{
-			double result = SeparateDVRPSolver.solveDVRPOnGraphSet(div, vehicleCapacity);
+			double result = SeparateDVRPSolver.solveDVRPOnGraphSet(div, vehicleCapacity,pathForEachVehicle);
 			if ( result < best )best = result;
 		}
 		return best*vehicleSpeed;
