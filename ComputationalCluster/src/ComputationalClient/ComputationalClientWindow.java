@@ -31,7 +31,7 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 	private static final long serialVersionUID = -1254898218440155506L;
 	protected JTextField computationStatusField;
 	protected JButton sendButton;
-	protected JTextField timeoutField;
+	protected JTextField timeoutField, cutOffTimeField;
 	protected JLabel fileName;
 	protected JButton requestButton;
 
@@ -60,6 +60,11 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Specify timeout"),
 				timeoutField = createTextField(clientInstance.getTimeout()
+						.toString(), true)));
+		
+		this.add(createTwoHorizontalComponentsPanel(
+				new JLabel("Specify cutofftime"),
+				cutOffTimeField = createTextField(clientInstance.getCutOffTime()
 						.toString(), true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
