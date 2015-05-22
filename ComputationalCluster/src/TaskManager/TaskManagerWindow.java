@@ -28,6 +28,8 @@ public final class TaskManagerWindow extends GenericWindowGui
 		
 		this.pack();
 		this.setLocationRelativeTo(null);
+		
+		currentJobField.toString();
 	}
 
 	@Override
