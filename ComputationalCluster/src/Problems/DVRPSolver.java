@@ -6,7 +6,6 @@ import java.util.Scanner;
 import Problems.DVRPProblem.Client;
 import Problems.DVRPProblem.Depot;
 import Problems.DVRPProblem.Graph;
-import Problems.DVRPProblem.IGraphNode;
 import Problems.DVRPProblem.SeparateDVRPSolver;
 import pl.edu.pw.mini.se2.TaskSolver;
 import pl.edu.pw.mini.se2.TaskSolverState;
