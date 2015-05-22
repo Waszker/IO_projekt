@@ -14,13 +14,11 @@ public class DVRPSolver
 	 * @param clients Set of clients.
 	 */
 	public static double dvrp(int numVehicles, double vehicleSpeed, double vehicleCapacity, Depot[] depots,
-							 Client[] clients, List<PathNode[]> pathForEachVehicle)
+							 Client[] clients, List<PathNode[]> pathForEachVehicle, double cutoff)
 	{
 		int currentPartition = 0;
 		Graph[] div = null;
-		Graph g = new Graph(depots, clients, vehicleSpeed);
-		
-		//TODO: Waiting action
+		Graph g = new Graph(depots, clients, vehicleSpeed, cutoff);
 		
 		double best = Double.POSITIVE_INFINITY;
 		while ( (div = g.divideGraph(numVehicles, currentPartition++)) != null ) //dla każdego podziału
