@@ -14,7 +14,20 @@ public class SeparateDVRPSolver
 {
 	/* VARIABLES */
 	private static double currentBest; //current best solution of oneDvrp function
-	public static IGraphNode[] path = null;
+	public static PathNode[] path = null;
+	
+	/* NESTED CLASSES */
+	
+	public static class PathNode
+	{
+		public double x,y, arriveTime;
+		public PathNode(double x, double y, double t)
+		{
+			this.x = x;
+			this.y = y;
+			this.arriveTime = t;
+		}
+	}
 	
 	
 	/* PRIVATE AUXILIARY FUNCTIONS */
@@ -58,7 +71,7 @@ public class SeparateDVRPSolver
 	}
 	
 	// main recursive function
-	private static void recursive(Graph g, int thisIndex, List<IGraphNode> currentPath, boolean[] clientVisited, double cap, double currentCargo, double curTime, double curCost)
+	private static void recursive(Graph g, int thisIndex, List<PathNode> currentPath, boolean[] clientVisited, double cap, double currentCargo, double curTime, double curCost)
 	{
 		if ( allVisited(clientVisited) )
 		{
@@ -82,7 +95,7 @@ public class SeparateDVRPSolver
 				if ( curCost < currentBest )
 				{
 					currentBest = curCost;
-					//path = currentPath.toArray(new IGraphNode[currentPath.size()]);
+					path = currentPath.toArray(new PathNode[currentPath.size()]);
 				}
 			}
 			return;
@@ -100,7 +113,7 @@ public class SeparateDVRPSolver
 			if ( !moveLegal(g.c[i], currentCargo, curTime+travelTime) )
 				nextTime = g.c[i].time + g.c[i].unld; //we're waiting
 			
-			currentPath.add(g.c[i]);
+			currentPath.add(new PathNode(g.c[i].x, g.c[i].y, nextTime));
 			clientVisited[i] = true;
 			recursive(g, g.d.length+i, currentPath, clientVisited, cap, currentCargo-g.c[i].size, nextTime, curCost+travelTime);
 			currentPath.remove(currentPath.size()-1);
@@ -115,7 +128,7 @@ public class SeparateDVRPSolver
 				
 				double travelTime = g.e[thisIndex][i];
 				if ( !moveLegal(g.d[i], cap, curTime+travelTime) )continue;
-				currentPath.add(g.d[i]);
+				currentPath.add(new PathNode(g.d[i].x, g.d[i].y, curTime+travelTime));
 				recursive(g, i, currentPath, clientVisited, cap, cap, curTime+travelTime, curCost+travelTime);
 				currentPath.remove(currentPath.size()-1);
 			}
@@ -128,11 +141,11 @@ public class SeparateDVRPSolver
 		currentBest = Double.POSITIVE_INFINITY;
 		for ( int i=0; i<g.d.length; i++ )
 		{
-			List<IGraphNode> path = new LinkedList<>();
+			List<PathNode> path = new LinkedList<>();
 			boolean[] clientVisited = new boolean[g.c.length];
 			for ( int j=0; j<g.c.length; j++ )
 				clientVisited[j] = false;
-			path.add(g.d[i]);
+			path.add(new PathNode(g.d[i].x, g.d[i].y, 0.0));
 			recursive(g, i, path, clientVisited,cap,cap,g.d[i].startTime, 0);
 		}
 		return currentBest;
@@ -147,11 +160,14 @@ public class SeparateDVRPSolver
 	 * @param cap Single vehicle capacity.
 	 * @return
 	 */
-	public static double solveDVRPOnGraphSet(Graph[] g, double cap)
+	public static double solveDVRPOnGraphSet(Graph[] g, double cap, List<PathNode[]> pathsForAllVehicles)
 	{
 		double ret = 0;
 		for ( int i=0; i<g.length; i++ )
+		{
 			ret += oneDvrp(g[i], cap);
+			pathsForAllVehicles.add(SeparateDVRPSolver.path);
+		}
 		return ret;
 	}
 }
