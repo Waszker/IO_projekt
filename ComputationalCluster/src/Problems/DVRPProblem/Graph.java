@@ -1,7 +1,5 @@
 package Problems.DVRPProblem;
 
-import java.util.Arrays;
-import java.util.List;
 
 public class Graph
 {
@@ -14,32 +12,6 @@ public class Graph
 	private double vehicleSpeed;
 	
 	//constructs graph, where nodes are in order: { d0 d1 d2 ... dm c1 ... ck } , d=depot, c=client
-	public Graph(Depot[] d, Client[] _c, double vehicleSpeed, double cutoff)
-	{
-		List<Client> cl = Arrays.asList(_c);
-		for ( int i=0; i<cl.size(); i++ )
-			if( cl.get(i).time >= cutoff )
-				cl.remove(i--);
-		Client[] c = cl.toArray(new Client[cl.size()]);
-		
-		final int n = c.length + d.length;
-		v = new IGraphNode[n];
-		this.d = d;
-		this.c = c;
-		this.vehicleSpeed = vehicleSpeed;
-		
-		//we assume graph nodes order: d1 d2 d3 ... dm c1 c2 ... ck , m+k=n
-		for ( int i = 0; i<d.length; i++ )
-			v[i] = d[i];
-		for ( int i = 0; i<c.length; i++ )
-			v[d.length + i] = c[i];
-		
-		e = new Double[n][n];
-		for ( int i=0; i<n; i++ )
-			for ( int j=i; j<n; j++ )
-				e[i][j] = e[j][i] = calcTravelTime(v[i], v[j], vehicleSpeed); 
-	}
-	
 	public Graph(Depot[] d, Client[] c, double vehicleSpeed)
 	{
 		final int n = c.length + d.length;

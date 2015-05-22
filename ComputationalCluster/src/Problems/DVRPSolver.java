@@ -51,38 +51,17 @@ public class DVRPSolver extends TaskSolver
 		
 		int numOfVariations = (int)Math.pow(nov, noc); //number of possible divisions (partitions)
 		byte[][] ret = new byte[numOfNodes][];
-		
-		if ( numOfVariations >= numOfNodes )
-		{			
-			double variationPerNode = (double)numOfVariations / (double) numOfNodes;
-			for ( int i=0; i<numOfNodes; i++ )
-			{
-				int from = (int)(i*variationPerNode);
-				int to = (int)((i+1)*variationPerNode); // vartiations to handle by one node: [from, to)
-				
-				ret[i] = ("S " + from + " " + to).getBytes(); //S means that there is a set of whole TSP problems
-															  //to solve (maybe single element set)
-			}
-		}
-		
-		else // this occures practically only when there is one vehicle
-		{
-			double nodesPerVariation = ((double) numOfNodes      / (double) numOfVariations);
-			double variationsPerNode = ((double) numOfVariations / (double) numOfNodes);
 			
-			for ( int i=0; i<numOfNodes; i++ )
-			{
-				final int currentVariation =  (int)(i*variationsPerNode);
-				final int currentNumOfNodes = (int)((currentVariation+2)*nodesPerVariation) - (int)((currentVariation+1)*nodesPerVariation);
-				final int startIndex = i;
+		double variationPerNode = (double)numOfVariations / (double) numOfNodes;
+		for ( int i=0; i<numOfNodes; i++ )
+		{
+			int from = (int)(i*variationPerNode);
+			int to = (int)((i+1)*variationPerNode); // vartiations to handle by one node: [from, to)
 				
-				
-				for ( ; i<startIndex + currentNumOfNodes; i++ )
-					ret[i] = generateSubproblemString(i - startIndex, currentNumOfNodes, noc, currentVariation).getBytes();
-				i--;
-			}
+			ret[i] = ("S " + from + " " + to).getBytes(); //S means that there is a set of whole TSP problems
+														  //to solve (maybe single element set)
 		}
-		
+				
 		return ret;
 	}
 
@@ -94,33 +73,25 @@ public class DVRPSolver extends TaskSolver
 	public byte[] MergeSolution(byte[][] partialSolutions)
 	{
 		Double lowestCost = Double.MAX_VALUE;
+		String ret = lowestCost.toString() + "\n-1";
 		
 		for ( int i=0; i<partialSolutions.length; i++ )
 		{
 			String _s = new String(partialSolutions[i]);
 			Scanner s = new Scanner(_s);
 			s.useLocale(Locale.ENGLISH);
+			s.next();
 			
-			if ( Character.toUpperCase(s.next().charAt(0)) == 'S' )
+			double cost = s.nextDouble();
+			if ( cost < lowestCost )
 			{
-				double cost = s.nextDouble();
-				if ( cost < lowestCost )
-				{
-					lowestCost = cost;
-					//int len = s.nextInt();
-					
-				}
-			}
-			
-			else
-			{
-				//TODO: Handle one TSP divided among several nodes. (practically never happens)
-			}
-			
+				lowestCost = cost;
+				ret = _s;
+			}			
 			s.close();
 		}
 		
-		return lowestCost.toString().getBytes();
+		return ret.getBytes();
 	}
 
 	@Override
@@ -134,47 +105,39 @@ public class DVRPSolver extends TaskSolver
 		Graph g = new Graph(pd.d,pd.clients,pd.vehicleSpeed);
 		List<PathNode[]> pathForEachVehicle = null;
 		
-		if ( Character.toUpperCase(s.next().charAt(0)) == 'S' )
+		s.next();
+		final int from = s.nextInt();
+		final int to = s.nextInt();
+		Double lowerCost = Double.MAX_VALUE;
+		for ( int i=from; i<to; i++ )
 		{
-			final int from = s.nextInt();
-			final int to = s.nextInt();
-			Double lowerCost = Double.MAX_VALUE;
-			for ( int i=from; i<to; i++ )
+			List<PathNode[]> pathList = new LinkedList<>();
+			double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity, pathList);
+			if ( cost < lowerCost )
 			{
-				List<PathNode[]> pathList = new LinkedList<>();
-				double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity, pathList);
-				if ( cost < lowerCost )
-				{
-					lowerCost = cost;
-					pathForEachVehicle = pathList; 
-				}
+				lowerCost = cost;
+				pathForEachVehicle = pathList; 
 			}
-			
-			ret = "S " + lowerCost.toString();
-			
-			// Encode path to the message (variable pathForEachVehilce)
-			if (null == pathForEachVehicle)
-				ret += "\n-1";
-			else
-			{
-				for (PathNode[] path : pathForEachVehicle)
-				{
-					if (path == null)
-						continue;
-					else
-					{
-						ret += "\n" + path.length;
-						for (int j = 0; j < path.length; j++)
-							ret += " " + path[j].x + " " + path[j].y;
-					}
-				}
-			}
-			
 		}
-		
+			
+		ret = "S " + lowerCost.toString();
+			
+		// Encode path to the message (variable pathForEachVehilce)
+		if (null == pathForEachVehicle)
+			ret += "\n-1";
 		else
 		{
-			//TODO: Handle one TSP divided among several nodes. (paractically doesn't happen)
+			for (PathNode[] path : pathForEachVehicle)
+			{
+				if (path == null)
+					continue;
+				else
+				{
+					ret += "\n" + path.length;
+					for (int j = 0; j < path.length; j++)
+						ret += " " + path[j].x + " " + path[j].y;
+				}
+			}
 		}
 		
 		s.close();
