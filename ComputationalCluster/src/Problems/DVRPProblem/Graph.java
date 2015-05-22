@@ -1,6 +1,10 @@
 package Problems.DVRPProblem;
 
-
+/**
+ * <p>Class providing graph building from given list of clients, depots and vehicle speed.
+ * 	  It also provides graph dividing depending on partitioning number</p>
+ * @author Filip
+ */
 public class Graph
 {
 	/* VARIABLES */
