@@ -91,6 +91,11 @@ public class GenericFlagInterpreter
 					flagMap.put(FLAG_FILE, args[i + 1]);
 					i--;
 					break;
+					
+				case "-help":
+					GenericComponent.showUsage();
+					System.exit(0);
+					break;
 
 				default:
 					throw new IOException();

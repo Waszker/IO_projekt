@@ -8,6 +8,15 @@ import ComputationalServer.ComputationalServerWindow.ServerWorkMode;
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
+/**
+ * <p>
+ * ComputationalServerActionListener adds some server-specific GUI behaviour.
+ * </p>
+ * 
+ * @author Piotr Waszkiewicz
+ * @version 1.0
+ *
+ */
 public class ComputationalServerActionListener extends
 		GenericWindowActionListener
 {
@@ -21,7 +30,6 @@ public class ComputationalServerActionListener extends
 	public ComputationalServerActionListener(GenericWindowGui window)
 	{
 		super(window);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
