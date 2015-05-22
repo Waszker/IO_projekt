@@ -152,16 +152,24 @@ public class DVRPSolver extends TaskSolver
 			
 			ret = "S " + lowerCost.toString();
 			
-			/*
-			 * TODO Encode path to the message (variable pathForEachVehilce)
-			 * 
-			if ( path == null )ret+=" 0";
+			// Encode path to the message (variable pathForEachVehilce)
+			if (null == pathForEachVehicle)
+				ret += "\n-1";
 			else
 			{
-				ret+= " " + path.length;
-				for ( int j=0; j<path.length; j++ )
-					ret+=" "+path[j].getX()+" "+path[j].getY();
-			}*/
+				for (PathNode[] path : pathForEachVehicle)
+				{
+					if (path == null)
+						continue;
+					else
+					{
+						ret += "\n" + path.length;
+						for (int j = 0; j < path.length; j++)
+							ret += " " + path[j].x + " " + path[j].y;
+					}
+				}
+			}
+			
 		}
 		
 		else
