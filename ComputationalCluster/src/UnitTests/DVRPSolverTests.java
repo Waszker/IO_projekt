@@ -2,13 +2,12 @@ package UnitTests;
 
 import org.junit.Test;
 
-import Problems.DVRPSolver;
-
 public class DVRPSolverTests
 {
 	@Test
 	public void test1()
 	{
+		/*
 		String inputMessage = "2 1.0 1.0 2" + "\n" +
 							  "0.0 0.0 0.0 1000000.0" + "\n" + 
 							  "0.0 1.0 0.0 10.0 1.0"+ "\n" +
@@ -26,7 +25,7 @@ public class DVRPSolverTests
 		//	res[i] = solver.Solve(res[i], 0);
 		
 		//byte[] finalResult = solver.MergeSolution(res);
-		//System.out.println(new String(finalResult));
+		//System.out.println(new String(finalResult));*/
 	}
 
 }
