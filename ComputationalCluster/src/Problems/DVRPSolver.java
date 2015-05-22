@@ -1,12 +1,13 @@
 package Problems;
 
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Scanner;
-
+import java.util.List;
+import Problems.DVRPProblem.SeparateDVRPSolver.PathNode;
 import Problems.DVRPProblem.Client;
 import Problems.DVRPProblem.Depot;
 import Problems.DVRPProblem.Graph;
-import Problems.DVRPProblem.IGraphNode;
 import Problems.DVRPProblem.SeparateDVRPSolver;
 import pl.edu.pw.mini.se2.TaskSolver;
 import pl.edu.pw.mini.se2.TaskSolverState;
@@ -113,7 +114,7 @@ public class DVRPSolver extends TaskSolver
 			
 			else
 			{
-				//TODO: Handle one TSP divided among several nodes.
+				//TODO: Handle one TSP divided among several nodes. (practically never happens)
 			}
 			
 			s.close();
@@ -131,6 +132,7 @@ public class DVRPSolver extends TaskSolver
 		String ret = "";
 		ProblemData pd = extractProblemData();
 		Graph g = new Graph(pd.d,pd.clients,pd.vehicleSpeed);
+		List<PathNode[]> pathForEachVehicle = null;
 		
 		if ( Character.toUpperCase(s.next().charAt(0)) == 'S' )
 		{
@@ -140,11 +142,12 @@ public class DVRPSolver extends TaskSolver
 			//IGraphNode[] path = null;
 			for ( int i=from; i<to; i++ )
 			{
-				double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity);
+				List<PathNode[]> pathList = new LinkedList<>();
+				double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity, pathList);
 				if ( cost < lowerCost )
 				{
 					lowerCost = cost;
-					//path = SeparateDVRPSolver.path;
+					pathForEachVehicle = pathList; 
 				}
 			}
 			
@@ -162,7 +165,7 @@ public class DVRPSolver extends TaskSolver
 		
 		else
 		{
-			//TODO: Handle one TSP divided among several nodes.
+			//TODO: Handle one TSP divided among several nodes. (paractically doesn't happen)
 		}
 		
 		s.close();
