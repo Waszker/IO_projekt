@@ -7,6 +7,7 @@ import java.util.List;
  * <p>
  * Class providing finding minimal cost of DVRP problem where every
  * vehicle is assigned separate set of clients.
+ * Returns also a path for every vehicle.
  * </p>
  * @author Filip
  */

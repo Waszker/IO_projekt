@@ -1,5 +1,10 @@
 package Problems.DVRPProblem;
 
+/**
+ * <p>Class providing graph building from given list of clients, depots and vehicle speed.
+ * 	  It also provides graph dividing depending on partitioning number</p>
+ * @author Filip
+ */
 public class Graph
 {
 	/* VARIABLES */
@@ -14,7 +19,6 @@ public class Graph
 	public Graph(Depot[] d, Client[] c, double vehicleSpeed)
 	{
 		final int n = c.length + d.length;
-		
 		v = new IGraphNode[n];
 		this.d = d;
 		this.c = c;
