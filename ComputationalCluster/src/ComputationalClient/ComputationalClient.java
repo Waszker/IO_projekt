@@ -53,7 +53,8 @@ public class ComputationalClient extends GenericComponent
 	/* FUNCTIONS */
 	/******************/
 	public ComputationalClient(String address, Integer port,
-			boolean isGuiEnabled, String filePath, Integer timeout)
+			boolean isGuiEnabled, String filePath, Integer timeout,
+			Integer cutOffTime)
 	{
 		super(address, port, isGuiEnabled, ComponentType.ComputationalClient);
 
@@ -65,9 +66,10 @@ public class ComputationalClient extends GenericComponent
 
 		if (null != filePath) dataFile = new File(filePath);
 
-		this.cutOffTime = new BigInteger(DEFAULT_TIMEOUT);
+		this.cutOffTime = new BigInteger(cutOffTime.toString());
 
-		computationIsDone = false;
+		computationIsDone = false;	
+		
 	}
 
 	@Override
@@ -88,7 +90,7 @@ public class ComputationalClient extends GenericComponent
 	{
 		try
 		{
-			byte[] data = loadFile2(this.dataFile);
+			byte[] data = loadFile2(this.dataFile, this.cutOffTime.intValue());
 			SolveRequest sr = new SolveRequest();
 			// sr.setProblemType("TestProblem");
 			// sr.setProblemType("DVRP");
@@ -241,7 +243,6 @@ public class ComputationalClient extends GenericComponent
 	{
 		this.timeout = timeout;
 	}
-	
 
 	public BigInteger getCutOffTime()
 	{
@@ -283,7 +284,8 @@ public class ComputationalClient extends GenericComponent
 		return bytes;
 	}
 
-	private static byte[] loadFile2(File file) throws IOException
+	private static byte[] loadFile2(File file, int cutOffTime)
+			throws IOException
 	{
 
 		int vehicles = -1;
@@ -349,10 +351,7 @@ public class ComputationalClient extends GenericComponent
 						int vehiclenumber = linia2.nextInt();
 						int unloadTime = linia2.nextInt();
 						vehiclesanddepotinfo[vehiclenumber][3] = unloadTime;
-						// if(unloadTime>=cutOffTime)
-						// vehiclesanddepotinfo[vehiclenumber][3]=0;
-						// else
-						// vehiclesanddepotinfo[vehiclenumber][3]=unloadTime;
+
 					}
 					break;
 				case "DEPOT_TIME_WINDOW_SECTION":
@@ -364,6 +363,7 @@ public class ComputationalClient extends GenericComponent
 					int endHour = linia2.nextInt();
 					vehiclesanddepotinfo[depotnum][2] = startHour;
 					vehiclesanddepotinfo[depotnum][3] = endHour;
+					if (cutOffTime == -1) cutOffTime = (int) (endHour / 2);
 					break;
 				}
 				case "TIME_AVAIL_SECTION":
@@ -386,6 +386,14 @@ public class ComputationalClient extends GenericComponent
 		 * x,y,startHour,endHour next entries are clients: %f %f %f %f %f -
 		 * x,y,startHour,unloadTime,cargoSize
 		 */
+		for (int i = 0; i < vehicles + 1; i++)
+		{
+			if (i != depotnumber)
+			{
+				if (vehiclesanddepotinfo[i][3] >= cutOffTime)
+					vehiclesanddepotinfo[i][3] = 0;
+			}
+		}
 		String text = vehicles + " " + "1" + " " + capacities + " " + clients;
 		for (int i = 0; i < vehicles + 1; i++)
 		{

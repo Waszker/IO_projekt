@@ -65,6 +65,7 @@ public class ComputationalClientActionListener extends
 		client.setIpAddress(window.getIpAddressString());
 		client.setPort(window.getPortInteger());
 		client.setTimeout(new BigInteger(window.timeoutField.getText()));
+		client.setCutOffTime(new BigInteger(window.cutOffTimeField.getText()));
 		client.sendSolveRequestMessage();
 		window.computationStatusField.setText("Computing...");
 		this.window.requestButton.setEnabled(true);
