@@ -20,7 +20,8 @@ import GenericCommonClasses.GenericWindowGui;
  * 
  */
 
-public final class ComputationalClientWindow extends GenericWindowGui {
+public final class ComputationalClientWindow extends GenericWindowGui
+{
 	/******************/
 	/* VARIABLES */
 	/******************/
@@ -34,6 +35,7 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 	protected JTextField timeoutField, cutOffTimeField;
 	protected JLabel fileName;
 	protected JButton requestButton;
+	private ComputationalClient client;
 
 	/******************/
 	/* FUNCTIONS */
@@ -48,10 +50,12 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 	 * @param clientInstance
 	 *            required to provide normal operation flow
 	 */
-	public ComputationalClientWindow(ComputationalClient clientInstance) {
+	public ComputationalClientWindow(ComputationalClient clientInstance)
+	{
 		super("Computational Client", clientInstance);
 		hideUnusedFields();
 
+		this.client = clientInstance;
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Upload file"),
 				createButton("Choose file",
@@ -61,11 +65,11 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 				new JLabel("Specify timeout"),
 				timeoutField = createTextField(clientInstance.getTimeout()
 						.toString(), true)));
-		
+
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Specify cutofftime"),
-				cutOffTimeField = createTextField(clientInstance.getCutOffTime()
-						.toString(), true)));
+				cutOffTimeField = createTextField(clientInstance
+						.getCutOffTime().toString(), true)));
 
 		this.add(createTwoHorizontalComponentsPanel(
 				fileName = new JLabel(clientInstance.dataFile == null ? ""
@@ -83,29 +87,50 @@ public final class ComputationalClientWindow extends GenericWindowGui {
 				requestButton = createButton("Request",
 						COMPUTATIONAL_CLIENT_REQUEST_BUTTON)));
 
-		if (clientInstance.filePath == null)
-			sendButton.setEnabled(false);
+		if (clientInstance.filePath == null) sendButton.setEnabled(false);
 		requestButton.setEnabled(false);
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
 
-	private void hideUnusedFields() {
+	private void hideUnusedFields()
+	{
 		this.connectionStatusField.getParent().setVisible(false);
 		this.connectButton.setVisible(false);
 	}
 
 	@Override
-	public GenericWindowActionListener createActionListener() {
+	public GenericWindowActionListener createActionListener()
+	{
 		return new ComputationalClientActionListener(this,
 				(ComputationalClient) component);
 	}
 
-	public String getIpAddressString() {
+	/**
+	 * <p>
+	 * Returns ip address from gui field.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public String getIpAddressString()
+	{
 		return this.serverIpField.getText();
 	}
 
-	public Integer getPortInteger() {
+	/**
+	 * <p>
+	 * Returns port from gui field.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public Integer getPortInteger()
+	{
+		if ((getIntegerValueFromField(serverPort)) == null)
+		{
+			serverPort.setText(Integer.toString(client.getPort()));
+		}
 		return this.getIntegerValueFromField(serverPort);
 	}
 

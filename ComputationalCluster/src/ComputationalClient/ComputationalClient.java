@@ -2,11 +2,9 @@ package ComputationalClient;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.List;
@@ -40,6 +38,7 @@ public class ComputationalClient extends GenericComponent
 	/* VARIABLES */
 	/******************/
 	public static final String DEFAULT_TIMEOUT = "-1";
+	public static final String DEFAULT_CUTOFFTIME = "-1";
 
 	private BigInteger problemId;
 	protected File dataFile;
@@ -66,10 +65,13 @@ public class ComputationalClient extends GenericComponent
 
 		if (null != filePath) dataFile = new File(filePath);
 
-		this.cutOffTime = new BigInteger(cutOffTime.toString());
+		if (null != cutOffTime)
+			this.cutOffTime = new BigInteger(cutOffTime.toString());
+		else
+			this.cutOffTime = new BigInteger(DEFAULT_CUTOFFTIME);
 
-		computationIsDone = false;	
-		
+		computationIsDone = false;
+
 	}
 
 	@Override
@@ -90,10 +92,8 @@ public class ComputationalClient extends GenericComponent
 	{
 		try
 		{
-			byte[] data = loadFile2(this.dataFile, this.cutOffTime.intValue());
+			byte[] data = loadFile(this.dataFile, this.cutOffTime.intValue());
 			SolveRequest sr = new SolveRequest();
-			// sr.setProblemType("TestProblem");
-			// sr.setProblemType("DVRP");
 			sr.setProblemType(DVRPSolver.PROBLEMNAME);
 			sr.setSolvingTimeout(this.timeout);
 			sr.setData(data);
@@ -131,7 +131,6 @@ public class ComputationalClient extends GenericComponent
 		catch (InterruptedException e)
 		{
 			e.printStackTrace();
-
 		}
 	}
 
@@ -221,70 +220,77 @@ public class ComputationalClient extends GenericComponent
 		{
 			e.printStackTrace();
 		}
-
 	}
 
+	/**
+	 * <p>
+	 * Returns problemId.
+	 * </p>
+	 * 
+	 * @return
+	 */
 	public BigInteger getProblemId()
 	{
 		return problemId;
 	}
 
+	/**
+	 * <p>
+	 * Returns file containing the problem definition.
+	 * </p>
+	 * 
+	 * @return
+	 */
 	public File getDataFile()
 	{
 		return dataFile;
 	}
 
+	/**
+	 * <p>
+	 * Returns timeout.
+	 * </p>
+	 * 
+	 * @return
+	 */
 	public BigInteger getTimeout()
 	{
 		return timeout;
 	}
 
+	/**
+	 * <p>
+	 * Sets timeout.
+	 * </p>
+	 */
 	public void setTimeout(BigInteger timeout)
 	{
 		this.timeout = timeout;
 	}
 
+	/**
+	 * <p>
+	 * Returns cutoff time.
+	 * </p>
+	 * 
+	 * @return
+	 */
 	public BigInteger getCutOffTime()
 	{
 		return cutOffTime;
 	}
 
+	/**
+	 * <p>
+	 * Sets cutoff time.
+	 * </p>
+	 */
 	public void setCutOffTime(BigInteger cutOffTime)
 	{
 		this.cutOffTime = cutOffTime;
 	}
 
-	private static byte[] loadFile(File file) throws IOException
-	{
-
-		InputStream is = new FileInputStream(file);
-
-		long length = file.length() - 1;
-		if (length > Integer.MAX_VALUE)
-		{
-			// File is too large
-		}
-		byte[] bytes = new byte[(int) length];
-
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length
-				&& (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)
-		{
-			offset += numRead;
-		}
-
-		if (offset < bytes.length)
-		{
-			throw new IOException("Could not completely read file "
-					+ file.getName());
-		}
-
-		is.close();
-		return bytes;
-	}
-
-	private static byte[] loadFile2(File file, int cutOffTime)
+	private static byte[] loadFile(File file, int cutOffTime)
 			throws IOException
 	{
 
@@ -325,6 +331,7 @@ public class ComputationalClient extends GenericComponent
 						int capacity = linia2.nextInt();
 						if (capacity < 0) capacity = -capacity;
 						vehiclesanddepotinfo[vehiclenumber][4] = capacity;
+						linia2.close();
 					}
 					break;
 				case "LOCATION_COORD_SECTION":
@@ -337,6 +344,7 @@ public class ComputationalClient extends GenericComponent
 						int y = linia2.nextInt();
 						vehiclesanddepotinfo[vehiclenumber][0] = x;
 						vehiclesanddepotinfo[vehiclenumber][1] = y;
+						linia2.close();
 					}
 					break;
 				case "DEPOT_LOCATION_SECTION":
@@ -351,7 +359,7 @@ public class ComputationalClient extends GenericComponent
 						int vehiclenumber = linia2.nextInt();
 						int unloadTime = linia2.nextInt();
 						vehiclesanddepotinfo[vehiclenumber][3] = unloadTime;
-
+						linia2.close();
 					}
 					break;
 				case "DEPOT_TIME_WINDOW_SECTION":
@@ -363,7 +371,9 @@ public class ComputationalClient extends GenericComponent
 					int endHour = linia2.nextInt();
 					vehiclesanddepotinfo[depotnum][2] = startHour;
 					vehiclesanddepotinfo[depotnum][3] = endHour;
-					if (cutOffTime == -1) cutOffTime = (int) (endHour / 2);
+					if (cutOffTime == Integer.parseInt(DEFAULT_CUTOFFTIME))
+						cutOffTime = (int) (endHour / 2);
+					linia2.close();
 					break;
 				}
 				case "TIME_AVAIL_SECTION":
@@ -374,9 +384,11 @@ public class ComputationalClient extends GenericComponent
 						int vehiclenumber = linia2.nextInt();
 						int vstartHour = linia2.nextInt();
 						vehiclesanddepotinfo[vehiclenumber][2] = vstartHour;
+						linia2.close();
 					}
 					break;
 			}
+			linia.close();
 		}
 
 		br.close();

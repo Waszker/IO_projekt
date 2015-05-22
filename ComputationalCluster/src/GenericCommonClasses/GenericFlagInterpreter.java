@@ -30,6 +30,8 @@ public class GenericFlagInterpreter
 	public static final String FLAG_BACKUP_PORT = "portBackup";
 	public static final String FLAG_IS_GUI = "isGui";
 	public static final String FLAG_FILE = "file";
+	public static final String FLAG_CUTOFF = "cutoff";
+	
 
 	/******************/
 	/* FUNCTIONS */
@@ -89,6 +91,11 @@ public class GenericFlagInterpreter
 
 				case "-file":
 					flagMap.put(FLAG_FILE, args[i + 1]);
+					i--;
+					break;
+					
+				case "-cutoff":
+					flagMap.put(FLAG_CUTOFF, args[i + 1]);
 					i--;
 					break;
 					

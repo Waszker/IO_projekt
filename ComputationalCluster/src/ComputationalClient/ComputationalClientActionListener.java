@@ -6,10 +6,17 @@ import java.math.BigInteger;
 
 import javax.swing.JFileChooser;
 
-import DebugTools.Logger;
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
+/**
+ * <p>
+ * ComputationalClientActionListener adds GUI behaviour.
+ * </p>
+ * 
+ * @author Anna Zawadzka
+ *
+ */
 public class ComputationalClientActionListener extends
 		GenericWindowActionListener {
 	/******************/
