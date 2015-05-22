@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.Socket;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -20,117 +20,165 @@ import GenericCommonClasses.Parser;
 import XMLMessages.Register;
 import XMLMessages.RegisterResponse;
 import XMLMessages.SolveRequest;
-import XMLMessages.SolveRequestResponse;
 
 public class ComputationalServerTests
 {
+	private static int port = 9999;
+
 	@Test
-	public void ComputationalServerWithDefaultParametersTest1()
+	public void computationalServerWithDefaultParametersTest1()
 	{
-		ComputationalServer server = new ComputationalServer(false, null, null, 111,
-				null, false);
-		assertEquals(server.getType(), ComponentType.ComputationalServer);
-		assertEquals(server.getPort(), GenericComponent.DEFAULT_PORT);
-		assertEquals(server.getTimeout(), ComputationalServer.DEFAULT_TIMEOUT);
-		assertEquals(server.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
+		ComputationalServer server = new ComputationalServer(false, null, null,
+				111, null, false);
+		assertEquals(ComponentType.ComputationalServer, server.getType());
+		assertEquals(GenericComponent.DEFAULT_PORT, server.getPort());
+		assertEquals(ComputationalServer.DEFAULT_TIMEOUT, server.getTimeout());
+		assertEquals(GenericComponent.DEFAUL_IP_ADDRESS, server.getIpAddress());
+		assertEquals(111, server.getMyLocalBackupPort());
+		assertEquals(null, server.getCore());
 	}
 
 	@Test
-	public void ComputationalServerWithIPAddressTest2()
+	public void computationalServerWithIPAddressTest2()
 	{
-		ComputationalServer server = new ComputationalServer(false, 777, null, 111,
-				"127.0.0.1", false);
-		assertEquals(server.getType(), ComponentType.ComputationalServer);
-		assertEquals(server.getPort(), 777);
-		assertEquals(server.getTimeout(), ComputationalServer.DEFAULT_TIMEOUT);
-		assertEquals(server.getIpAddress(), "127.0.0.1");
+		ComputationalServer server = new ComputationalServer(false, 777, null,
+				null, "127.0.0.1", false);
+		assertEquals(ComponentType.ComputationalServer, server.getType());
+		assertEquals(777, server.getPort());
+		assertEquals(ComputationalServer.DEFAULT_TIMEOUT, server.getTimeout());
+		assertEquals("127.0.0.1", server.getIpAddress());
+		assertEquals(ComputationalServer.DEFAULT_PORT,
+				server.getMyLocalBackupPort());
 	}
 
 	@Test
-	public void ComputationalServerCoreGoodConnectionTest1()
+	public void computationalServerRegisterTaskManager_Good()
 	{
 		Logger.setDebug(false);
-		int port = 9999, timeout = 5;
+		int port = getPort(), timeout = 5;
 		ComputationalServerCore core = new ComputationalServerCore(null);
 		Register message = new Register();
 		message.setType(GenericComponent.ComponentType.TaskManager.name);
 
 		try
 		{
-			core.startListening(port, timeout);
-			Socket socket = new Socket("127.0.0.1", port);
+			new Thread(() -> {
+				try
+				{
+					core.startListening(port, timeout);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					fail("Should not throw exception!");
+				}
+			}).start();
 
-			GenericProtocol.sendMessages(socket, message);
-			IMessage received = GenericProtocol.receiveMessage(socket).get(0);
+			Thread.sleep(500);
+			IMessage received = sendMessages("127.0.0.1", port, message).get(0);
 
-			assertEquals(received.getMessageType(),
-					Parser.MessageType.REGISTER_RESPONSE);
-			assertEquals(((RegisterResponse) received).getTimeout(), timeout);
+			assertEquals(Parser.MessageType.REGISTER_RESPONSE,
+					received.getMessageType());
+			assertEquals(timeout, ((RegisterResponse) received).getTimeout());
+			assertEquals(1, core.getTaskManagers().size());
+			assertEquals(0, core.getComputationalNodes().size());
+			assertEquals(0, core.getProblemsToSolve().size());
 		}
-		catch (IOException e)
+		catch (IOException | InterruptedException e)
 		{
 			e.printStackTrace();
 			fail("Should not throw exception!");
 		}
-
 	}
 
 	@Test
-	public void ComputationalServerCoreBadConnectionTest1()
+	public void computationalServerRegisterUnsupportedComponent_Good()
 	{
 		Logger.setDebug(false);
-		int port = 9999, timeout = 5;
+		int port = getPort(), timeout = 5;
 		ComputationalServerCore core = new ComputationalServerCore(null);
 		Register message = new Register();
-		message.setType(GenericComponent.ComponentType.TaskManager.name);
+		message.setType(GenericComponent.ComponentType.ComputationalClient.name);
 
 		try
 		{
-			core.startListening(port, timeout);
-			Socket socket = new Socket("127.0.0.1", port);
+			new Thread(() -> {
+				try
+				{
+					core.startListening(port, timeout);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					fail("Should not throw exception!");
+				}
+			}).start();
 
-			GenericProtocol.sendMessages(socket, message);
-			IMessage received = GenericProtocol.receiveMessage(socket).get(0);
+			Thread.sleep(500);
+			IMessage received = sendMessages("127.0.0.1", port, message).get(0);
 
-			assertEquals(received.getMessageType(),
-					Parser.MessageType.REGISTER_RESPONSE);
-			assertEquals(((RegisterResponse) received).getTimeout(), timeout);
+			assertEquals(Parser.MessageType.ERROR, received.getMessageType());
+			assertEquals(0, core.getTaskManagers().size());
+			assertEquals(0, core.getComputationalNodes().size());
+			assertEquals(0, core.getProblemsToSolve().size());
 		}
-		catch (IOException e)
+		catch (IOException | InterruptedException e)
 		{
+			e.printStackTrace();
+			fail("Should not throw exception!");
 		}
-
 	}
 
 	@Test
-	public void ComputationalServerSolverRequestTest1()
+	public void computationalServerRegisterProblem_Good()
 	{
 		Logger.setDebug(false);
-		int port = 9998, timeout = 5;
-		byte[] data = { 55, 45, 63 };
+		int port = getPort(), timeout = 5;
 		ComputationalServerCore core = new ComputationalServerCore(null);
 		SolveRequest message = new SolveRequest();
 		message.setProblemType("TestProblem");
-		message.setData(data);
 
 		try
 		{
-			core.startListening(port, timeout);
-			Socket socket = new Socket("127.0.0.1", port);
+			new Thread(() -> {
+				try
+				{
+					core.startListening(port, timeout);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					fail("Should not throw exception!");
+				}
+			}).start();
 
-			GenericProtocol.sendMessages(socket, message);
-			IMessage received = GenericProtocol.receiveMessage(socket).get(0);
+			Thread.sleep(500);
+			IMessage received = sendMessages("127.0.0.1", port, message).get(1);
 
-			assertEquals(received.getMessageType(),
-					Parser.MessageType.SOLVE_REQUEST_RESPONSE);
-			assertEquals(((SolveRequestResponse) received).getId(),
-					new BigInteger("1"));
+			assertEquals(Parser.MessageType.SOLVE_REQUEST_RESPONSE,
+					received.getMessageType());
+			assertEquals(0, core.getTaskManagers().size());
+			assertEquals(0, core.getComputationalNodes().size());
+			assertEquals(1, core.getProblemsToSolve().size());
 		}
-		catch (IOException e)
+		catch (IOException | InterruptedException e)
 		{
 			e.printStackTrace();
 			fail("Should not throw exception!");
 		}
+	}
 
+	private List<IMessage> sendMessages(String address, int port,
+			IMessage message) throws IOException
+	{
+		Socket socket = new Socket(address, port);
+
+		GenericProtocol.sendMessages(socket, message);
+		return GenericProtocol.receiveMessage(socket);
+	}
+
+	private synchronized int getPort()
+	{
+		return (ComputationalServerTests.port--);
 	}
 }

@@ -1,5 +1,9 @@
 package Problems.DVRPProblem;
 
+/**
+ * <p>Client class, used as data structure.</p>
+ * @author Filip
+ */
 public class Client implements IGraphNode
 {
 	public double x,y; //position

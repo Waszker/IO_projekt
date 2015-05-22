@@ -20,6 +20,17 @@ import XMLMessages.Solutiones.Solutions.Solution;
 import XMLMessages.SolvePartialProblems;
 import XMLMessages.SolvePartialProblems.PartialProblems.PartialProblem;
 
+/**
+ * <p>
+ * Class used by server being in backup state. It is used by messages to change
+ * server's state. This is similar to CommunicationThread used by server in
+ * primary mode.
+ * </p>
+ * 
+ * @author Piotr Waszkiewicz
+ * @version 1.0
+ *
+ */
 public class CommunicationThreadForBackup extends AbstractServerCoreProtocol
 {
 	/******************/

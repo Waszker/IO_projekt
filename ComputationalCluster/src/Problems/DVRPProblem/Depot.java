@@ -1,5 +1,9 @@
 package Problems.DVRPProblem;
 
+/**
+ * <p>Depot class, used as data structure.</p>
+ * @author Filip
+ */
 public class Depot implements IGraphNode
 {
 	public double x,y; //position
