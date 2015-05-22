@@ -10,6 +10,16 @@ import XMLMessages.RegisterResponse.BackupCommunicationServers.BackupCommunicati
 import GenericCommonClasses.IServerProtocol;
 import GenericCommonClasses.GenericComponent.ComponentType;
 
+/**
+ * <p>
+ * Abstract class containing methods common for classes implementing
+ * IServerProtocol interface by both primary and backup server.
+ * </p>
+ * 
+ * @author Piotr Waszkiewicz
+ * @version 1.0
+ *
+ */
 public abstract class AbstractServerCoreProtocol implements IServerProtocol
 {
 	/******************/

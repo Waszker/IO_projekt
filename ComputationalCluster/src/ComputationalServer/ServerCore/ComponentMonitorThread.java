@@ -89,7 +89,7 @@ class ComponentMonitorThread extends Thread
 							+ " has passed!\nDropping lease\n");
 					dropComponent(id);
 				}
-			}), core.timeout + 1, TimeUnit.SECONDS)));
+			}), 2 * core.timeout, TimeUnit.SECONDS)));
 		}
 
 		return isValid;

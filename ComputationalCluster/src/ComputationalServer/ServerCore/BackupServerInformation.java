@@ -2,6 +2,14 @@ package ComputationalServer.ServerCore;
 
 import java.math.BigInteger;
 
+/**
+ * <p>
+ * Struct-like class used to store information about connected backup server.
+ * </p>
+ * 
+ * @author Piotr Waszkiewicz
+ *
+ */
 class BackupServerInformation
 {
 	/******************/
@@ -15,7 +23,8 @@ class BackupServerInformation
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-	public BackupServerInformation(BigInteger id, Integer port, String address)
+	public BackupServerInformation(final BigInteger id, final Integer port,
+			final String address)
 	{
 		super();
 		this.id = id;

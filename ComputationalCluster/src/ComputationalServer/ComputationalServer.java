@@ -81,11 +81,11 @@ public final class ComputationalServer extends GenericComponent
 	 */
 	public void startWork(final ComputationalServerWindow mainWindow)
 	{
-		new Thread(new Runnable() // NOPMD by waszka on 4/29/15 3:11 PM
+		new Thread(new Runnable()
 		{
 
 			@Override
-			public void run() // NOPMD by waszka on 4/29/15 3:09 PM
+			public void run()
 			{
 				Logger.log("Computational server starts listening\non port: "
 						+ port + "\nwith timeout: " + timeout + " seconds.\n");
@@ -98,20 +98,18 @@ public final class ComputationalServer extends GenericComponent
 						connectToServer();
 						core.startAsBackupServer(ipAddress, port, timeout, id,
 								myLocalBackupPort);
-					} else
+					}
+					else
 					{
 						core.startListening(port, timeout);
 					}
 				}
 				catch (IOException | UnsupportedOperationException e)
 				{
-					// TODO Auto-generated catch block
-					// e.printStackTrace();
 				}
 				finally
 				{
-					if (null != mainWindow)
-						mainWindow.stoppedWork();
+					if (null != mainWindow) mainWindow.stoppedWork();
 				}
 			}
 		}).start();
@@ -185,7 +183,7 @@ public final class ComputationalServer extends GenericComponent
 		boolean isRegistered = false;
 
 		socketAddress = new InetSocketAddress("0.0.0.0", myLocalBackupPort);
-		
+
 		while (!isRegistered)
 		{
 			try
@@ -206,7 +204,8 @@ public final class ComputationalServer extends GenericComponent
 								.getTimeout();
 						id = ((RegisterResponse) response).getId();
 						isRegistered = true;
-					} else
+					}
+					else
 					{
 						// We are no alone - some other backup server already
 						// exists
@@ -216,7 +215,8 @@ public final class ComputationalServer extends GenericComponent
 						ipAddress = bServer.getAddress();
 						port = bServer.getPort();
 					}
-				} else
+				}
+				else
 				{
 					showError("Unsupported response received!");
 					throw new UnsupportedOperationException(
@@ -245,13 +245,13 @@ public final class ComputationalServer extends GenericComponent
 	@Override
 	protected void reactToMessage(IMessage message)
 	{
-		// TODO: Implement that!
+		// Server receives messages inside its ServerCore functionality
 	}
 
 	@Override
 	protected Status getStatusMessage()
 	{
-		// TODO Implement that!
+		// Server sends Status message inside its ServerCore functionality
 		return null;
 	}
 }
