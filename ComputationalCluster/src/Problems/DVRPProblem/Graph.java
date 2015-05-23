@@ -1,5 +1,7 @@
 package Problems.DVRPProblem;
 
+import java.math.BigInteger;
+
 /**
  * <p>Class providing graph building from given list of clients, depots and vehicle speed.
  * 	  It also provides graph dividing depending on partitioning number</p>
@@ -46,7 +48,7 @@ public class Graph
 	 * @return Array of result graphs or null if partitioningNumber is wrong
 	 * @throws IllegalArgumentException When numOfVehicles is not a positive number
 	 */
-	public Graph[] divideGraph(int numOfVehicles, int partitioningNumber)
+	public Graph[] divideGraph(int numOfVehicles, BigInteger partitioningNumber)
 	{
 		if ( numOfVehicles < 1 )throw new IllegalArgumentException();
 		
@@ -74,20 +76,29 @@ public class Graph
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	
 	// constructs any variation of ints
-	private int[] partitioning(final int m, final int nov, final int n)
+	private int[] partitioning(BigInteger m, final int nov, final int n)
 	{
-		if ( m >= Math.round(Math.pow(nov, n)) )
+		if ( m.compareTo(BigInteger.valueOf(Math.round(Math.pow(nov, n)))) > 0 )
 			return null;
 		
+		
+		int[] div = new int[n];
+		/*
 		int d = 1;
 		int dd = nov;
-		int[] div = new int[n];
 		for ( int i=0; i<n; i++ )
 		{
 			div[n-i-1] = m%dd/d;
 			d = dd;
 			dd*=nov;
+		}*/
+		
+		for ( int i=0; i<n; i++ )
+		{
+			div[n-i-1] = m.mod(BigInteger.valueOf(nov)).intValue();
+			m = m.divide(BigInteger.valueOf(nov));
 		}
+		
 		return div;
 	}
 	
