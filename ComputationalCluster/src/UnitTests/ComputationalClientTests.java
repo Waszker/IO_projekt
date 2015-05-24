@@ -17,7 +17,7 @@ public class ComputationalClientTests
 	public void ComputationalClientWithDefaultParametersTest1()
 	{
 		ComputationalClient client = new ComputationalClient(null, null, false,
-				null, null);
+				null, null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
 		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
@@ -29,7 +29,7 @@ public class ComputationalClientTests
 	public void ComputationalClientWithIPAddressTest2()
 	{
 		ComputationalClient client = new ComputationalClient("127.0.0.1", null,
-				false, null, null);
+				false, null, null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
 		assertEquals(client.getIpAddress(), "127.0.0.1");
@@ -41,7 +41,7 @@ public class ComputationalClientTests
 	public void ComputationalClientWithPortTest3()
 	{
 		ComputationalClient client = new ComputationalClient(null, 1234, false,
-				null, null);
+				null, null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), 1234);
 		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
@@ -53,7 +53,7 @@ public class ComputationalClientTests
 	public void ComputationalClientWithFilePathTest4()
 	{
 		ComputationalClient client = new ComputationalClient(null, null, false,
-				"D:/a.txt", null);
+				"D:/a.txt", null, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
 		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
@@ -66,7 +66,7 @@ public class ComputationalClientTests
 	public void ComputationalClientWithTimeoutTest5()
 	{
 		ComputationalClient client = new ComputationalClient(null, null, false,
-				null, 123456);
+				null, 123456, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), GenericComponent.DEFAULT_PORT);
 		assertEquals(client.getIpAddress(), GenericComponent.DEFAUL_IP_ADDRESS);
@@ -77,7 +77,7 @@ public class ComputationalClientTests
 	public void ComputationalClientWithAllParametersTest6()
 	{
 		ComputationalClient client = new ComputationalClient("127.0.0.1", 1234,
-				false, "D:/a.txt", 5555);
+				false, "D:/a.txt", 5555, null);
 		assertEquals(client.getType(), ComponentType.ComputationalClient);
 		assertEquals(client.getPort(), 1234);
 		assertEquals(client.getIpAddress(), "127.0.0.1");
