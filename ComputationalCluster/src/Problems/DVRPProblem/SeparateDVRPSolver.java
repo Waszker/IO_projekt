@@ -163,7 +163,7 @@ public class SeparateDVRPSolver
 	 */
 	public static double solveDVRPOnGraphSet(Graph[] g, double cap, List<PathNode[]> pathsForAllVehicles)
 	{
-		double ret = 0;
+		double ret = 0; 
 		for ( int i=0; i<g.length; i++ )
 		{
 			ret += oneDvrp(g[i], cap);
