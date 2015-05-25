@@ -310,7 +310,7 @@ public abstract class GenericComponent
 
 					try
 					{
-						Thread.sleep(timeout * 1000);
+						Thread.sleep(timeout * 500);
 					}
 					catch (InterruptedException e)
 					{
@@ -325,7 +325,9 @@ public abstract class GenericComponent
 							sendMessages(status);
 							isSendingSuccess = true;
 							for (IMessage message : receiveMessage())
-								reactToMessage(message);
+								new Thread(() -> {
+									reactToMessage(message);
+								}).start();
 						}
 						catch (IOException e)
 						{

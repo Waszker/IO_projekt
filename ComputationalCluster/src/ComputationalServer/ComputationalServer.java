@@ -53,7 +53,7 @@ public final class ComputationalServer extends GenericComponent
 	 * @param port
 	 *            on which server should listen for connections (default is
 	 *            '47777')
-	 * @param backupPort
+	 * @param listeningPort
 	 *            port on which backup should listen for connections
 	 * @param timeout
 	 *            in seconds after which server will mark connected module as
@@ -65,13 +65,13 @@ public final class ComputationalServer extends GenericComponent
 	 *            indicating if server is started in windowed mode
 	 */
 	public ComputationalServer(boolean isBackup, Integer port, Integer timeout,
-			Integer backupPort, String primaryServerIp, boolean isGui)
+			Integer listeningPort, String primaryServerIp, boolean isGui)
 	{
 		super(primaryServerIp, port, isGui, ComponentType.ComputationalServer);
 		this.isBackup = isBackup;
 		this.timeout = (null == timeout ? DEFAULT_TIMEOUT : timeout);
-		this.myLocalListeningPort = (null == backupPort ? DEFAULT_PORT
-				: backupPort);
+		this.myLocalListeningPort = (null == listeningPort ? DEFAULT_PORT
+				: listeningPort);
 	}
 
 	/**
