@@ -3,10 +3,6 @@ package GenericCommonClasses;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -174,7 +169,7 @@ public abstract class GenericWindowGui extends JFrame
 			{
 				component.setIpAddress(serverIpField.getText());
 				component.setPort(getIntegerValueFromField(serverPort));
-				
+
 				connectButton.setEnabled(false);
 				component.connectToServer();
 				connectButton.setEnabled(true);
@@ -370,7 +365,7 @@ public abstract class GenericWindowGui extends JFrame
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("My IP address"),
-				myIpField = createTextField(getMyIp(), false)));
+				myIpField = createTextField(GenericComponent.getMyIp(), false)));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Server IP address"),
@@ -387,29 +382,5 @@ public abstract class GenericWindowGui extends JFrame
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connection status"),
 				connectionStatusField = createTextField("unknown", false)));
-	}
-
-	private String getMyIp()
-	{
-		// taken from:
-		// http://stackoverflow.com/questions/2939218/getting-the-external-ip-address-in-java
-		String myIp = "unknown";
-		URL whatismyip;
-		try
-		{
-			whatismyip = new URL("http://checkip.amazonaws.com");
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					whatismyip.openStream()));
-
-			myIp = in.readLine();
-		}
-		catch (IOException e)
-		{
-			JOptionPane.showMessageDialog(new JFrame(), "Cannot obtain IP!",
-					"ERROR", JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
-
-		return myIp;
 	}
 }

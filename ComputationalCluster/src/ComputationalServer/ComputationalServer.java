@@ -31,7 +31,7 @@ public final class ComputationalServer extends GenericComponent
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	private boolean isBackup;
-	private int timeout, myLocalBackupPort;
+	private int timeout, myLocalListeningPort;
 	/**
 	 * Main server functionality is provided by this class.
 	 */
@@ -51,9 +51,9 @@ public final class ComputationalServer extends GenericComponent
 	 *            is server working in backup or primary mode (default is
 	 *            primary)
 	 * @param port
-	 *            on which server should listen to connection (default is
+	 *            on which server should listen for connections (default is
 	 *            '47777')
-	 * @param backupPort
+	 * @param listeningPort
 	 *            port on which backup should listen for connections
 	 * @param timeout
 	 *            in seconds after which server will mark connected module as
@@ -65,13 +65,13 @@ public final class ComputationalServer extends GenericComponent
 	 *            indicating if server is started in windowed mode
 	 */
 	public ComputationalServer(boolean isBackup, Integer port, Integer timeout,
-			Integer backupPort, String primaryServerIp, boolean isGui)
+			Integer listeningPort, String primaryServerIp, boolean isGui)
 	{
 		super(primaryServerIp, port, isGui, ComponentType.ComputationalServer);
 		this.isBackup = isBackup;
 		this.timeout = (null == timeout ? DEFAULT_TIMEOUT : timeout);
-		this.myLocalBackupPort = (null == backupPort ? DEFAULT_PORT
-				: backupPort);
+		this.myLocalListeningPort = (null == listeningPort ? DEFAULT_PORT
+				: listeningPort);
 	}
 
 	/**
@@ -87,8 +87,10 @@ public final class ComputationalServer extends GenericComponent
 			@Override
 			public void run()
 			{
-				Logger.log("Computational server starts listening\non port: "
-						+ port + "\nwith timeout: " + timeout + " seconds.\n");
+				Logger.log("Computational server starts listening\n"
+						+ "at address: " + GenericComponent.getMyIp()
+						+ "\non port: " + myLocalListeningPort + "\nwith timeout: " + timeout
+						+ " seconds.\n");
 
 				core = new ComputationalServerCore(mainWindow);
 				try
@@ -97,15 +99,16 @@ public final class ComputationalServer extends GenericComponent
 					{
 						connectToServer();
 						core.startAsBackupServer(ipAddress, port, timeout, id,
-								myLocalBackupPort);
+								myLocalListeningPort);
 					}
 					else
 					{
-						core.startListening(port, timeout);
+						core.startListening(myLocalListeningPort, timeout);
 					}
 				}
 				catch (IOException | UnsupportedOperationException e)
 				{
+					Logger.log("Error statring: \n" + e.getMessage() + "\n");
 				}
 				finally
 				{
@@ -157,12 +160,12 @@ public final class ComputationalServer extends GenericComponent
 
 	public int getMyLocalBackupPort()
 	{
-		return myLocalBackupPort;
+		return myLocalListeningPort;
 	}
 
 	public void setMyLocalBackupPort(int myLocalBackupPort)
 	{
-		this.myLocalBackupPort = myLocalBackupPort;
+		this.myLocalListeningPort = myLocalBackupPort;
 	}
 
 	/**
@@ -182,7 +185,7 @@ public final class ComputationalServer extends GenericComponent
 	{
 		boolean isRegistered = false;
 
-		socketAddress = new InetSocketAddress("0.0.0.0", myLocalBackupPort);
+		socketAddress = new InetSocketAddress("0.0.0.0", myLocalListeningPort);
 
 		while (!isRegistered)
 		{
