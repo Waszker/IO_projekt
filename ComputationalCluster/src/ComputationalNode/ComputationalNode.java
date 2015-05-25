@@ -12,7 +12,7 @@ import GenericCommonClasses.IMessage;
 import GenericCommonClasses.Parser.MessageType;
 import GenericCommonClasses.ProblemHelper;
 import XMLMessages.NoOperation;
-import XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer;
+import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.Register.SolvableProblems;
 import XMLMessages.Solutiones;
@@ -73,12 +73,12 @@ public class ComputationalNode extends GenericComponent
 				firstNoOp = false;
 			}
 			
-			BackupCommunicationServer bcs = ((NoOperation)message).getBackupCommunicationServers().getBackupCommunicationServer();
+			BackupCommunicationServers bcs = ((NoOperation)message).getBackupCommunicationServers();
 			
-			if (bcs != null)
+			if (bcs != null && bcs.getBackupCommunicationServer() != null)
 			{
-				backupServerIp = bcs.getAddress();
-				backupServerPort = bcs.getPort();
+				backupServerIp = bcs.getBackupCommunicationServer().getAddress();
+				backupServerPort = bcs.getBackupCommunicationServer().getPort();
 			}
 		} else if (message.getMessageType() == MessageType.PARTIAL_PROBLEM)
 		{
