@@ -105,7 +105,7 @@ public class GenericFlagInterpreter
 					break;
 					
 				case "-cutoff":
-					flagMap.put(FLAG_CUTOFF, args[i + 1]);
+					flagMap.put(FLAG_CUTOFF, Integer.parseInt(args[i + 1]));
 					break;
 					
 				case "-help":
