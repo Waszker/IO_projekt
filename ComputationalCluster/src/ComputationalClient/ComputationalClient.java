@@ -37,8 +37,8 @@ public class ComputationalClient extends GenericComponent
 	/******************/
 	/* VARIABLES */
 	/******************/
-	public static final String DEFAULT_TIMEOUT = "-1";
-	public static final String DEFAULT_CUTOFFTIME = "-1";
+	public static final String DEFAULT_TIMEOUT = "0";
+	public static final String DEFAULT_CUTOFFTIME = "0";
 
 	private BigInteger problemId;
 	protected File dataFile;
