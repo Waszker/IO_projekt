@@ -102,7 +102,7 @@ public class SeparateDVRPSolver
 			return;
 		}
 		
-		for ( int i=0; i<g.c.length; i++ ) //TODO: Make one depot available.
+		for ( int i=0; i<g.c.length; i++ )
 		{
 			if ( thisIndex == i+g.d.length )continue;
 			if ( clientVisited[i] )continue;
