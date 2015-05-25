@@ -25,11 +25,15 @@ public class GenericFlagInterpreter
 	public static final String CONFIGURATION_FILE = ".ccluster.ini";
 	public static final String FLAG_PORT = "port";
 	public static final String FLAG_ADDRESS = "address";
+	public static final String FLAG_MPORT = "mport";
+	public static final String FLAG_MADDRESS = "maddress";
 	public static final String FLAG_TIMEOUT = "timeout";
 	public static final String FLAG_IS_BACKUP = "isBackup";
 	public static final String FLAG_BACKUP_PORT = "portBackup";
 	public static final String FLAG_IS_GUI = "isGui";
 	public static final String FLAG_FILE = "file";
+	public static final String FLAG_CUTOFF = "cutoff";
+	
 
 	/******************/
 	/* FUNCTIONS */
@@ -81,6 +85,15 @@ public class GenericFlagInterpreter
 					flagMap.put(FLAG_IS_BACKUP, true);
 					i--;
 					break;
+					
+				case "-maddress":
+					InetAddress.getByName(args[i + 1]);
+					flagMap.put(FLAG_MADDRESS, args[i + 1]);
+					break;
+					
+				case "-mport":
+					flagMap.put(FLAG_MPORT, Integer.parseInt(args[i + 1]));
+					break;
 
 				case "-gui":
 					flagMap.put(FLAG_IS_GUI, true);
@@ -89,7 +102,10 @@ public class GenericFlagInterpreter
 
 				case "-file":
 					flagMap.put(FLAG_FILE, args[i + 1]);
-					i--;
+					break;
+					
+				case "-cutoff":
+					flagMap.put(FLAG_CUTOFF, Integer.parseInt(args[i + 1]));
 					break;
 					
 				case "-help":

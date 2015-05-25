@@ -8,7 +8,7 @@ import java.util.List;
 import pl.edu.pw.mini.se2.TaskSolver;
 import XMLMessages.DivideProblem;
 import XMLMessages.NoOperation;
-import XMLMessages.NoOperation.BackupCommunicationServers.BackupCommunicationServer;
+import XMLMessages.NoOperation.BackupCommunicationServers;
 import XMLMessages.Register;
 import XMLMessages.Solutiones;
 import XMLMessages.Register.SolvableProblems;
@@ -79,12 +79,12 @@ public final class TaskManager extends GenericComponent
 					firstNoOp = false;
 				}
 				
-				BackupCommunicationServer bcs = ((NoOperation)message).getBackupCommunicationServers().getBackupCommunicationServer();
+				BackupCommunicationServers bcs = ((NoOperation)message).getBackupCommunicationServers();
 				
-				if ( bcs != null ) 
+				if ( bcs != null && bcs.getBackupCommunicationServer() != null) 
 				{
-					backupServerIp = bcs.getAddress();
-					backupServerPort = bcs.getPort();
+					backupServerIp = bcs.getBackupCommunicationServer().getAddress();
+					backupServerPort = bcs.getBackupCommunicationServer().getPort();
 				}
 				
 				break;

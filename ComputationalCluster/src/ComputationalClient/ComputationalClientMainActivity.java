@@ -22,14 +22,16 @@ public class ComputationalClientMainActivity {
 					.get(GenericFlagInterpreter.FLAG_FILE);
 			Integer timeout = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_TIMEOUT);
+			Integer cutOffTime = (Integer) flagsMap
+					.get(GenericFlagInterpreter.FLAG_CUTOFF);
 
 			if (isGuiEnabled == false && fileName == null) {
-				Logger.log("You need to specify a file\n USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] \n");
+				Logger.log("You need to specify a file\n USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] [-cutoff [cutofftime]]\n");
 				return;
 			}
 
 			ComputationalClient client = new ComputationalClient(serverIp,
-					serverPort, isGuiEnabled, fileName, timeout);
+					serverPort, isGuiEnabled, fileName, timeout, cutOffTime);
 
 			if (isGuiEnabled) {
 				ComputationalClientWindow window = new ComputationalClientWindow(
@@ -40,7 +42,8 @@ public class ComputationalClientMainActivity {
 				client.sendSolutionRequestMessage();
 			}
 		} catch (NumberFormatException | IndexOutOfBoundsException | IOException e) {
-			Logger.log("USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] \n");
+			Logger.log("USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] [-cutoff [cutofftime]]\n");
+			e.printStackTrace();
 			
 		}
 	}
