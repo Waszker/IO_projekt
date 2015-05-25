@@ -102,12 +102,10 @@ public class GenericFlagInterpreter
 
 				case "-file":
 					flagMap.put(FLAG_FILE, args[i + 1]);
-					i--;
 					break;
 					
 				case "-cutoff":
-					flagMap.put(FLAG_CUTOFF, args[i + 1]);
-					i--;
+					flagMap.put(FLAG_CUTOFF, Integer.parseInt(args[i + 1]));
 					break;
 					
 				case "-help":

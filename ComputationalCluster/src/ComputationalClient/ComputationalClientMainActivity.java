@@ -43,6 +43,7 @@ public class ComputationalClientMainActivity {
 			}
 		} catch (NumberFormatException | IndexOutOfBoundsException | IOException e) {
 			Logger.log("USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] [-cutoff [cutofftime]]\n");
+			e.printStackTrace();
 			
 		}
 	}
