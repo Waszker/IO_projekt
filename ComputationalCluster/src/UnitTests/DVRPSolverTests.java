@@ -34,7 +34,7 @@ public class DVRPSolverTests
 		//byte[] finalResult = solver.MergeSolution(res);
 		//System.out.println(new String(finalResult));*/
 		
-		Depot[] d = new Depot[] { new Depot(0, 0, 5, 20) };
+		Depot d = new Depot(0, 0, 5, 20);
 		Client[] c = new Client[]
 				{
 					new Client(1, 1, 0, 0, 5),
@@ -51,7 +51,7 @@ public class DVRPSolverTests
 					new Client(1, 4, 0, 0, 5)
 				};
 		
-		Graph given = new Graph(d, c, 1.0);
+		Graph given = new Graph(d, c);
 		
 		int i = 0;
 		Graph[] gset;

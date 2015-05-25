@@ -33,6 +33,8 @@ public class SeparateDVRPSolver
 	
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	
+	/*
+	
 	// checks if move to 'to' node is legal
 	private static boolean moveLegal(IGraphNode to, double currentCargo, double arriveTime)
 	{
@@ -134,11 +136,12 @@ public class SeparateDVRPSolver
 				currentPath.remove(currentPath.size()-1);
 			}
 		}
-	}
+	} */
 	
 	// solves DVRP on one graph
 	private static double oneDvrp(Graph g, double cap)
 	{
+		/*
 		currentBest = Double.POSITIVE_INFINITY;
 		for ( int i=0; i<g.d.length; i++ )
 		{
@@ -148,7 +151,10 @@ public class SeparateDVRPSolver
 				clientVisited[j] = false;
 			path.add(new PathNode(g.d[i].x, g.d[i].y, 0.0));
 			recursive(g, i, path, clientVisited,cap,cap,g.d[i].startTime, 0);
-		}
+		}*/
+		
+		//TODO fix
+		
 		return currentBest;
 	}
 	
