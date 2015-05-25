@@ -87,9 +87,6 @@ public class Graph
 			div[n-i-1] = m.mod(BigInteger.valueOf(nov)).intValue();
 			m = m.divide(BigInteger.valueOf(nov));
 		}
-		for ( int i=0; i<n; i++ )
-			System.out.print(div[i] + " ");
-		System.out.println();
 		
 		return div;
 	}
