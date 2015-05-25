@@ -1,12 +1,16 @@
 package GenericCommonClasses;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.URL;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import DebugTools.Logger;
@@ -255,12 +259,41 @@ public abstract class GenericComponent
 	public static void showUsage()
 	{
 		Logger.log("Usage: java -jar ComponentName.jar "
-				+ "[-port [port number]] [-backup] "
-				+ "[-t [time in seconds]] "
-				+ "[-backup-port [port number for backup server]]\n");
+				+ "[-address [address of server]" + "[-port [port number]] \n");
 		Logger.log("Optional configuration file should be named "
 				+ GenericFlagInterpreter.CONFIGURATION_FILE
 				+ " and should be placed in root directory of .jar file.\n");
+	}
+
+	/**
+	 * <p>
+	 * Returns ip at which component is registered and from which connection
+	 * will be estabilished.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public static String getMyIp()
+	{
+		// taken from:
+		// http://stackoverflow.com/questions/2939218/getting-the-external-ip-address-in-java
+		String myIp = "unknown";
+		URL whatismyip;
+		try
+		{
+			whatismyip = new URL("http://checkip.amazonaws.com");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					whatismyip.openStream()));
+
+			myIp = in.readLine();
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(new JFrame(), "Cannot obtain IP!",
+					"ERROR", JOptionPane.ERROR_MESSAGE);
+		}
+
+		return myIp;
 	}
 
 	private void startResendingThread()
@@ -301,7 +334,7 @@ public abstract class GenericComponent
 							ipAddress = backupServerIp;
 							port = backupServerPort;
 							backupServerIp = null;
-							if(null == ipAddress) break CONNECTION_POSSIBLE;
+							if (null == ipAddress) break CONNECTION_POSSIBLE;
 						}
 					} while (!isSendingSuccess);
 				}
