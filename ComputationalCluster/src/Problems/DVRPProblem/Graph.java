@@ -11,31 +11,23 @@ public class Graph
 {
 	/* VARIABLES */
 	
-	public Double[][] e; //adjency matrix; weight = travelTime
+	public Double[][] e; //adjency matrix; weight = travelCost
 	public IGraphNode[] v;
-	public Depot[] d;
-	public Client[] c;
-	private double vehicleSpeed;
 	
-	//constructs graph, where nodes are in order: { d0 d1 d2 ... dm c1 ... ck } , d=depot, c=client
-	public Graph(Depot[] d, Client[] c, double vehicleSpeed)
+	//constructs graph, where nodes are in order: { d c1 ... ck } , d=depot, ci=client
+	public Graph(Depot d, Client[] c)
 	{
-		final int n = c.length + d.length;
+		final int n = c.length + 1;
 		v = new IGraphNode[n];
-		this.d = d;
-		this.c = c;
-		this.vehicleSpeed = vehicleSpeed;
 		
-		//we assume graph nodes order: d1 d2 d3 ... dm c1 c2 ... ck , m+k=n
-		for ( int i = 0; i<d.length; i++ )
-			v[i] = d[i];
+		v[0] = d;
 		for ( int i = 0; i<c.length; i++ )
-			v[d.length + i] = c[i];
+			v[i+1] = c[i];
 		
 		e = new Double[n][n];
 		for ( int i=0; i<n; i++ )
 			for ( int j=i; j<n; j++ )
-				e[i][j] = e[j][i] = calcTravelTime(v[i], v[j], vehicleSpeed); 
+				e[i][j] = e[j][i] = calcTravelTime(v[i], v[j]); 
 	}
 	
 	/**
@@ -52,7 +44,7 @@ public class Graph
 	{
 		if ( numOfVehicles < 1 )throw new IllegalArgumentException();
 		
-		final int n = c.length;
+		final int n = v.length - 1;
 		int[] p = partitioning(partitioningNumber,numOfVehicles,n);
 		if ( p == null )return null;
 		int[] cnt = count(p,numOfVehicles);
@@ -65,8 +57,8 @@ public class Graph
 			Client[] cl = new Client[cnt[i]];
 			for ( int j=0; j<p.length; j++ )
 				if ( p[j] == i )
-					cl[k++] = c[j];
-			ret[i] = new Graph(d, cl, vehicleSpeed);
+					cl[k++] = (Client)v[j+1];
+			ret[i] = new Graph( (Depot)v[0], cl );
 		}
 		
 		return ret;
@@ -106,11 +98,10 @@ public class Graph
 	}
 	
 	// calculates travel time from node g1 to node g2
-	private double calcTravelTime(IGraphNode g1, IGraphNode g2, double vehicleSpeed)
+	private double calcTravelTime(IGraphNode g1, IGraphNode g2)
 	{		
 		double dx = g1.getX()-g2.getX();
 		double dy = g1.getY()-g2.getY();
-		//return Math.sqrt(dx*dx + dy*dy) / vehicleSpeed;
 		return Math.sqrt(dx*dx + dy*dy);
 	}
 }

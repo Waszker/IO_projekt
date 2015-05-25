@@ -111,7 +111,7 @@ public class DVRPSolver extends TaskSolver
 		s.useLocale(Locale.ENGLISH);
 		String ret = "";
 		ProblemData pd = extractProblemData();
-		Graph g = new Graph(pd.d,pd.clients,pd.vehicleSpeed);
+		Graph g = new Graph(pd.d,pd.clients);
 		List<PathNode[]> pathForEachVehicle = null;
 		
 		s.next();
@@ -201,10 +201,10 @@ public class DVRPSolver extends TaskSolver
 		
 		ProblemData ret = new ProblemData();
 		ret.numberOfVehicles = s.nextInt();
-		ret.vehicleSpeed = s.nextDouble();
+		/*ret.vehicleSpeed =*/ s.nextDouble();
 		ret.vehicleCapacity = s.nextDouble();
 		numberOfClients = s.nextInt();
-		ret.d = new Depot[]{new Depot(s.nextDouble(), s.nextDouble(), s.nextDouble(), s.nextDouble())};
+		ret.d = new Depot(s.nextDouble(), s.nextDouble(), s.nextDouble(), s.nextDouble());
 		ret.clients = new Client[numberOfClients];
 		
 		for ( int i=0; i<numberOfClients; i++ )
@@ -219,9 +219,8 @@ public class DVRPSolver extends TaskSolver
 	private class ProblemData
 	{
 		public int numberOfVehicles;
-		public double vehicleSpeed;
 		public double vehicleCapacity;
-		public Depot[] d;
+		public Depot d;
 		public Client[] clients;
 	}
 }
