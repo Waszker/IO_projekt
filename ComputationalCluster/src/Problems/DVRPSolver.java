@@ -1,9 +1,11 @@
 package Problems;
 
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.List;
+
 import Problems.DVRPProblem.SeparateDVRPSolver.PathNode;
 import Problems.DVRPProblem.Client;
 import Problems.DVRPProblem.Depot;
@@ -49,14 +51,21 @@ public class DVRPSolver extends TaskSolver
 		int noc = s.nextInt(); //number of clients
 		s.close();
 		
-		int numOfVariations = (int)Math.pow(nov, noc); //number of possible divisions (partitions)
+		BigInteger numOfVariations = BigInteger.valueOf(nov).pow(noc); //number of possible divisions (partitions)
 		byte[][] ret = new byte[numOfNodes][];
 			
-		double variationPerNode = (double)numOfVariations / (double) numOfNodes;
+		double variationPerNode = numOfVariations.doubleValue() / (double) numOfNodes;
 		for ( int i=0; i<numOfNodes; i++ )
 		{
-			int from = (int)(i*variationPerNode);
-			int to = (int)((i+1)*variationPerNode); // vartiations to handle by one node: [from, to)
+			String from = (""+(i*variationPerNode));
+			String to = (""+((i+1)*variationPerNode));
+			int bound = from.indexOf('.');
+			if ( bound < 0 )bound = from.indexOf(',');
+			if ( bound > 0 )from = from.substring(0, bound);
+			
+			bound = to.indexOf('.');
+			if ( bound < 0 )bound = to.indexOf(',');
+			if ( bound > 0 )to = to.substring(0, bound);
 				
 			ret[i] = ("S " + from + " " + to).getBytes(); //S means that there is a set of whole TSP problems
 														  //to solve (maybe single element set)
@@ -106,10 +115,11 @@ public class DVRPSolver extends TaskSolver
 		List<PathNode[]> pathForEachVehicle = null;
 		
 		s.next();
-		final int from = s.nextInt();
-		final int to = s.nextInt();
+		final BigInteger from = s.nextBigInteger();
+		final BigInteger to = s.nextBigInteger();
 		Double lowerCost = Double.MAX_VALUE;
-		for ( int i=from; i<to; i++ )
+		
+		for ( BigInteger i=from; i.compareTo(to) < 0; i.add(BigInteger.ONE) )
 		{
 			List<PathNode[]> pathList = new LinkedList<>();
 			double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity, pathList);

@@ -6,10 +6,17 @@ import java.math.BigInteger;
 
 import javax.swing.JFileChooser;
 
-import DebugTools.Logger;
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
+/**
+ * <p>
+ * ComputationalClientActionListener adds GUI behaviour.
+ * </p>
+ * 
+ * @author Anna Zawadzka
+ *
+ */
 public class ComputationalClientActionListener extends
 		GenericWindowActionListener {
 	/******************/
@@ -65,6 +72,7 @@ public class ComputationalClientActionListener extends
 		client.setIpAddress(window.getIpAddressString());
 		client.setPort(window.getPortInteger());
 		client.setTimeout(new BigInteger(window.timeoutField.getText()));
+		client.setCutOffTime(new BigInteger(window.cutOffTimeField.getText()));
 		client.sendSolveRequestMessage();
 		window.computationStatusField.setText("Computing...");
 		this.window.requestButton.setEnabled(true);
