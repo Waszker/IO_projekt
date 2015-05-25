@@ -87,8 +87,10 @@ public final class ComputationalServer extends GenericComponent
 			@Override
 			public void run()
 			{
-				Logger.log("Computational server starts listening\non port: "
-						+ port + "\nwith timeout: " + timeout + " seconds.\n");
+				Logger.log("Computational server starts listening\n"
+						+ "at address: " + GenericComponent.getMyIp()
+						+ "\non port: " + port + "\nwith timeout: " + timeout
+						+ " seconds.\n");
 
 				core = new ComputationalServerCore(mainWindow);
 				try
