@@ -53,22 +53,21 @@ public class DVRPSolver extends TaskSolver
 		
 		BigInteger numOfVariations = BigInteger.valueOf(nov).pow(noc); //number of possible divisions (partitions)
 		byte[][] ret = new byte[numOfNodes][];
-			
-		double variationPerNode = numOfVariations.doubleValue() / (double) numOfNodes;
+		
+		int rest = numOfVariations.mod(BigInteger.valueOf(numOfNodes)).intValue();
+		BigInteger varPerNode = numOfVariations.divide(BigInteger.valueOf(numOfNodes));
+		BigInteger from = BigInteger.ZERO;
+		
 		for ( int i=0; i<numOfNodes; i++ )
 		{
-			String from = (""+(i*variationPerNode));
-			String to = (""+((i+1)*variationPerNode));
-			int bound = from.indexOf('.');
-			if ( bound < 0 )bound = from.indexOf(',');
-			if ( bound > 0 )from = from.substring(0, bound);
-			
-			bound = to.indexOf('.');
-			if ( bound < 0 )bound = to.indexOf(',');
-			if ( bound > 0 )to = to.substring(0, bound);
+			BigInteger to = from.add(varPerNode).add(i < rest ? BigInteger.ONE : BigInteger.ZERO);
+			String sFrom = from.toString();
+			String sTo = to.toString();
 				
-			ret[i] = ("S " + from + " " + to).getBytes(); //S means that there is a set of whole TSP problems
+			ret[i] = ("S " + sFrom + " " + sTo).getBytes(); //S means that there is a set of whole TSP problems
 														  //to solve (maybe single element set)
+			
+			from = to.add(BigInteger.ONE);
 		}
 				
 		return ret;
@@ -107,11 +106,12 @@ public class DVRPSolver extends TaskSolver
 	public byte[] Solve(byte[] partialProblemData, long timeout)
 	{
 		String _s = new String(partialProblemData);
+		
 		Scanner s = new Scanner(_s);
 		s.useLocale(Locale.ENGLISH);
 		String ret = "";
 		ProblemData pd = extractProblemData();
-		Graph g = new Graph(pd.d,pd.clients,pd.vehicleSpeed);
+		Graph g = new Graph(pd.d,pd.clients);
 		List<PathNode[]> pathForEachVehicle = null;
 		
 		s.next();
@@ -119,7 +119,7 @@ public class DVRPSolver extends TaskSolver
 		final BigInteger to = s.nextBigInteger();
 		Double lowerCost = Double.MAX_VALUE;
 		
-		for ( BigInteger i=from; i.compareTo(to) < 0; i.add(BigInteger.ONE) )
+		for ( BigInteger i=from; i.compareTo(to) < 0; i=i.add(BigInteger.ONE) )
 		{
 			List<PathNode[]> pathList = new LinkedList<>();
 			double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity, pathList);
@@ -201,10 +201,10 @@ public class DVRPSolver extends TaskSolver
 		
 		ProblemData ret = new ProblemData();
 		ret.numberOfVehicles = s.nextInt();
-		ret.vehicleSpeed = s.nextDouble();
+		/*ret.vehicleSpeed =*/ s.nextDouble();
 		ret.vehicleCapacity = s.nextDouble();
 		numberOfClients = s.nextInt();
-		ret.d = new Depot[]{new Depot(s.nextDouble(), s.nextDouble(), s.nextDouble(), s.nextDouble())};
+		ret.d = new Depot(s.nextDouble(), s.nextDouble(), s.nextDouble(), s.nextDouble());
 		ret.clients = new Client[numberOfClients];
 		
 		for ( int i=0; i<numberOfClients; i++ )
@@ -219,9 +219,8 @@ public class DVRPSolver extends TaskSolver
 	private class ProblemData
 	{
 		public int numberOfVehicles;
-		public double vehicleSpeed;
 		public double vehicleCapacity;
-		public Depot[] d;
+		public Depot d;
 		public Client[] clients;
 	}
 }
