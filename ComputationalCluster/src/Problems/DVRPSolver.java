@@ -36,7 +36,6 @@ public class DVRPSolver extends TaskSolver
 	
 	/*
 	 * Partial problem format: 'S %d %d' from, to variation numbers; means that we need to handle [from,to) variations
-	 * 					   or: 'P ...............'
 	 */
 	@Override
 	public byte[][] DivideProblem(int numOfNodes)
@@ -52,6 +51,7 @@ public class DVRPSolver extends TaskSolver
 		s.close();
 		
 		BigInteger numOfVariations = BigInteger.valueOf(nov).pow(noc); //number of possible divisions (partitions)
+		
 		byte[][] ret = new byte[numOfNodes][];
 		
 		int rest = numOfVariations.mod(BigInteger.valueOf(numOfNodes)).intValue();
@@ -67,7 +67,7 @@ public class DVRPSolver extends TaskSolver
 			ret[i] = ("S " + sFrom + " " + sTo).getBytes(); //S means that there is a set of whole TSP problems
 														  //to solve (maybe single element set)
 			
-			from = to.add(BigInteger.ONE);
+			from = to;
 		}
 				
 		return ret;
@@ -75,7 +75,6 @@ public class DVRPSolver extends TaskSolver
 
 	/*
 	 * Partial solution format: 'S %f' - lowest cost of solution
-	 * 						or: 'P beginPath %f' - lowest cost of solution
 	 */
 	@Override
 	public byte[] MergeSolution(byte[][] partialSolutions)
@@ -211,6 +210,7 @@ public class DVRPSolver extends TaskSolver
 										s.nextDouble(), s.nextDouble());
 		
 		s.close();
+		
 		return ret;
 	}
 	
