@@ -75,6 +75,11 @@ public class DVRPSolver extends TaskSolver
 
 	/*
 	 * Partial solution format: 'S %f' - lowest cost of solution
+	 * 							'pathlen path' (for vehicle 0)
+	 * 							'pathlen path' (for vehicle 1)
+	 * 							'pathlen path' (for vehicle 2)
+	 * 								...
+	 * 							'pathlen path' (for vehicle n)
 	 */
 	@Override
 	public byte[] MergeSolution(byte[][] partialSolutions)
