@@ -85,8 +85,8 @@ public class DVRPSolver extends TaskSolver
 		
 		for ( int i=0; i<partialSolutions.length; i++ )
 		{
-			String _s = new String(partialSolutions[i]);
-			Scanner s = new Scanner(_s);
+			final String partialSolutionAsString = new String(partialSolutions[i]);
+			Scanner s = new Scanner(partialSolutionAsString);
 			s.useLocale(Locale.ENGLISH);
 			s.next();
 			
@@ -94,7 +94,7 @@ public class DVRPSolver extends TaskSolver
 			if ( cost < lowestCost )
 			{
 				lowestCost = cost;
-				ret = _s;
+				ret = partialSolutionAsString;
 			}			
 			s.close();
 		}
@@ -105,9 +105,8 @@ public class DVRPSolver extends TaskSolver
 	@Override
 	public byte[] Solve(byte[] partialProblemData, long timeout)
 	{
-		String _s = new String(partialProblemData);
-		
-		Scanner s = new Scanner(_s);
+		final String partialProblemDataAsString = new String(partialProblemData);
+		Scanner s = new Scanner(partialProblemDataAsString);
 		s.useLocale(Locale.ENGLISH);
 		String ret = "";
 		ProblemData pd = extractProblemData();
@@ -195,8 +194,8 @@ public class DVRPSolver extends TaskSolver
 	private ProblemData extractProblemData()
 	{
 		int numberOfClients;
-		String _s = new String(_problemData);
-		Scanner s = new Scanner(_s);
+		final String problemDataAsString = new String(_problemData);
+		Scanner s = new Scanner(problemDataAsString);
 		s.useLocale(Locale.ENGLISH);
 		
 		ProblemData ret = new ProblemData();
