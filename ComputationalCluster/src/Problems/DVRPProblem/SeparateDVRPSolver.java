@@ -278,7 +278,7 @@ public class SeparateDVRPSolver
 		}
 		System.out.println("max to:" + max + " kolumna: " + index_col
 				+ " wiersz: " + index_row);
-		if (max == 0) // nie da sie wyznaczyc krawedzi dzielacej
+		if (max == Double.MIN_VALUE) // nie da sie wyznaczyc krawedzi dzielacej
 			return;
 
 		double[][] TL = new double[graphSize][graphSize];
