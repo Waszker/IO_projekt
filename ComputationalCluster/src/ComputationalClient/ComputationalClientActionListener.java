@@ -18,7 +18,8 @@ import GenericCommonClasses.GenericWindowGui;
  *
  */
 public class ComputationalClientActionListener extends
-		GenericWindowActionListener {
+		GenericWindowActionListener
+{
 	/******************/
 	/* VARIABLES */
 	/******************/
@@ -31,34 +32,39 @@ public class ComputationalClientActionListener extends
 	/******************/
 
 	public ComputationalClientActionListener(GenericWindowGui window,
-			ComputationalClient client) {
+			ComputationalClient client)
+	{
 		super(window);
 		this.client = client;
 		this.window = (ComputationalClientWindow) window;
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		super.actionPerformed(e);
-		switch (e.getActionCommand()) {
-		case ComputationalClientWindow.COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON:
-			reactToChooseFiletButtonPress();
-			break;
+		switch (e.getActionCommand())
+		{
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_CHOOSE_FILE_BUTTON:
+				reactToChooseFiletButtonPress();
+				break;
 
-		case ComputationalClientWindow.COMPUTATIONAL_CLIENT_SEND_BUTTON:
-			reactToSendButtonPress();
-			break;
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_SEND_BUTTON:
+				reactToSendButtonPress();
+				break;
 
-		case ComputationalClientWindow.COMPUTATIONAL_CLIENT_REQUEST_BUTTON:
-			reactToRequestButtonPress();
-			break;
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_REQUEST_BUTTON:
+				reactToRequestButtonPress();
+				break;
 		}
 	}
 
-	private void reactToChooseFiletButtonPress() {
+	private void reactToChooseFiletButtonPress()
+	{
 		final JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+		if (returnVal == JFileChooser.APPROVE_OPTION)
+		{
 			File file = fc.getSelectedFile();
 			String filename = file.getName();
 			client.dataFile = file;
@@ -68,7 +74,8 @@ public class ComputationalClientActionListener extends
 		}
 	}
 
-	private void reactToSendButtonPress() {
+	private void reactToSendButtonPress()
+	{
 		client.setIpAddress(window.getIpAddressString());
 		client.setPort(window.getPortInteger());
 		client.setTimeout(new BigInteger(window.timeoutField.getText()));
@@ -78,7 +85,8 @@ public class ComputationalClientActionListener extends
 		this.window.requestButton.setEnabled(true);
 	}
 
-	private void reactToRequestButtonPress() {
+	private void reactToRequestButtonPress()
+	{
 		client.sendSolutionRequestMessage();
 		if (client.computationIsDone)
 			window.computationStatusField.setText("Done");

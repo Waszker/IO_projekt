@@ -8,7 +8,6 @@ import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
 /**
- * Last modification: 05/03/2015
  * 
  * <p>
  * Class that provides ready to use GUI interface for Computational Client
@@ -93,12 +92,6 @@ public final class ComputationalClientWindow extends GenericWindowGui
 		this.setLocationRelativeTo(null);
 	}
 
-	private void hideUnusedFields()
-	{
-		this.connectionStatusField.getParent().setVisible(false);
-		this.connectButton.setVisible(false);
-	}
-
 	@Override
 	public GenericWindowActionListener createActionListener()
 	{
@@ -132,6 +125,12 @@ public final class ComputationalClientWindow extends GenericWindowGui
 			serverPort.setText(Integer.toString(client.getPort()));
 		}
 		return this.getIntegerValueFromField(serverPort);
+	}
+
+	private void hideUnusedFields()
+	{
+		this.connectionStatusField.getParent().setVisible(false);
+		this.connectButton.setVisible(false);
 	}
 
 }

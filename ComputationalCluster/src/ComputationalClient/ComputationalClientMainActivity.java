@@ -6,11 +6,14 @@ import java.util.Map;
 import DebugTools.Logger;
 import GenericCommonClasses.GenericFlagInterpreter;
 
-public class ComputationalClientMainActivity {
+public class ComputationalClientMainActivity
+{
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		Map<String, Object> flagsMap;
-		try {
+		try
+		{
 			flagsMap = GenericFlagInterpreter.interpretFlags(args);
 			boolean isGuiEnabled = (flagsMap
 					.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
@@ -25,7 +28,8 @@ public class ComputationalClientMainActivity {
 			Integer cutOffTime = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_CUTOFF);
 
-			if (isGuiEnabled == false && fileName == null) {
+			if (isGuiEnabled == false && fileName == null)
+			{
 				Logger.log("You need to specify a file\n USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] [-cutoff [cutofftime]]\n");
 				return;
 			}
@@ -33,18 +37,23 @@ public class ComputationalClientMainActivity {
 			ComputationalClient client = new ComputationalClient(serverIp,
 					serverPort, isGuiEnabled, fileName, timeout, cutOffTime);
 
-			if (isGuiEnabled) {
+			if (isGuiEnabled)
+			{
 				ComputationalClientWindow window = new ComputationalClientWindow(
 						client);
 				window.setVisible(true);
-			} else {
+			}
+			else
+			{
 				client.sendSolveRequestMessage();
 				client.sendSolutionRequestMessage();
 			}
-		} catch (NumberFormatException | IndexOutOfBoundsException | IOException e) {
+		}
+		catch (NumberFormatException | IndexOutOfBoundsException | IOException e)
+		{
 			Logger.log("USAGE: java -jar ComputationalClient.jar [-address [IP address]] [-port [port]] [-t [timeout]] -file [path] [-cutoff [cutofftime]]\n");
 			e.printStackTrace();
-			
+
 		}
 	}
 
