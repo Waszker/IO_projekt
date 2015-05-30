@@ -20,9 +20,6 @@ public class SeparateDVRPSolver
 	public static List<PathNode> path = new LinkedList<PathNode>();
 	private static double maxCapacity;
 	private static int graphSize;
-	private static boolean[] activeColumns;
-	private static boolean[] activeRows;
-	private static boolean[][] choosenEdges;
 
 	/* NESTED CLASSES */
 	public static class PathNode
@@ -37,53 +34,126 @@ public class SeparateDVRPSolver
 		}
 	}
 
-	public static boolean CheckIfClosedCycle(boolean[][] actualChoosenEdges)
+	/* PRIVATE AUXILIARY FUNCTIONS */
+
+	private static boolean CheckIfToEarlyClosedCycle(
+			boolean[][] actualChoosenEdges, int beginning)
+	{
+		int count = 0;
+		int colIndex;
+		int rowIndex = beginning;
+		boolean found = false;
+		boolean cycle = false;
+		for (int i = 0; i < graphSize; ++i)
+		{
+			colIndex = rowIndex;
+			for (int j = 0; j < graphSize; ++j)
+			{
+				if (actualChoosenEdges[colIndex][j])
+				{
+					rowIndex = j;
+					++count;
+					found = true;
+					break;
+				}
+			}
+			if (rowIndex == beginning)
+			{
+				cycle = true;
+				break;
+			}
+		}
+
+		if (found && cycle && count < graphSize - 1) return true;
+		return false;
+	}
+
+	private static boolean CheckIfClosedCycle(boolean[][] actualChosenEdges)
 	{
 		int colindex = -1;
 		int rowindex = -1;
-		// wybieramy jakikolwiek poczatek
+		// Choose any beginning
 		for (int i = 0; i < graphSize; i++)
 		{
 			for (int j = 0; j < graphSize; j++)
 			{
-				if (actualChoosenEdges[i][j])
+				if (actualChosenEdges[i][j])
 				{
 					colindex = i;
 					rowindex = j;
+					break;
 				}
 			}
+			if (colindex != -1) break;
 		}
 		int[] vertices = new int[graphSize + 1];
 		vertices[0] = colindex;
 		vertices[1] = rowindex;
+		vertices[graphSize] = -1;
 		for (int i = 0; i < graphSize - 1; i++)
 		{
 			colindex = rowindex;
 			for (int j = 0; j < graphSize; j++)
 			{
-				if (actualChoosenEdges[colindex][j]) rowindex = j;
+				if (actualChosenEdges[colindex][j])
+				{
+					rowindex = j;
+					break;
+				}
 			}
 			vertices[i + 2] = rowindex;
+			if (vertices[0] == rowindex) break;
 		}
 		if (vertices[0] == vertices[graphSize]) return true;
 		return false;
 	}
 
-	public static void printCycle(Graph g, boolean[][] actualChoosenEdges)
+	private static double addToPath(Graph g, int[] vertices)
+	{
+		path.clear();
+		Client client;
+		double cap = maxCapacity;
+		double timeOfTravel = 0;
+
+		path.add(new PathNode(g.v[0].getX(), g.v[0].getY(), 0));
+		int i;
+		for (i = 0; i < graphSize - 1; i++)
+		{
+			client = (Client) g.v[vertices[i + 1]];
+			if (cap < client.size)
+			{
+				timeOfTravel += g.e[vertices[i]][0];
+				timeOfTravel += g.e[0][vertices[i]];
+				cap = maxCapacity;
+			}
+			if (client.time > timeOfTravel) timeOfTravel = client.time;
+
+			timeOfTravel += g.e[vertices[i]][vertices[i + 1]];
+			timeOfTravel += client.unld;
+			cap -= client.size;
+
+			path.add(new PathNode(g.v[vertices[i + 1]].getX(),
+					g.v[vertices[i + 1]].getY(), timeOfTravel));
+		}
+		timeOfTravel += g.e[vertices[i]][0];
+		path.add(new PathNode(g.v[0].getX(), g.v[0].getY(), timeOfTravel));
+
+		return timeOfTravel;
+	}
+
+	private static double printCycle(Graph g, boolean[][] actualChosenEdges)
 	{
 		int colindex = -1;
 		int rowindex = -1;
-		path.clear();
-		// wybieramy jakikolwiek poczatek
+
+		// Choose beginning in depot
 		for (int i = 0; i < graphSize; i++)
 		{
-			for (int j = 0; j < graphSize; j++)
+			if (actualChosenEdges[0][i])
 			{
-				if (actualChoosenEdges[i][j])
-				{
-					colindex = i;
-					rowindex = j;
-				}
+				colindex = 0;
+				rowindex = i;
+				break;
 			}
 		}
 		int[] vertices = new int[graphSize + 1];
@@ -94,31 +164,27 @@ public class SeparateDVRPSolver
 			colindex = rowindex;
 			for (int j = 0; j < graphSize; j++)
 			{
-				if (actualChoosenEdges[colindex][j]) rowindex = j;
+				if (actualChosenEdges[colindex][j])
+				{
+					rowindex = j;
+					break;
+				}
 			}
 			vertices[i + 2] = rowindex;
 		}
-		for (int i = 0; i <= graphSize; i++)
-		{
-			path.add(new PathNode(g.v[vertices[i]].getX(), g.v[vertices[i]]
-					.getY(), 0));
-		}
+
+		return addToPath(g, vertices);
 	}
 
-	/* PRIVATE AUXILIARY FUNCTIONS */
-
-	private static void TSP(Graph g, double cap, double[][] table, double d,
+	private static void TSP(Graph g, double[][] table, double d,
 			boolean[] activeCol, boolean[] activeRow,
-			boolean[][] actualChoosenEdges)
+			boolean[][] actualChosenEdges)
 	{
 
 		double oszac = 0;
 		int index_col = -1;
 		int index_row = -1;
-		double bestCopy = d;
-		double capCopy = cap;
-		Client client;
-		// przetwarzamy wiersze
+		// going through rows
 		for (int w = 0; w < graphSize; w++)
 		{
 			if (!activeRow[w]) continue;
@@ -135,7 +201,7 @@ public class SeparateDVRPSolver
 				table[k][w] = table[k][w] - min;
 			}
 		}
-		// przetwarzamy kolumny
+		// going through columns
 		for (int k = 0; k < graphSize; k++)
 		{
 			if (!activeCol[k]) continue;
@@ -154,7 +220,6 @@ public class SeparateDVRPSolver
 		}
 
 		d = d + oszac;
-		System.out.println("oszacowanie: " + d);
 		if (d >= currentBest) return;
 
 		int colCount = 0;
@@ -172,72 +237,45 @@ public class SeparateDVRPSolver
 				last[rowCount % 2][0] = i;
 				rowCount++;
 			}
+			if (colCount > 2 || rowCount > 2) break;
 		}
 
-		// zamkniecie cyklu i aktualizacja best
+		// Close cycle and update currentBest
 		if (colCount == 2 && rowCount == 2)
 		{
 			boolean do_work = true;
-			bestCopy = d;
-			capCopy = cap;
 			for (int i = 0; i < 2; i++)
 			{
 				if (!do_work) break;
+				if (last[0][1] == last[i][0]) continue;
 				for (int j = 0; j < 2; j++)
 				{
-					client = (Client) g.v[last[i][0]];
-					if (cap < client.size)
-					{
-						d = d + g.e[last[i][0]][0] + g.e[0][last[i][0]];
-						cap = maxCapacity;
-					}
-					if (d < client.time) d = client.time;
-					cap -= client.size;
-					client = (Client) g.v[last[j][0]];
-					if (cap < client.size)
-					{
-						d = d + g.e[last[i][0]][0] + g.e[0][last[i][0]];
-						cap = maxCapacity;
-					}
-					if (d < client.time) d = client.time;
-					cap -= client.size;
-					actualChoosenEdges[last[0][1]][last[i][0]] = true;
-					actualChoosenEdges[last[1][1]][last[j][0]] = true;
 
-					if (CheckIfClosedCycle(actualChoosenEdges))
+					if (last[1][1] == last[j][0]) continue;
+					actualChosenEdges[last[0][1]][last[i][0]] = true;
+					actualChosenEdges[last[1][1]][last[j][0]] = true;
+
+					if (CheckIfClosedCycle(actualChosenEdges))
 					{
-						System.out
-								.println("  zamkniety cykl, dodane krawedzie: "
-										+ last[0][1] + "->" + last[i][0]
-										+ " i " + last[1][1] + "->"
-										+ last[j][0]);
 						do_work = false;
 						break;
 					}
 					else
 					{
-						actualChoosenEdges[last[0][1]][last[i][0]] = false;
-						actualChoosenEdges[last[1][1]][last[j][0]] = false;
-						d = bestCopy;
-						cap = capCopy;
+						actualChosenEdges[last[0][1]][last[i][0]] = false;
+						actualChosenEdges[last[1][1]][last[j][0]] = false;
 					}
 				}
 			}
 
-			for (int i = 0; i < graphSize; i++)
+			if (!do_work)
 			{
-				for (int j = 0; j < graphSize; j++)
-				{
-					System.out.print(actualChoosenEdges[j][i] == true ? 1 + " "
-							: 0 + " ");
-				}
-				System.out.println(" ");
+				d = printCycle(g, actualChosenEdges);
+				if (d < currentBest) currentBest = d;
 			}
-			printCycle(g, actualChoosenEdges);
-			if (d < currentBest) currentBest = d;
 			return;
 		}
-		// wyznaczamy krawedz dzielaca
+		// Choose dividing edge
 		double max = Double.MIN_VALUE;
 		for (int k = 0; k < graphSize; k++)
 		{
@@ -250,16 +288,14 @@ public class SeparateDVRPSolver
 					double min_r = Double.MAX_VALUE;
 					double min_c = Double.MAX_VALUE;
 
-					// dla kolumny k
+					// For column k
 					for (int r = 0; r < graphSize; r++)
 					{
 						if (!activeRow[r]) continue;
 						if (r != w)
-						{
 							if (table[k][r] < min_c) min_c = table[k][r];
-						}
 					}
-					// dla wiersza w
+					// For row w
 					for (int c = 0; c < graphSize; c++)
 					{
 						if (!activeCol[c]) continue;
@@ -269,52 +305,42 @@ public class SeparateDVRPSolver
 
 					if ((min_c + min_r) > max)
 					{
-						max = min_c + min_r;
-						index_col = k;
-						index_row = w;
+						actualChosenEdges[k][w] = true;
+
+						if (!CheckIfToEarlyClosedCycle(actualChosenEdges, k))
+						{
+							max = min_c + min_r;
+							index_col = k;
+							index_row = w;
+						}
+						actualChosenEdges[k][w] = false;
 					}
 				}
 			}
 		}
-		System.out.println("max to:" + max + " kolumna: " + index_col
-				+ " wiersz: " + index_row);
-		if (max == Double.MIN_VALUE) // nie da sie wyznaczyc krawedzi dzielacej
+		if (max == Double.MIN_VALUE) // Impossible to choose dividing edge
 			return;
 
 		double[][] TL = new double[graphSize][graphSize];
 		for (int i = 0; i < graphSize; i++)
 			for (int j = 0; j < graphSize; j++)
 				TL[i][j] = table[i][j];
-		bestCopy = d;
-		capCopy = cap;
-		client = (Client) g.v[index_row];
-		if (cap < client.size)
-		{
-			d = d + g.e[index_row][0] + g.e[0][index_row];
-			cap = maxCapacity;
-		}
-		if (d < client.time) d = client.time;
-		d += client.unld;
-		cap -= client.size;
-		actualChoosenEdges[index_col][index_row] = true;
 
+		actualChosenEdges[index_col][index_row] = true;
 		activeRow[index_row] = false;
 		activeCol[index_col] = false;
-		TL[index_row][index_col] = Double.POSITIVE_INFINITY; // krawedz odwrotna
-		TSP(g, cap, TL, d, activeCol, activeRow, actualChoosenEdges); // moze
-																		// poprawić
-																		// best
+		TL[index_row][index_col] = Double.POSITIVE_INFINITY; // Opposite edge
 
-		if (d >= currentBest) // czy to o to chodzi??
-			return;
-		actualChoosenEdges[index_col][index_row] = false;
-		d = bestCopy;
-		cap = capCopy;
+		TSP(g, TL, d, activeCol, activeRow, actualChosenEdges); // Can
+																// improve
+																// currentBest
+
+		if (d >= currentBest) return;
+		actualChosenEdges[index_col][index_row] = false;
 		activeRow[index_row] = true;
 		activeCol[index_col] = true;
 		table[index_col][index_row] = Double.POSITIVE_INFINITY;
-		TSP(g, cap, table, d, activeCol, activeRow, actualChoosenEdges);
-
+		TSP(g, table, d, activeCol, activeRow, actualChosenEdges);
 	}
 
 	// solves DVRP on one graph
@@ -323,22 +349,26 @@ public class SeparateDVRPSolver
 		currentBest = Double.POSITIVE_INFINITY;
 		path.clear();
 		graphSize = g.v.length;
-		activeColumns = new boolean[graphSize];
-		activeRows = new boolean[graphSize];
-		choosenEdges = new boolean[graphSize][graphSize];
 		maxCapacity = cap;
 
-		double[][] table = new double[g.e.length][g.e.length];
-		for (int i = 0; i < g.e.length; ++i)
+		boolean[] activeColumns = new boolean[graphSize];
+		boolean[] activeRows = new boolean[graphSize];
+		boolean[][] chosenEdges = new boolean[graphSize][graphSize];
+		double[][] table = new double[graphSize][graphSize];
+
+		for (int i = 0; i < graphSize; ++i)
 		{
-			for (int j = 0; j < g.e[i].length; ++j)
+			activeColumns[i] = true;
+			activeRows[i] = true;
+			for (int j = 0; j < graphSize; ++j)
 			{
+				chosenEdges[i][j] = false;
 				table[i][j] = g.e[i][j].doubleValue();
 			}
+			table[i][i] = Double.POSITIVE_INFINITY;
 		}
 
-		TSP(g, cap, table, 0, activeColumns, activeRows, choosenEdges);
-
+		TSP(g, table, 0, activeColumns, activeRows, chosenEdges);
 		return currentBest;
 	}
 
@@ -346,7 +376,7 @@ public class SeparateDVRPSolver
 
 	/**
 	 * <p>
-	 * Solves and sumes DVRP cost on each graph in the set.
+	 * Solves and sums DVRP cost on each graph in the set.
 	 * </p>
 	 * 
 	 * @param g
