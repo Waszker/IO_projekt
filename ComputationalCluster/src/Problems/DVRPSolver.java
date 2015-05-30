@@ -50,7 +50,8 @@ public class DVRPSolver extends TaskSolver
 		int noc = s.nextInt(); //number of clients
 		s.close();
 		
-		BigInteger numOfVariations = BigInteger.valueOf(nov).pow(noc); //number of possible divisions (partitions)
+		nov = Math.min(nov, noc);
+		BigInteger numOfVariations = Graph.calcNumOfPartitionings(nov, noc);
 		
 		byte[][] ret = new byte[numOfNodes][];
 		
@@ -122,10 +123,13 @@ public class DVRPSolver extends TaskSolver
 		final BigInteger to = s.nextBigInteger();
 		Double lowerCost = Double.MAX_VALUE;
 		
-		for ( BigInteger i=from; i.compareTo(to) < 0; i=i.add(BigInteger.ONE) )
+		g.initialize(from, to, pd.numberOfVehicles);
+		
+		Graph[] graphSet;
+		while ( (graphSet=g.nextPartitioning()) != null )
 		{
 			List<PathNode[]> pathList = new LinkedList<>();
-			double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(g.divideGraph(pd.numberOfVehicles, i), pd.vehicleCapacity, pathList);
+			double cost = SeparateDVRPSolver.solveDVRPOnGraphSet(graphSet, pd.vehicleCapacity, pathList);
 			if ( cost < lowerCost )
 			{
 				lowerCost = cost;
