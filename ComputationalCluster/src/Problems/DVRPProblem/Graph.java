@@ -68,12 +68,13 @@ public class Graph
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	
 	// constructs any variation of ints
-	private int[] partitioning(BigInteger m, final int nov, final int n)
+	private int[] partitioning(final BigInteger partitioningNum, final int nov, final int n)
 	{
-		if ( m.compareTo( BigInteger.valueOf(nov).pow(n) ) >= 0 )
+		if ( partitioningNum.compareTo( BigInteger.valueOf(nov).pow(n) ) >= 0 )
 			return null;
 		
 		int[] div = new int[n];
+		BigInteger m = partitioningNum;
 		for ( int i=0; i<n; i++ )
 		{
 			div[n-i-1] = m.mod(BigInteger.valueOf(nov)).intValue();

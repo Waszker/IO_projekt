@@ -74,6 +74,74 @@ public class ComputationalClient extends GenericComponent
 
 	}
 
+	/**
+	 * <p>
+	 * Returns problemId.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public BigInteger getProblemId()
+	{
+		return problemId;
+	}
+
+	/**
+	 * <p>
+	 * Returns file containing the problem definition.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public File getDataFile()
+	{
+		return dataFile;
+	}
+
+	/**
+	 * <p>
+	 * Returns timeout.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public BigInteger getTimeout()
+	{
+		return timeout;
+	}
+
+	/**
+	 * <p>
+	 * Sets timeout.
+	 * </p>
+	 */
+	public void setTimeout(BigInteger timeout)
+	{
+		this.timeout = timeout;
+	}
+
+	/**
+	 * <p>
+	 * Returns cutoff time.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public BigInteger getCutOffTime()
+	{
+		return cutOffTime;
+	}
+
+	/**
+	 * <p>
+	 * Sets cutoff time.
+	 * </p>
+	 */
+	public void setCutOffTime(BigInteger cutOffTime)
+	{
+		this.cutOffTime = cutOffTime;
+	}
+
 	@Override
 	protected Register getComponentRegisterMessage()
 	{
@@ -86,6 +154,12 @@ public class ComputationalClient extends GenericComponent
 	protected void reactToMessage(IMessage message)
 	{
 
+	}
+
+	@Override
+	protected Status getStatusMessage()
+	{
+		return null;
 	}
 
 	protected void sendSolveRequestMessage()
@@ -220,74 +294,6 @@ public class ComputationalClient extends GenericComponent
 		{
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * <p>
-	 * Returns problemId.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	public BigInteger getProblemId()
-	{
-		return problemId;
-	}
-
-	/**
-	 * <p>
-	 * Returns file containing the problem definition.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	public File getDataFile()
-	{
-		return dataFile;
-	}
-
-	/**
-	 * <p>
-	 * Returns timeout.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	public BigInteger getTimeout()
-	{
-		return timeout;
-	}
-
-	/**
-	 * <p>
-	 * Sets timeout.
-	 * </p>
-	 */
-	public void setTimeout(BigInteger timeout)
-	{
-		this.timeout = timeout;
-	}
-
-	/**
-	 * <p>
-	 * Returns cutoff time.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	public BigInteger getCutOffTime()
-	{
-		return cutOffTime;
-	}
-
-	/**
-	 * <p>
-	 * Sets cutoff time.
-	 * </p>
-	 */
-	public void setCutOffTime(BigInteger cutOffTime)
-	{
-		this.cutOffTime = cutOffTime;
 	}
 
 	private static byte[] loadFile(File file, int cutOffTime)
@@ -425,9 +431,4 @@ public class ComputationalClient extends GenericComponent
 		return bytes;
 	}
 
-	@Override
-	protected Status getStatusMessage()
-	{
-		return null;
-	}
 }

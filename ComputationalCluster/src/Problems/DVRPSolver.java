@@ -36,7 +36,6 @@ public class DVRPSolver extends TaskSolver
 	
 	/*
 	 * Partial problem format: 'S %d %d' from, to variation numbers; means that we need to handle [from,to) variations
-	 * 					   or: 'P ...............'
 	 */
 	@Override
 	public byte[][] DivideProblem(int numOfNodes)
@@ -52,6 +51,7 @@ public class DVRPSolver extends TaskSolver
 		s.close();
 		
 		BigInteger numOfVariations = BigInteger.valueOf(nov).pow(noc); //number of possible divisions (partitions)
+		
 		byte[][] ret = new byte[numOfNodes][];
 		
 		int rest = numOfVariations.mod(BigInteger.valueOf(numOfNodes)).intValue();
@@ -67,7 +67,7 @@ public class DVRPSolver extends TaskSolver
 			ret[i] = ("S " + sFrom + " " + sTo).getBytes(); //S means that there is a set of whole TSP problems
 														  //to solve (maybe single element set)
 			
-			from = to.add(BigInteger.ONE);
+			from = to;
 		}
 				
 		return ret;
@@ -75,7 +75,11 @@ public class DVRPSolver extends TaskSolver
 
 	/*
 	 * Partial solution format: 'S %f' - lowest cost of solution
-	 * 						or: 'P beginPath %f' - lowest cost of solution
+	 * 							'pathlen path' (for vehicle 0)
+	 * 							'pathlen path' (for vehicle 1)
+	 * 							'pathlen path' (for vehicle 2)
+	 * 								...
+	 * 							'pathlen path' (for vehicle n)
 	 */
 	@Override
 	public byte[] MergeSolution(byte[][] partialSolutions)
@@ -85,8 +89,8 @@ public class DVRPSolver extends TaskSolver
 		
 		for ( int i=0; i<partialSolutions.length; i++ )
 		{
-			String _s = new String(partialSolutions[i]);
-			Scanner s = new Scanner(_s);
+			final String partialSolutionAsString = new String(partialSolutions[i]);
+			Scanner s = new Scanner(partialSolutionAsString);
 			s.useLocale(Locale.ENGLISH);
 			s.next();
 			
@@ -94,7 +98,7 @@ public class DVRPSolver extends TaskSolver
 			if ( cost < lowestCost )
 			{
 				lowestCost = cost;
-				ret = _s;
+				ret = partialSolutionAsString;
 			}			
 			s.close();
 		}
@@ -105,9 +109,8 @@ public class DVRPSolver extends TaskSolver
 	@Override
 	public byte[] Solve(byte[] partialProblemData, long timeout)
 	{
-		String _s = new String(partialProblemData);
-		
-		Scanner s = new Scanner(_s);
+		final String partialProblemDataAsString = new String(partialProblemData);
+		Scanner s = new Scanner(partialProblemDataAsString);
 		s.useLocale(Locale.ENGLISH);
 		String ret = "";
 		ProblemData pd = extractProblemData();
@@ -195,8 +198,8 @@ public class DVRPSolver extends TaskSolver
 	private ProblemData extractProblemData()
 	{
 		int numberOfClients;
-		String _s = new String(_problemData);
-		Scanner s = new Scanner(_s);
+		final String problemDataAsString = new String(_problemData);
+		Scanner s = new Scanner(problemDataAsString);
 		s.useLocale(Locale.ENGLISH);
 		
 		ProblemData ret = new ProblemData();
@@ -212,6 +215,7 @@ public class DVRPSolver extends TaskSolver
 										s.nextDouble(), s.nextDouble());
 		
 		s.close();
+		
 		return ret;
 	}
 	
