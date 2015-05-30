@@ -32,6 +32,7 @@ public class Graph
 	
 	BigInteger numOfPartitionings, from, to, partitioningNumber = null;
 	int numOfVehicles, numOfClients;
+	BigInteger[] factorial;
 	
 	/* PUBLIC METHODS */
 	
@@ -64,10 +65,17 @@ public class Graph
 		this.from = from;
 		this.numOfVehicles = Math.min(numOfVehicles, v.length-1);
 		this.partitioningNumber = from;
-		this.numOfPartitionings = calcNumOfPartitionings(numOfVehicles);
+		this.numOfPartitionings = calcNumOfPartitionings(numOfClients, numOfVehicles);
 		
 		if ( to != null )this.to = to;
 		else this.to = this.numOfPartitionings;
+		
+		factorial = new BigInteger[numOfVehicles];
+		factorial[0] = BigInteger.ONE;
+		factorial[1] = BigInteger.ONE;
+		for ( int i=2; i<numOfVehicles; i++ )
+			factorial[i] = factorial[i-1].multiply(BigInteger.valueOf(i));
+			
 	}
 	
 	
@@ -103,20 +111,6 @@ public class Graph
 		return ret;
 	}
 	
-	/**
-	 * <p>Returns number of combinations in graph partitioning</p>
-	 */
-	public BigInteger calcNumOfPartitionings(int numOfVehicles)
-	{
-		BigInteger numberOfPartitionings;
-		BigInteger novFactorial = BigInteger.ONE;
-		for ( int i=2; i<=numOfVehicles; i++ )
-			novFactorial = novFactorial.multiply( BigInteger.valueOf(i) );
-		numberOfPartitionings = BigInteger.valueOf(numOfVehicles).pow(numOfClients - numOfVehicles).multiply(novFactorial);
-		return numberOfPartitionings;
-	}
-	
-	
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	
 	// constructs any variation of ints
@@ -145,10 +139,7 @@ public class Graph
 				if ( nextValue > currentMax+1 )
 				{
 					int digitsToSkip = nextValue - div[nextValue] - 1;
-					BigInteger numberToAdd = BigInteger.valueOf(digitsToSkip);
-					for ( int j=1; j<nextValue; j++ )
-						numberToAdd = numberToAdd.multiply(BigInteger.valueOf(j));
-					
+					BigInteger numberToAdd = BigInteger.valueOf(digitsToSkip).multiply(factorial[nextValue-1]);					
 					partitioningNumber = partitioningNumber.add(numberToAdd);
 					repeat = true;
 					break;
