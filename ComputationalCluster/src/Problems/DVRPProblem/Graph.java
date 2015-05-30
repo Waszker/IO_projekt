@@ -9,10 +9,32 @@ import java.math.BigInteger;
  */
 public class Graph
 {
-	/* VARIABLES */
+	/* PUBLIC STATIC METHODS */
+	/**
+	 * <p>Returns number of combinations in graph partitioning</p>
+	 */
+	public static BigInteger calcNumOfPartitionings(int numOfClients, int numOfVehicles)
+	{
+		BigInteger numberOfPartitionings;
+		BigInteger novFactorial = BigInteger.ONE;
+		for ( int i=2; i<=numOfVehicles; i++ )
+			novFactorial = novFactorial.multiply( BigInteger.valueOf(i) );
+		numberOfPartitionings = BigInteger.valueOf(numOfVehicles).pow(numOfClients - numOfVehicles).multiply(novFactorial);
+		return numberOfPartitionings;
+	}
+	
+	/* PUBLIC VARIABLES */
 	
 	public Double[][] e; //adjency matrix; weight = travelCost
 	public IGraphNode[] v;
+	
+	/* PRIVATE VARIABLES */
+	
+	BigInteger numOfPartitionings, from, to, partitioningNumber = null;
+	int numOfVehicles, numOfClients;
+	BigInteger[] factorial;
+	
+	/* PUBLIC METHODS */
 	
 	//constructs graph, where nodes are in order: { d c1 ... ck } , d=depot, ci=client
 	public Graph(Depot d, Client[] c)
@@ -28,24 +50,49 @@ public class Graph
 		for ( int i=0; i<n; i++ )
 			for ( int j=i; j<n; j++ )
 				e[i][j] = e[j][i] = calcTravelTime(v[i], v[j]); 
+		
+		numOfClients = c.length;
 	}
+	
+	
+	/**
+	 * <p>Initialzes graph before partitioning.</p>
+	 * @param from lower bound of the set of partitioning numbers
+	 * @param to higher bound of the set of partitioning numbers; if null its set to max (numOfPatitionings)
+	 */
+	public void initialize(BigInteger from, BigInteger to, int numOfVehicles)
+	{
+		this.from = from;
+		this.numOfVehicles = Math.min(numOfVehicles, v.length-1);
+		this.partitioningNumber = from;
+		this.numOfPartitionings = calcNumOfPartitionings(numOfClients, numOfVehicles);
+		
+		if ( to != null )this.to = to;
+		else this.to = this.numOfPartitionings;
+		
+		factorial = new BigInteger[numOfVehicles];
+		factorial[0] = BigInteger.ONE;
+		factorial[1] = BigInteger.ONE;
+		for ( int i=2; i<numOfVehicles; i++ )
+			factorial[i] = factorial[i-1].multiply(BigInteger.valueOf(i));
+			
+	}
+	
+	
 	
 	/**
 	 * <p>
 	 * Divides calling graph into numOfVehicles parts. Every part contains all depots
 	 * and some part of clients. 
 	 * </p>
-	 * @param numOfVehicles Number of result subgraphs
-	 * @param partitioningNumber Number of set partitioning (from 0 to pow(numberOfVehicles, numberOfClients))
 	 * @return Array of result graphs or null if partitioningNumber is wrong
-	 * @throws IllegalArgumentException When numOfVehicles is not a positive number
+	 * @throws IllegalStateException when called uninitialized
 	 */
-	public Graph[] divideGraph(int numOfVehicles, BigInteger partitioningNumber)
+	public Graph[] nextPartitioning()
 	{
-		if ( numOfVehicles < 1 )throw new IllegalArgumentException();
+		if ( partitioningNumber == null )throw new IllegalStateException();
 		
-		final int n = v.length - 1;
-		int[] p = partitioning(partitioningNumber,numOfVehicles,n);
+		int[] p = partitioning();
 		if ( p == null )return null;
 		int[] cnt = count(p,numOfVehicles);
 		
@@ -64,23 +111,54 @@ public class Graph
 		return ret;
 	}
 	
-	
 	/* PRIVATE AUXILIARY FUNCTIONS */
 	
 	// constructs any variation of ints
-	private int[] partitioning(final BigInteger partitioningNum, final int nov, final int n)
+	private int[] partitioning()
 	{
-		if ( partitioningNum.compareTo( BigInteger.valueOf(nov).pow(n) ) >= 0 )
-			return null;
+		int currentMax;
+		int[] div = new int[numOfClients];
+		BigInteger m;
+		boolean repeat;
 		
-		int[] div = new int[n];
-		BigInteger m = partitioningNum;
-		for ( int i=0; i<n; i++ )
+		do
 		{
-			div[n-i-1] = m.mod(BigInteger.valueOf(nov)).intValue();
-			m = m.divide(BigInteger.valueOf(nov));
-		}
+			if ( partitioningNumber.compareTo( to ) >= 0 || 
+				 partitioningNumber.compareTo( numOfPartitionings ) >= 0 )
+				 	return null;
+			
+			m = partitioningNumber;
+			repeat = false;
+			currentMax = 0;
+			
+			for ( int i=0; i<numOfClients; i++ )
+			{
+				int divider = Math.min(i+1, numOfVehicles);
+				int nextValue = m.mod(BigInteger.valueOf(divider)).intValue();
+				
+				if ( nextValue > currentMax+1 )
+				{
+					int digitsToSkip = nextValue - div[nextValue] - 1;
+					BigInteger numberToAdd = BigInteger.valueOf(digitsToSkip).multiply(factorial[nextValue-1]);					
+					partitioningNumber = partitioningNumber.add(numberToAdd);
+					repeat = true;
+					break;
+				}
+				
+				if ( nextValue > currentMax )
+					currentMax = nextValue;
+				
+				div[i] = nextValue;
+				m = m.divide(BigInteger.valueOf(divider));
+			}
+		}while ( repeat );
 		
+		/*
+		for ( int i : div )
+			System.out.print(i + " ");
+		System.out.println();*/
+		
+		partitioningNumber = partitioningNumber.add(BigInteger.ONE);
 		return div;
 	}
 	
