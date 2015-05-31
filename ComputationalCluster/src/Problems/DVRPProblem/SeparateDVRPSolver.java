@@ -180,7 +180,6 @@ public class SeparateDVRPSolver
 			boolean[] activeCol, boolean[] activeRow,
 			boolean[][] actualChosenEdges)
 	{
-
 		double oszac = 0;
 		int index_col = -1;
 		int index_row = -1;
@@ -391,10 +390,16 @@ public class SeparateDVRPSolver
 		double ret = 0;
 		for (int i = 0; i < g.length; i++)
 		{
-			ret += oneDvrp(g[i], cap);
+			double result = 0;
+			if ( g[i].v.length > 1 )
+				result = oneDvrp(g[i], cap);
+			
+			System.out.println(i + " : " + result);
+			ret += result;
 			pathsForAllVehicles.add(SeparateDVRPSolver.path
 					.toArray(new PathNode[path.size()]));
 		}
+		System.out.println("return "+ret);
 		return ret;
 	}
 }
