@@ -394,12 +394,10 @@ public class SeparateDVRPSolver
 			if ( g[i].v.length > 1 )
 				result = oneDvrp(g[i], cap);
 			
-			System.out.println(i + " : " + result);
 			ret += result;
 			pathsForAllVehicles.add(SeparateDVRPSolver.path
 					.toArray(new PathNode[path.size()]));
 		}
-		System.out.println("return "+ret);
 		return ret;
 	}
 }
