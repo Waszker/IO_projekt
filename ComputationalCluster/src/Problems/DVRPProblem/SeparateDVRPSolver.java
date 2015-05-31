@@ -110,35 +110,50 @@ public class SeparateDVRPSolver
 
 	private static double addToPath(Graph g, int[] vertices)
 	{
-		path.clear();
+		List<PathNode> pathCopy = new LinkedList<PathNode>();
 		Client client;
 		double cap = maxCapacity;
-		double timeOfTravel = 0;
+		double timeOfArrival = 0;
+		double distanceOfTravel = 0;
 
-		path.add(new PathNode(g.v[0].getX(), g.v[0].getY(), 0));
+		pathCopy.add(new PathNode(g.v[0].getX(), g.v[0].getY(), 0));
 		int i;
 		for (i = 0; i < graphSize - 1; i++)
 		{
 			client = (Client) g.v[vertices[i + 1]];
 			if (cap < client.size)
 			{
-				timeOfTravel += g.e[vertices[i]][0];
-				timeOfTravel += g.e[0][vertices[i]];
+				timeOfArrival += g.e[vertices[i]][0];
+				distanceOfTravel += g.e[vertices[i]][0];
 				cap = maxCapacity;
+				if (client.time > timeOfArrival) timeOfArrival = client.time;
+				timeOfArrival += g.e[0][vertices[i + 1]];
+				distanceOfTravel += g.e[0][vertices[i + 1]];
 			}
-			if (client.time > timeOfTravel) timeOfTravel = client.time;
+			else
+			{
+				if (client.time > timeOfArrival) timeOfArrival = client.time;
 
-			timeOfTravel += g.e[vertices[i]][vertices[i + 1]];
-			timeOfTravel += client.unld;
+				timeOfArrival += g.e[vertices[i]][vertices[i + 1]];
+				distanceOfTravel += g.e[vertices[i]][vertices[i + 1]];
+			}
+
+			pathCopy.add(new PathNode(g.v[vertices[i + 1]].getX(),
+					g.v[vertices[i + 1]].getY(), timeOfArrival));
+			timeOfArrival += client.unld;
 			cap -= client.size;
-
-			path.add(new PathNode(g.v[vertices[i + 1]].getX(),
-					g.v[vertices[i + 1]].getY(), timeOfTravel));
 		}
-		timeOfTravel += g.e[vertices[i]][0];
-		path.add(new PathNode(g.v[0].getX(), g.v[0].getY(), timeOfTravel));
+		timeOfArrival += g.e[vertices[i]][0];
+		distanceOfTravel += g.e[vertices[i]][0];
+		pathCopy.add(new PathNode(g.v[0].getX(), g.v[0].getY(), timeOfArrival));
 
-		return timeOfTravel;
+		if (distanceOfTravel < currentBest)
+		{
+			path.clear();
+			path.addAll(pathCopy);
+		}
+
+		return distanceOfTravel;
 	}
 
 	private static double printCycle(Graph g, boolean[][] actualChosenEdges)
@@ -391,12 +406,12 @@ public class SeparateDVRPSolver
 		for (int i = 0; i < g.length; i++)
 		{
 			double result = 0;
-			if ( g[i].v.length > 1 )
-				result = oneDvrp(g[i], cap);
-			
+			if (g[i].v.length > 1) result = oneDvrp(g[i], cap);
+
 			ret += result;
 			pathsForAllVehicles.add(SeparateDVRPSolver.path
 					.toArray(new PathNode[path.size()]));
+
 		}
 		return ret;
 	}
