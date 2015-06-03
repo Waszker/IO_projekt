@@ -160,6 +160,8 @@ public class Graph
 					int digitsToSkip = nextValue - div[nextValue] - 1;
 					BigInteger numberToAdd = BigInteger.valueOf(digitsToSkip)
 							.multiply(factorial[nextValue - 1]);
+					if ( numberToAdd.compareTo(BigInteger.ZERO) <= 0 )
+						numberToAdd = BigInteger.ONE;
 					partitioningNumber = partitioningNumber.add(numberToAdd);
 					repeat = true;
 					break;
