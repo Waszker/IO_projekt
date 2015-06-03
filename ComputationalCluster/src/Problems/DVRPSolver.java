@@ -51,7 +51,7 @@ public class DVRPSolver extends TaskSolver
 		s.close();
 		
 		nov = Math.min(nov, noc);
-		BigInteger numOfVariations = Graph.calcNumOfPartitionings(nov, noc);
+		BigInteger numOfVariations = Graph.calcNumOfPartitionings(noc, nov);
 		
 		byte[][] ret = new byte[numOfNodes][];
 		
