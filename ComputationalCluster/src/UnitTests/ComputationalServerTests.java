@@ -34,7 +34,8 @@ public class ComputationalServerTests
 		assertEquals(GenericComponent.DEFAULT_PORT, server.getPort());
 		assertEquals(ComputationalServer.DEFAULT_TIMEOUT, server.getTimeout());
 		assertEquals(GenericComponent.DEFAUL_IP_ADDRESS, server.getIpAddress());
-		assertEquals(111, server.getMyLocalBackupPort());
+		assertEquals(ComputationalServer.DEFAULT_PORT,
+				server.getMyLocalBackupPort());
 		assertEquals(null, server.getCore());
 	}
 
@@ -47,12 +48,11 @@ public class ComputationalServerTests
 		assertEquals(777, server.getPort());
 		assertEquals(ComputationalServer.DEFAULT_TIMEOUT, server.getTimeout());
 		assertEquals("127.0.0.1", server.getIpAddress());
-		assertEquals(ComputationalServer.DEFAULT_PORT,
-				server.getMyLocalBackupPort());
+		assertEquals(777, server.getMyLocalBackupPort());
 	}
 
 	@Test
-	public void computationalServerRegisterTaskManager_Good()
+	public void computationalServerRegisterTaskManagerGood()
 	{
 		Logger.setDebug(false);
 		int port = getPort(), timeout = 5;
@@ -92,7 +92,7 @@ public class ComputationalServerTests
 	}
 
 	@Test
-	public void computationalServerRegisterUnsupportedComponent_Good()
+	public void computationalServerRegisterUnsupportedComponentGood()
 	{
 		Logger.setDebug(false);
 		int port = getPort(), timeout = 5;
@@ -130,7 +130,7 @@ public class ComputationalServerTests
 	}
 
 	@Test
-	public void computationalServerRegisterProblem_Good()
+	public void computationalServerRegisterProblemGood()
 	{
 		Logger.setDebug(false);
 		int port = getPort(), timeout = 5;
