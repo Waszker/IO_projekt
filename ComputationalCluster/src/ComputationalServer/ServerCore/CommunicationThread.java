@@ -231,7 +231,7 @@ class CommunicationThread extends AbstractServerCoreProtocol
 					message.setComputationalNodes(new BigInteger(String
 							.valueOf(core.computationalNodes.size())));
 				}
-				else
+				else if (m.getMessageType() == MessageType.SOLUTION)
 				{
 					Solutiones message = (Solutiones) m;
 					// TODO: Here is my secret hack!!!!

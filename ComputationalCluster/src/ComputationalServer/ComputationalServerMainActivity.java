@@ -17,10 +17,10 @@ public class ComputationalServerMainActivity
 
 			ComputationalServer server = new ComputationalServer(
 					flagsMap.get(GenericFlagInterpreter.FLAG_IS_BACKUP) != null,
-					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_MPORT),
+					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_PORT),
 					(Integer) flagsMap.get(GenericFlagInterpreter.FLAG_TIMEOUT),
 					(Integer) flagsMap
-							.get(GenericFlagInterpreter.FLAG_PORT),
+							.get(GenericFlagInterpreter.FLAG_MPORT),
 					(String) flagsMap.get(GenericFlagInterpreter.FLAG_MADDRESS),
 					flagsMap.get(GenericFlagInterpreter.FLAG_IS_GUI) != null);
 
