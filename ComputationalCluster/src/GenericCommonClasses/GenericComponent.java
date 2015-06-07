@@ -400,7 +400,7 @@ public abstract class GenericComponent
 			JOptionPane.showMessageDialog(null, message, "",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
-		System.out.println(message);
+		Logger.log(message);
 	}
 
 	private void addShutdownHook()

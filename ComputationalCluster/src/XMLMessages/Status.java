@@ -435,7 +435,7 @@ public class Status extends AbstractMessage
 
 			default:
 				Logger.log("Component not registered\n");
-				responses.add(new Error(ErrorMessage.UnknownSender, ""));
+				responses.add(new Error(ErrorMessage.UnknownSender, "")); // NOPMD by waszka on 6/8/15 12:08 AM
 				break;
 		}
 

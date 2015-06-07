@@ -36,16 +36,17 @@ public final class Logger
 	 * 
 	 * @param message
 	 */
-	public static void log(String message)
+	public static void log(String message) // NOPMD by waszka on 6/8/15 12:05 AM
 	{
 		if (isDebugOn)
 		{
 			DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 			Date today = Calendar.getInstance().getTime();
-			System.out
+			System.out // NOPMD by waszka on 6/8/15 12:06 AM
 					.println("/-------------------------------------------\\");
-			System.out.print(df.format(today) + ":\n" + message);
-			System.out
+			System.out // NOPMD by waszka on 6/8/15 12:06 AM
+					.print(df.format(today) + ":\n" + message);
+			System.out // NOPMD by waszka on 6/8/15 12:06 AM
 					.println("\\-------------------------------------------/\n");
 		}
 	}

@@ -161,7 +161,7 @@ public class ObjectFactory {
      * 
      */
     public Error createError() {
-        return new Error();
+        return new Error(); // NOPMD by waszka on 6/8/15 12:07 AM
     }
 
     /**

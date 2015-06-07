@@ -88,7 +88,7 @@ public class Register extends AbstractMessage
 	protected Register.SolvableProblems solvableProblems;
 	@XmlElement(name = "ParallelThreads")
 	@XmlSchemaType(name = "unsignedByte")
-	protected short parallelThreads;
+	protected short parallelThreads; // NOPMD by waszka on 6/8/15 12:07 AM
 	@XmlElement(name = "Deregister")
 	protected Boolean deregister;
 	@XmlElement(name = "Id")
@@ -145,7 +145,7 @@ public class Register extends AbstractMessage
 	 * Gets the value of the parallelThreads property.
 	 * 
 	 */
-	public short getParallelThreads()
+	public short getParallelThreads() // NOPMD by waszka on 6/8/15 12:07 AM
 	{
 		return parallelThreads;
 	}
@@ -154,7 +154,7 @@ public class Register extends AbstractMessage
 	 * Sets the value of the parallelThreads property.
 	 * 
 	 */
-	public void setParallelThreads(short value)
+	public void setParallelThreads(short value) // NOPMD by waszka on 6/8/15 12:07 AM
 	{
 		this.parallelThreads = value;
 	}
