@@ -23,6 +23,7 @@ public class Graph
 	{
 		BigInteger numberOfPartitionings;
 		BigInteger novFactorial = BigInteger.ONE;
+		numOfVehicles = Math.min(numOfClients, numOfVehicles);
 		for (int i = 2; i <= numOfVehicles; i++)
 			novFactorial = novFactorial.multiply(BigInteger.valueOf(i));
 		numberOfPartitionings = BigInteger.valueOf(numOfVehicles)
@@ -157,7 +158,7 @@ public class Graph
 
 				if (nextValue > currentMax + 1)
 				{
-					int digitsToSkip = nextValue - div[nextValue] - 1;
+					int digitsToSkip = nextValue - div[nextValue - 1] - 1;
 					BigInteger numberToAdd = BigInteger.valueOf(digitsToSkip)
 							.multiply(factorial[nextValue - 1]);
 					if ( numberToAdd.compareTo(BigInteger.ZERO) <= 0 )
@@ -173,10 +174,6 @@ public class Graph
 				m = m.divide(BigInteger.valueOf(divider));
 			}
 		} while (repeat);
-
-		/*
-		 * for ( int i : div ) System.out.print(i + " "); System.out.println();
-		 */
 
 		partitioningNumber = partitioningNumber.add(BigInteger.ONE);
 		return div;
