@@ -2,14 +2,21 @@ package ComputationalClient;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.math.BigInteger;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
 
+/**
+ * <p>
+ * ComputationalClientActionListener adds GUI behaviour.
+ * </p>
+ * 
+ * @author Anna Zawadzka
+ *
+ */
 public class ComputationalClientActionListener extends
 		GenericWindowActionListener
 {
@@ -17,14 +24,21 @@ public class ComputationalClientActionListener extends
 	/* VARIABLES */
 	/******************/
 
+	private ComputationalClient client;
+	private ComputationalClientWindow window;
+
 	/******************/
 	/* FUNCTIONS */
 	/******************/
-	public ComputationalClientActionListener(GenericWindowGui window)
+
+	public ComputationalClientActionListener(GenericWindowGui window,
+			ComputationalClient client)
 	{
 		super(window);
+		this.client = client;
+		this.window = (ComputationalClientWindow) window;
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -38,6 +52,10 @@ public class ComputationalClientActionListener extends
 			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_SEND_BUTTON:
 				reactToSendButtonPress();
 				break;
+
+			case ComputationalClientWindow.COMPUTATIONAL_CLIENT_REQUEST_BUTTON:
+				reactToRequestButtonPress();
+				break;
 		}
 	}
 
@@ -48,12 +66,29 @@ public class ComputationalClientActionListener extends
 		if (returnVal == JFileChooser.APPROVE_OPTION)
 		{
 			File file = fc.getSelectedFile();
+			String filename = file.getName();
+			client.dataFile = file;
+			client.filePath = file.getAbsolutePath();
+			this.window.fileName.setText(filename);
+			this.window.sendButton.setEnabled(true);
 		}
 	}
 
 	private void reactToSendButtonPress()
 	{
-		JOptionPane.showMessageDialog(new JFrame(), "SENT", "Dialog",
-				JOptionPane.INFORMATION_MESSAGE);
+		client.setIpAddress(window.getIpAddressString());
+		client.setPort(window.getPortInteger());
+		client.setTimeout(new BigInteger(window.timeoutField.getText()));
+		client.setCutOffTime(new BigInteger(window.cutOffTimeField.getText()));
+		client.sendSolveRequestMessage();
+		window.computationStatusField.setText("Computing...");
+		this.window.requestButton.setEnabled(true);
+	}
+
+	private void reactToRequestButtonPress()
+	{
+		client.sendSolutionRequestMessage();
+		if (client.computationIsDone)
+			window.computationStatusField.setText("Done");
 	}
 }

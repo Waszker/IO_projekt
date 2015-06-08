@@ -1,6 +1,10 @@
-package ComputationalServer;
+package ComputationalServer.ServerCore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.net.Socket;
+
+import GenericCommonClasses.IMessage;
 
 /**
  * <p>
@@ -18,7 +22,7 @@ public class ClientMessage
 	/* VARIABLES */
 	/******************/
 	private Socket socket;
-	private String messageContent;
+	private List<IMessage> messages;
 
 	/******************/
 	/* FUNCTIONS */
@@ -32,10 +36,10 @@ public class ClientMessage
 	 * @param content
 	 * @param clientSocket
 	 */
-	public ClientMessage(String content, Socket clientSocket)
+	public ClientMessage(List<IMessage> content, Socket clientSocket)
 	{
 		socket = clientSocket;
-		messageContent = content;
+		messages = new ArrayList<>(content);
 	}
 
 	/**
@@ -52,13 +56,13 @@ public class ClientMessage
 	
 	/**
 	 * <p>
-	 * Returns content of message
+	 * Returns contents of messages.
 	 * </p>
 	 * 
-	 * @return copy of message
+	 * @return copy of messages
 	 */
-	public String getMessageContent()
+	public List<IMessage> getMessageContents()
 	{
-		return messageContent;
+		return new ArrayList<IMessage>(messages);
 	}
 }

@@ -1,7 +1,9 @@
 package GenericCommonClasses;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,20 +15,25 @@ import java.util.TreeMap;
  * 
  * @author Piotr Waszkiewicz
  * @version 1.0
- *
+ * 
  */
 public class GenericFlagInterpreter
 {
-
 	/******************/
 	/* VARIABLES */
 	/******************/
+	public static final String CONFIGURATION_FILE = ".ccluster.ini";
+	public static final String FLAG_PORT = "port";
+	public static final String FLAG_ADDRESS = "address";
+	public static final String FLAG_MPORT = "mport";
+	public static final String FLAG_MADDRESS = "maddress";
+	public static final String FLAG_TIMEOUT = "timeout";
+	public static final String FLAG_IS_BACKUP = "isBackup";
+	public static final String FLAG_BACKUP_PORT = "portBackup";
+	public static final String FLAG_IS_GUI = "isGui";
+	public static final String FLAG_FILE = "file";
+	public static final String FLAG_CUTOFF = "cutoff";
 	
-	public static final String FLAG_PORT = "port"; 
-	public static final String FLAG_ADDRESS = "address"; 
-	public static final String FLAG_TIMEOUT = "timeout"; 
-	public static final String FLAG_IS_BACKUP= "isBackup"; 
-	public static final String FLAG_IS_GUI = "isGui"; 
 
 	/******************/
 	/* FUNCTIONS */
@@ -44,11 +51,11 @@ public class GenericFlagInterpreter
 	 * @param args
 	 *            array of arguments provided during startup
 	 * @return map containing information in proper way
-	 * @throws UnknownHostException
-	 *             , NumberFormatException
+	 * @throws IOException
+	 *             if no flags and no configuration file was provided
 	 */
 	public static Map<String, Object> interpretFlags(String[] args)
-			throws NumberFormatException, UnknownHostException
+			throws NumberFormatException, IOException
 	{
 		Map<String, Object> flagMap = new TreeMap<>();
 
@@ -59,6 +66,10 @@ public class GenericFlagInterpreter
 			{
 				case "-port":
 					flagMap.put(FLAG_PORT, Integer.parseInt(args[i + 1]));
+					break;
+
+				case "-backup-port":
+					flagMap.put(FLAG_BACKUP_PORT, Integer.parseInt(args[i + 1]));
 					break;
 
 				case "-address":
@@ -74,14 +85,48 @@ public class GenericFlagInterpreter
 					flagMap.put(FLAG_IS_BACKUP, true);
 					i--;
 					break;
+					
+				case "-maddress":
+					InetAddress.getByName(args[i + 1]);
+					flagMap.put(FLAG_MADDRESS, args[i + 1]);
+					break;
+					
+				case "-mport":
+					flagMap.put(FLAG_MPORT, Integer.parseInt(args[i + 1]));
+					break;
 
 				case "-gui":
 					flagMap.put(FLAG_IS_GUI, true);
 					i--;
 					break;
+
+				case "-file":
+					flagMap.put(FLAG_FILE, args[i + 1]);
+					break;
+					
+				case "-cutoff":
+					flagMap.put(FLAG_CUTOFF, Integer.parseInt(args[i + 1]));
+					break;
+					
+				case "-help":
+					GenericComponent.showUsage();
+					System.exit(0);
+					break;
+
+				default:
+					throw new IOException();
 			}
 		}
 
-		return flagMap;
+		return (args.length == 0 ? loadFromConfig() : flagMap);
+	}
+
+	private static Map<String, Object> loadFromConfig() throws IOException
+	{
+		StringBuilder stringBuilder = new StringBuilder();
+		Files.lines(FileSystems.getDefault().getPath(CONFIGURATION_FILE))
+				.forEach(s -> stringBuilder.append(s));
+
+		return interpretFlags(stringBuilder.toString().split(" "));
 	}
 }

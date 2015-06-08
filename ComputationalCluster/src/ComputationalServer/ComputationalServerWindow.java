@@ -1,9 +1,9 @@
 package ComputationalServer;
 
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import GenericCommonClasses.GenericWindowActionListener;
 import GenericCommonClasses.GenericWindowGui;
@@ -41,12 +41,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	}
 
 	public static final String START_SERVER_BUTTON = "START_SERVER_BUTTON";
+	public static final String SERVER_WORK_MODE_BUTTON = "SERVER_WORK_MODE_BUTTON";
 
 	private static final long serialVersionUID = 1716266392047737745L;
 	private ComputationalServer server;
-	private JTextField workModeField;
 	private JFormattedTextField portField, timeoutField;
 	private JTextArea connectedModules, activeProblems;
+	private JButton startServerButton, workModeButton;
 
 	/******************/
 	/* FUNCTIONS */
@@ -73,8 +74,10 @@ public final class ComputationalServerWindow extends GenericWindowGui
 						"Currently no connected modules..."),
 				activeProblems = new JTextArea(
 						"Currently no active problems to solve...")));
-		// TODO: connectedModules and activeProblems should fit within window
+		connectedModules.setLineWrap(true);
+		activeProblems.setLineWrap(true);
 
+		this.setResizable(true);
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
@@ -89,11 +92,69 @@ public final class ComputationalServerWindow extends GenericWindowGui
 	public void startWork()
 	{
 		setServerParametersFromFields();
-		server.startWork();
+		server.startWork(this);
 		portField.setEditable(false);
+		serverPort.setEditable(false);
 		timeoutField.setEditable(false);
+		startServerButton.setEnabled(false);
+		serverIpField.setEditable(false);
+		workModeButton.setEnabled(false);
 	}
-	
+
+	/**
+	 * <p>
+	 * Called in case of any trouble starting server.
+	 * </p>
+	 */
+	public void stoppedWork()
+	{
+		portField.setEditable(true);
+		serverPort.setEditable(true);
+		timeoutField.setEditable(true);
+		startServerButton.setEnabled(true);
+		serverIpField.setEditable(false);
+		workModeButton.setEnabled(true);
+	}
+
+	/**
+	 * <p>
+	 * Displays information about connected components and sent problems.
+	 * </p>
+	 */
+	public void refreshConnectedComponents()
+	{
+		StringBuilder informationBuilder = new StringBuilder();
+
+		for (String taskManager : server.getCore().getTaskManagers())
+			informationBuilder.append(taskManager + "\n");
+		for (String computationalNode : server.getCore()
+				.getComputationalNodes())
+			informationBuilder.append(computationalNode + "\n");
+		connectedModules.setText(informationBuilder.toString());
+
+		informationBuilder = new StringBuilder();
+		for (String problem : server.getCore().getProblemsToSolve())
+			informationBuilder.append(problem + "\n");
+		activeProblems.setText(informationBuilder.toString());
+
+		this.pack();
+	}
+
+	/**
+	 * <p>
+	 * Changes mode that server will run in.
+	 * </p>
+	 * 
+	 * @param isBackup
+	 */
+	public void changeServerWorkMode(boolean isBackup)
+	{
+		server.setisBackup(isBackup);
+		workModeButton.setText((isBackup ? ServerWorkMode.BACKUP.modeString
+				: ServerWorkMode.PRIMARY.modeString));
+		this.serverIpField.getParent().setVisible(isBackup);
+		this.serverPort.getParent().setVisible(isBackup);
+	}
 
 	@Override
 	public GenericWindowActionListener createActionListener()
@@ -123,11 +184,13 @@ public final class ComputationalServerWindow extends GenericWindowGui
 
 		this.add(createTwoHorizontalComponentsPanel(
 				new JLabel("Work mode"),
-				workModeField = createTextField(
+				workModeButton = createButton(
 						(server.isBackup() ? ServerWorkMode.BACKUP.modeString
-								: ServerWorkMode.PRIMARY.modeString), false)));
+								: ServerWorkMode.PRIMARY.modeString),
+						SERVER_WORK_MODE_BUTTON)));
 
-		this.add(createButton("Start Server", START_SERVER_BUTTON));
+		this.add(startServerButton = createButton("Start Server",
+				START_SERVER_BUTTON));
 
 		this.add(createTwoHorizontalComponentsPanel(new JLabel(
 				"Connected modules"), new JLabel("Active problems")));
@@ -139,20 +202,26 @@ public final class ComputationalServerWindow extends GenericWindowGui
 		if ((port = getIntegerValueFromField(portField)) == null)
 		{
 			portField.setText(Integer.toString(server.getPort()));
-		}
-		else
+		} else
 		{
-			server.setPort(port);
+			if (server.isBackup())
+				server.setMyLocalBackupPort(port);
+			else
+				server.setPort(port);
 		}
 
 		if ((timeout = getIntegerValueFromField(timeoutField)) == null)
 		{
 			portField.setText(Integer.toString(server.getTimeout()));
-		}
-		else
+		} else
 		{
 			server.setTimeout(timeout);
 		}
 
+		if (server.isBackup())
+		{
+			server.setIpAddress(serverIpField.getText());
+			server.setPort(getIntegerValueFromField(serverPort));
+		}
 	}
 }

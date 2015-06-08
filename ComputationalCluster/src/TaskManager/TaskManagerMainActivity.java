@@ -1,6 +1,6 @@
 package TaskManager;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.Map;
 
 import GenericCommonClasses.GenericFlagInterpreter;
@@ -14,6 +14,13 @@ import GenericCommonClasses.GenericFlagInterpreter;
  */
 public class TaskManagerMainActivity
 {
+	static void usage()
+	{
+		System.err
+				.println("usage: $java -jar TM.jar -port <port_number> -addres <ip_address>");
+		System.exit(-1);
+	}
+
 	public static void main(String[] args)
 	{
 		try
@@ -27,6 +34,9 @@ public class TaskManagerMainActivity
 			Integer serverPort = (Integer) flagsMap
 					.get(GenericFlagInterpreter.FLAG_PORT);
 
+			if (serverIp == null) usage();
+			if (serverPort == null) usage();
+
 			TaskManager taskManager = new TaskManager(serverIp, serverPort,
 					isGuiEnabled);
 			if (isGuiEnabled)
@@ -35,10 +45,15 @@ public class TaskManagerMainActivity
 						taskManager);
 				mainWindow.setVisible(true);
 			}
+
+			else
+			{
+				taskManager.connectToServer();
+			}
 		}
-		catch (NumberFormatException | UnknownHostException e)
+		catch (NumberFormatException | IndexOutOfBoundsException | IOException e)
 		{
-			e.printStackTrace();
+			usage();
 		}
 	}
 }
